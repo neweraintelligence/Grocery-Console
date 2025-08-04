@@ -438,7 +438,7 @@ const styles = {
     fontFamily: "'Fredoka', system-ui, sans-serif"
   },
   activeTab: {
-    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(30, 58, 138, 0.8))',
+    background: 'transparent',
     color: 'white',
     boxShadow: '0 10px 15px -3px rgba(0,0,0,0.2)'
   }
