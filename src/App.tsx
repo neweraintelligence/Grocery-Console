@@ -1830,9 +1830,9 @@ function App() {
                     const qty = item.quantity || item.needed || 1;
                     const uom = item.unit || '';
                     if (item.source === 'pantry') {
-                      return `Need ${qty}${uom}`;
+                      return `Need ${qty} ${uom}`;
                     }
-                    return `${qty}${uom}`;
+                    return `${qty} ${uom}`;
                   };
                   
                   return (
@@ -1878,7 +1878,7 @@ function App() {
                                 style={{textAlign: 'center', cursor: 'pointer'}}
                                 onClick={() => openQuantityModal(item)}
                               >
-                                <p style={styles.stockValue}>{(item.quantity || item.needed || 1) + (item.unit || '')}</p>
+                                <p style={styles.stockValue}>{(item.quantity || item.needed || 1) + ' ' + (item.unit || '')}</p>
                                 <p style={styles.stockUnit}>click to edit</p>
                               </div>
                               <button
