@@ -26,8 +26,19 @@ app.use(cors({
     'https://grocery-dashboard-frontend.onrender.com',
     process.env.FRONTEND_URL || ''
   ].filter(Boolean),
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Add CORS headers to all responses
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://grocery-dashboard-frontend.onrender.com');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -87,6 +98,8 @@ app.get('/api/pantry', async (req, res) => {
     }
 
     const rows = response.data.values || [];
+    console.log(`Pantry GET: Found ${rows.length} rows in Pantry sheet`);
+    console.log(`Pantry rows:`, rows);
     
     // Map pantry items directly (no filtering needed since this is the dedicated pantry sheet)
     const pantryItems = rows
@@ -102,6 +115,7 @@ app.get('/api/pantry', async (req, res) => {
         notes: row[6] || '' // Column G is Notes
       }));
 
+    console.log(`Pantry GET: Returning ${pantryItems.length} items:`, pantryItems);
     res.json(pantryItems);
   } catch (error) {
     console.error('Error fetching pantry items:', error);
