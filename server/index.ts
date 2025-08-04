@@ -359,11 +359,25 @@ app.get('/api/shopping-list', async (req, res) => {
 
     const rows = response.data.values || [];
     
-    // Filter for items with names AND where "On List" column (F) is TRUE
+    // Filter for items with names AND where "On List" column is TRUE
     const shoppingItems = rows
       .filter((row: any[]) => {
         const hasName = row[0] && row[0].trim();
-        const onListValue = row[5]; // Column F (index 5)
+        
+        // Check multiple possible positions for "On List" column
+        // It could be in column F (index 5) or G (index 6) depending on spreadsheet structure
+        let onListValue = null;
+        
+        // Try index 5 (column F) first
+        if (row[5] !== undefined && row[5] !== null && row[5] !== '') {
+          onListValue = row[5];
+        }
+        // If nothing in column F, try column G (index 6)
+        else if (row[6] !== undefined && row[6] !== null && row[6] !== '') {
+          onListValue = row[6];
+        }
+        
+        console.log(`Item: ${row[0]}, OnList Value (F): ${row[5]}, OnList Value (G): ${row[6]}, Selected: ${onListValue}`);
         
         // Check for TRUE, true, 1, "1", or any checkbox-like value
         const onList = onListValue && (
@@ -373,6 +387,8 @@ app.get('/api/shopping-list', async (req, res) => {
           onListValue === '1' ||
           onListValue.toString().toLowerCase() === 'yes'
         );
+        
+        console.log(`Item: ${row[0]}, OnList: ${onList}`);
         
         return hasName && onList;
       })

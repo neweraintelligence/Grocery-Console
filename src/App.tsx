@@ -362,6 +362,39 @@ const styles = {
   statValue: {
     fontWeight: 'bold',
     fontSize: '1.5rem'
+  },
+  quickStatsContainer: {
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    backdropFilter: 'blur(20px)',
+    borderRadius: '1.5rem',
+    border: '1px solid rgba(255,255,255,0.1)',
+    padding: '1.5rem',
+    marginBottom: '2rem',
+    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+    background: 'linear-gradient(135deg, rgba(99,102,241,0.8), rgba(147,51,234,0.8))'
+  },
+  quickStatsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '2rem'
+  },
+  quickStatCard: {
+    textAlign: 'center' as const,
+    padding: '1rem'
+  },
+  quickStatValue: {
+    fontSize: '2.5rem',
+    fontWeight: 'bold',
+    color: 'white',
+    margin: '0.5rem 0',
+    fontFamily: "'Fredoka', system-ui, sans-serif"
+  },
+  quickStatLabel: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: '0.875rem',
+    fontWeight: '500',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.05em'
   }
 };
 function App() {
@@ -592,14 +625,14 @@ function App() {
           boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)'
         }}>
           <h2 style={{color: 'white', marginBottom: '1.5rem', fontFamily: "'Fredoka', system-ui, sans-serif"}}>
-            🍳 Add New Item
+            🎪 Laurie's Item Circus!
           </h2>
           
           <form onSubmit={handleSubmit}>
             <div style={{display: 'grid', gap: '1rem'}}>
               <input
                 type="text"
-                placeholder="Item Name (e.g., Greek Yogurt)"
+                placeholder="What delicious thing caught your eye? (e.g., Magical Greek Yogurt)"
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                 required
@@ -883,8 +916,8 @@ function App() {
           <div style={styles.logoSection}>
             <div style={styles.logoIcon}>🍳</div>
             <div>
-              <h1 style={styles.title}>Mom's Grocery Dashboard</h1>
-              <p style={styles.subtitle}>Orange you glad it's grocery time? 🍊</p>
+              <h1 style={styles.title}>Laurie's Legendary Larder</h1>
+              <p style={styles.subtitle}>Where snacks meet statistics and chaos meets organization! 🎉</p>
             </div>
           </div>
                       <div style={styles.headerActions}>
@@ -909,17 +942,45 @@ function App() {
                   marginRight: '1rem'
                 }}
               >
-                {analyzingPhoto ? '📸 Analyzing...' : '📸 Scan Photo'}
+                {analyzingPhoto ? '🔍 Magic Happening...' : '📸 Fridge Detective'}
               </label>
               <button 
                 style={styles.quickAddBtn}
                 onClick={() => setShowAddModal(true)}
               >
-                + Quick Add
+                ➕ Snack Attack!
               </button>
             </div>
         </div>
       </header>
+
+      {/* Quick Stats Section */}
+      <div style={{...styles.main, paddingBottom: 0}}>
+        <div style={styles.quickStatsContainer}>
+          <div style={styles.quickStatsGrid}>
+            <div style={styles.quickStatCard}>
+              <div style={styles.quickStatValue}>{pantryItems.length}</div>
+              <div style={styles.quickStatLabel}>Total Items</div>
+            </div>
+            <div style={styles.quickStatCard}>
+              <div style={{...styles.quickStatValue, color: '#fbbf24'}}>
+                {pantryItems.filter(item => item.currentCount <= item.minCount).length}
+              </div>
+              <div style={styles.quickStatLabel}>Running Low</div>
+            </div>
+            <div style={styles.quickStatCard}>
+              <div style={styles.quickStatValue}>
+                {new Set(pantryItems.map(item => item.category)).size}
+              </div>
+              <div style={styles.quickStatLabel}>Categories</div>
+            </div>
+            <div style={styles.quickStatCard}>
+              <div style={{...styles.quickStatValue, color: '#34d399'}}>{shoppingList.length}</div>
+              <div style={styles.quickStatLabel}>Need to Buy</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Main Content */}
       <main style={styles.main}>
@@ -931,18 +992,23 @@ function App() {
               <div style={styles.cardTitle}>
                 <div style={styles.cardIcon}>📝</div>
                 <div>
-                  <h2 style={styles.cardTitleText}>Shopping List</h2>
-                  <p style={styles.cardSubtitle}>Items you need to buy</p>
+                  <h2 style={styles.cardTitleText}>Laurie's Loot List</h2>
+                  <p style={styles.cardSubtitle}>Adventures awaiting in the grocery jungle! 🛒✨</p>
                 </div>
               </div>
-              <button style={styles.addBtn}>+ Add Item</button>
+              <button 
+                style={styles.addBtn}
+                onClick={() => setShowAddModal(true)}
+              >
+                🎯 Add Treasure!
+              </button>
             </div>
             
             <div style={styles.inventoryList}>
               {shoppingList.length === 0 ? (
                 <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
                   <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem'}}>
-                    ✅ All stocked up! No items needed.
+                    🎉 Laurie's all set! The snack gods are pleased! ✨
                   </p>
                 </div>
               ) : (
@@ -1038,15 +1104,15 @@ function App() {
               <div style={styles.sidebarHeader}>
                 <div style={{...styles.sidebarIcon, background: 'linear-gradient(135deg, #fb923c, #ec4899)'}}>🥫</div>
                 <div>
-                  <h3 style={styles.sidebarTitle}>Pantry Inventory</h3>
-                  <p style={styles.sidebarSubtitle}>Track everything you have at home</p>
+                  <h3 style={styles.sidebarTitle}>Laurie's Secret Stash</h3>
+                  <p style={styles.sidebarSubtitle}>The mysterious depths of the kitchen kingdom! 👑</p>
                 </div>
               </div>
               
               {pantryItems.length === 0 ? (
                 <div style={{...styles.listItem, textAlign: 'center', padding: '2rem'}}>
                   <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1rem'}}>
-                    🛒 No pantry items yet. Click "Quick Add" to get started!
+                    🕵️‍♀️ Laurie's stash is suspiciously empty... Time for a "Snack Attack"!
                   </p>
                 </div>
               ) : (
@@ -1059,98 +1125,90 @@ function App() {
                   
                   return (
                     <div key={item.id || index} style={styles.listItem}>
-                      <div style={{display: 'flex', flexDirection: 'column', gap: '0.75rem'}}>
-                        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                          <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
-                            <div style={{
-                              width: '0.5rem', 
-                              height: '0.5rem', 
-                              borderRadius: '50%', 
-                              background: getPriorityColor()
-                            }}></div>
-                            <div>
-                              <p style={{color: 'white', fontWeight: '500', margin: 0}}>{item.name}</p>
-                              <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', margin: 0}}>
-                                {item.currentCount} {item.unit}
-                              </p>
-                            </div>
-                          </div>
-                          <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                            <button
-                              onClick={() => updateItemQuantity(item.id, Math.max(0, item.currentCount - 1), false)}
-                              style={{
-                                width: '1.5rem',
-                                height: '1.5rem',
-                                borderRadius: '50%',
-                                border: 'none',
-                                background: 'linear-gradient(to right, #ef4444, #dc2626)',
-                                color: 'white',
-                                cursor: 'pointer',
-                                fontSize: '0.75rem',
-                                fontWeight: 'bold'
-                              }}
-                            >
-                              -
-                            </button>
-                            <button
-                              onClick={() => updateItemQuantity(item.id, item.currentCount + 1, true)}
-                              style={{
-                                width: '1.5rem',
-                                height: '1.5rem',
-                                borderRadius: '50%',
-                                border: 'none',
-                                background: 'linear-gradient(to right, #10b981, #059669)',
-                                color: 'white',
-                                cursor: 'pointer',
-                                fontSize: '0.75rem',
-                                fontWeight: 'bold'
-                              }}
-                            >
-                              +
-                            </button>
+                      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                        <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
+                          <div style={{
+                            width: '0.5rem', 
+                            height: '0.5rem', 
+                            borderRadius: '50%', 
+                            background: getPriorityColor()
+                          }}></div>
+                          <div>
+                            <p style={{color: 'white', fontWeight: '500', margin: 0}}>{item.name}</p>
+                            <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', margin: 0}}>
+                              {item.currentCount}/{item.minCount} {item.unit}
+                            </p>
                           </div>
                         </div>
-                        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                          <p style={{color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', margin: 0}}>
-                            Minimum needed:
-                          </p>
-                          <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                            <button
-                              onClick={() => updateItemMinCount(item.id, Math.max(1, item.minCount - 1))}
-                              style={{
-                                width: '1.25rem',
-                                height: '1.25rem',
-                                borderRadius: '50%',
-                                border: 'none',
-                                background: 'linear-gradient(to right, #6366f1, #8b5cf6)',
-                                color: 'white',
-                                cursor: 'pointer',
-                                fontSize: '0.625rem',
-                                fontWeight: 'bold'
-                              }}
-                            >
-                              -
-                            </button>
-                            <span style={{color: 'white', fontSize: '0.875rem', minWidth: '2rem', textAlign: 'center'}}>
-                              {item.minCount}
-                            </span>
-                            <button
-                              onClick={() => updateItemMinCount(item.id, item.minCount + 1)}
-                              style={{
-                                width: '1.25rem',
-                                height: '1.25rem',
-                                borderRadius: '50%',
-                                border: 'none',
-                                background: 'linear-gradient(to right, #6366f1, #8b5cf6)',
-                                color: 'white',
-                                cursor: 'pointer',
-                                fontSize: '0.625rem',
-                                fontWeight: 'bold'
-                              }}
-                            >
-                              +
-                            </button>
-                          </div>
+                        <div style={{display: 'flex', alignItems: 'center', gap: '0.25rem'}}>
+                          <button
+                            onClick={() => updateItemMinCount(item.id, Math.max(1, item.minCount - 1))}
+                            style={{
+                              width: '1.25rem',
+                              height: '1.25rem',
+                              borderRadius: '50%',
+                              border: 'none',
+                              background: 'linear-gradient(to right, #6366f1, #8b5cf6)',
+                              color: 'white',
+                              cursor: 'pointer',
+                              fontSize: '0.625rem',
+                              fontWeight: 'bold'
+                            }}
+                            title="Decrease minimum needed"
+                          >
+                            -
+                          </button>
+                          <button
+                            onClick={() => updateItemQuantity(item.id, Math.max(0, item.currentCount - 1), false)}
+                            style={{
+                              width: '1.5rem',
+                              height: '1.5rem',
+                              borderRadius: '50%',
+                              border: 'none',
+                              background: 'linear-gradient(to right, #ef4444, #dc2626)',
+                              color: 'white',
+                              cursor: 'pointer',
+                              fontSize: '0.75rem',
+                              fontWeight: 'bold'
+                            }}
+                            title="Remove one item"
+                          >
+                            -
+                          </button>
+                          <button
+                            onClick={() => updateItemQuantity(item.id, item.currentCount + 1, true)}
+                            style={{
+                              width: '1.5rem',
+                              height: '1.5rem',
+                              borderRadius: '50%',
+                              border: 'none',
+                              background: 'linear-gradient(to right, #10b981, #059669)',
+                              color: 'white',
+                              cursor: 'pointer',
+                              fontSize: '0.75rem',
+                              fontWeight: 'bold'
+                            }}
+                            title="Add one item"
+                          >
+                            +
+                          </button>
+                          <button
+                            onClick={() => updateItemMinCount(item.id, item.minCount + 1)}
+                            style={{
+                              width: '1.25rem',
+                              height: '1.25rem',
+                              borderRadius: '50%',
+                              border: 'none',
+                              background: 'linear-gradient(to right, #6366f1, #8b5cf6)',
+                              color: 'white',
+                              cursor: 'pointer',
+                              fontSize: '0.625rem',
+                              fontWeight: 'bold'
+                            }}
+                            title="Increase minimum needed"
+                          >
+                            +
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -1167,38 +1225,6 @@ function App() {
               )}
             </div>
 
-            {/* Quick Stats */}
-            <div style={{...styles.sidebarCard, background: 'linear-gradient(135deg, rgba(99,102,241,0.8), rgba(147,51,234,0.8))'}}>
-              <div style={styles.sidebarHeader}>
-                <div style={{...styles.sidebarIcon, background: 'rgba(255,255,255,0.2)'}}>📊</div>
-                <div>
-                  <h3 style={styles.sidebarTitle}>Quick Stats</h3>
-                </div>
-              </div>
-              
-                              <div style={styles.statsGrid}>
-                  <div style={styles.statRow}>
-                    <span style={styles.statLabel}>Total Items</span>
-                    <span style={{...styles.statValue, color: 'white'}}>{pantryItems.length}</span>
-                  </div>
-                  <div style={styles.statRow}>
-                    <span style={styles.statLabel}>Running Low</span>
-                    <span style={{...styles.statValue, color: '#fbbf24'}}>
-                      {pantryItems.filter(item => item.currentCount <= item.minCount).length}
-                    </span>
-                  </div>
-                  <div style={styles.statRow}>
-                    <span style={styles.statLabel}>Categories</span>
-                    <span style={{...styles.statValue, color: 'white'}}>
-                      {new Set(pantryItems.map(item => item.category)).size}
-                    </span>
-                  </div>
-                  <div style={styles.statRow}>
-                    <span style={styles.statLabel}>Need to Buy</span>
-                    <span style={{...styles.statValue, color: '#34d399'}}>{shoppingList.length}</span>
-                  </div>
-                </div>
-            </div>
           </div>
         </div>
       </main>
