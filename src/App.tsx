@@ -395,6 +395,32 @@ const styles = {
     fontWeight: '500',
     textTransform: 'uppercase' as const,
     letterSpacing: '0.05em'
+  },
+  tabContainer: {
+    display: 'flex',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    borderRadius: '1rem',
+    padding: '0.5rem',
+    marginBottom: '2rem',
+    border: '1px solid rgba(255,255,255,0.1)'
+  },
+  tab: {
+    flex: 1,
+    padding: '1rem 2rem',
+    borderRadius: '0.75rem',
+    border: 'none',
+    background: 'transparent',
+    color: 'rgba(255,255,255,0.6)',
+    fontSize: '1rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    fontFamily: "'Fredoka', system-ui, sans-serif"
+  },
+  activeTab: {
+    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+    color: 'white',
+    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'
   }
 };
 function App() {
@@ -405,6 +431,7 @@ function App() {
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
   const [detectedItems, setDetectedItems] = useState<any[]>([]);
   const [analyzingPhoto, setAnalyzingPhoto] = useState(false);
+  const [activeTab, setActiveTab] = useState<'shopping' | 'pantry'>('shopping');
 
   // Fetch data on component mount
   useEffect(() => {
@@ -1011,9 +1038,30 @@ function App() {
 
       {/* Main Content */}
       <main style={styles.main}>
-        <div style={{...styles.grid, gridTemplateColumns: window.innerWidth >= 1280 ? '3fr 2fr' : 'minmax(0, 1fr)'}}>
-          
-          {/* Main Shopping List Section */}
+        {/* Tab Navigation */}
+        <div style={styles.tabContainer}>
+          <button 
+            style={{
+              ...styles.tab,
+              ...(activeTab === 'shopping' ? styles.activeTab : {})
+            }}
+            onClick={() => setActiveTab('shopping')}
+          >
+            🛒 Laurie's Loot List
+          </button>
+          <button 
+            style={{
+              ...styles.tab,
+              ...(activeTab === 'pantry' ? styles.activeTab : {})
+            }}
+            onClick={() => setActiveTab('pantry')}
+          >
+            🏺 Laurie's Secret Stash
+          </button>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'shopping' && (
           <div style={styles.card}>
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
@@ -1157,137 +1205,167 @@ function App() {
               )}
             </div>
           </div>
+        )}
 
-          {/* Sidebar */}
-          <div style={styles.sidebar}>
-            {/* Pantry Inventory */}
-            <div style={styles.sidebarCard}>
-              <div style={styles.sidebarHeader}>
-                <div style={{...styles.sidebarIcon, background: 'linear-gradient(135deg, #fb923c, #ec4899)'}}>🥫</div>
+        {/* Pantry Tab Content */}
+        {activeTab === 'pantry' && (
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <div style={styles.cardTitle}>
+                <div style={styles.cardIcon}>🏺</div>
                 <div>
-                  <h3 style={styles.sidebarTitle}>Laurie's Secret Stash</h3>
-                  <p style={styles.sidebarSubtitle}>The mysterious depths of the kitchen kingdom! 👑</p>
+                  <h2 style={styles.cardTitleText}>Laurie's Secret Stash</h2>
+                  <p style={styles.cardSubtitle}>The mysterious depths of the kitchen kingdom! 👑</p>
                 </div>
               </div>
-              
+              <button 
+                style={styles.addBtn}
+                onClick={() => setShowAddModal(true)}
+              >
+                🎯 Add Treasure!
+              </button>
+            </div>
+            
+            <div style={styles.inventoryList}>
               {pantryItems.length === 0 ? (
-                <div style={{...styles.listItem, textAlign: 'center', padding: '2rem'}}>
-                  <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1rem'}}>
+                <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
+                  <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem'}}>
                     🕵️‍♀️ Laurie's stash is suspiciously empty... Time for a "Snack Attack"!
                   </p>
                 </div>
               ) : (
-                pantryItems.slice(0, 5).map((item, index) => {
-                  const getPriorityColor = () => {
-                    if (item.currentCount === 0) return 'linear-gradient(to right, #ef4444, #ec4899)';
-                    if (item.currentCount <= item.minCount) return 'linear-gradient(to right, #eab308, #f97316)';
-                    return 'linear-gradient(to right, #10b981, #059669)';
+                pantryItems.map((item, index) => {
+                  const getStatusStyle = () => {
+                    if (item.currentCount === 0) return styles.statusOut;
+                    if (item.currentCount <= item.minCount) return styles.statusLow;
+                    return styles.statusGood;
+                  };
+                  
+                  const getStatusText = () => {
+                    if (item.currentCount === 0) return 'Out';
+                    if (item.currentCount <= item.minCount) return 'Low';
+                    return 'Good';
+                  };
+                  
+                  const getItemIcon = () => {
+                    const category = item.category?.toLowerCase() || '';
+                    if (category.includes('dairy')) return '🥛';
+                    if (category.includes('meat')) return '🍖';
+                    if (category.includes('produce')) return '🥬';
+                    if (category.includes('bakery')) return '🍞';
+                    if (category.includes('pantry')) return '🥫';
+                    return '🛒';
                   };
                   
                   return (
-                    <div key={item.id || index} style={styles.listItem}>
-                      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                        <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
-                          <div style={{
-                            width: '0.5rem', 
-                            height: '0.5rem', 
-                            borderRadius: '50%', 
-                            background: getPriorityColor()
-                          }}></div>
-                          <div>
-                            <p style={{color: 'white', fontWeight: '500', margin: 0}}>{item.name}</p>
-                            <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', margin: 0}}>
-                              {item.currentCount}/{item.minCount} {item.unit}
+                    <div key={item.id || index} style={styles.inventoryItem}>
+                      <div style={styles.itemContent}>
+                        <div style={styles.itemLeft}>
+                          <div style={{...styles.itemIcon, background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)'}}>
+                            {getItemIcon()}
+                          </div>
+                          <div style={styles.itemDetails}>
+                            <h3 style={styles.itemName}>{item.name}</h3>
+                            <p style={styles.itemCategory}>
+                              {item.category} • Last updated {item.lastUpdated}
                             </p>
                           </div>
                         </div>
-                        <div style={{display: 'flex', alignItems: 'center', gap: '0.25rem'}}>
-                          <button
-                            onClick={() => updateItemMinCount(item.id, Math.max(1, item.minCount - 1))}
-                            style={{
-                              width: '1.25rem',
-                              height: '1.25rem',
-                              borderRadius: '50%',
-                              border: 'none',
-                              background: 'linear-gradient(to right, #6366f1, #8b5cf6)',
-                              color: 'white',
-                              cursor: 'pointer',
-                              fontSize: '0.625rem',
-                              fontWeight: 'bold'
-                            }}
-                            title="Decrease minimum needed"
-                          >
-                            -
-                          </button>
-                          <button
-                            onClick={() => updateItemQuantity(item.id, Math.max(0, item.currentCount - 1), false)}
-                            style={{
-                              width: '1.5rem',
-                              height: '1.5rem',
-                              borderRadius: '50%',
-                              border: 'none',
-                              background: 'linear-gradient(to right, #ef4444, #dc2626)',
-                              color: 'white',
-                              cursor: 'pointer',
-                              fontSize: '0.75rem',
-                              fontWeight: 'bold'
-                            }}
-                            title="Remove one item"
-                          >
-                            -
-                          </button>
-                          <button
-                            onClick={() => updateItemQuantity(item.id, item.currentCount + 1, true)}
-                            style={{
-                              width: '1.5rem',
-                              height: '1.5rem',
-                              borderRadius: '50%',
-                              border: 'none',
-                              background: 'linear-gradient(to right, #10b981, #059669)',
-                              color: 'white',
-                              cursor: 'pointer',
-                              fontSize: '0.75rem',
-                              fontWeight: 'bold'
-                            }}
-                            title="Add one item"
-                          >
-                            +
-                          </button>
-                          <button
-                            onClick={() => updateItemMinCount(item.id, item.minCount + 1)}
-                            style={{
-                              width: '1.25rem',
-                              height: '1.25rem',
-                              borderRadius: '50%',
-                              border: 'none',
-                              background: 'linear-gradient(to right, #6366f1, #8b5cf6)',
-                              color: 'white',
-                              cursor: 'pointer',
-                              fontSize: '0.625rem',
-                              fontWeight: 'bold'
-                            }}
-                            title="Increase minimum needed"
-                          >
-                            +
-                          </button>
+                        <div style={styles.itemRight}>
+                          <div style={styles.stockInfo}>
+                            <p style={styles.stockLabel}>Current Stock</p>
+                            <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+                              <button
+                                onClick={() => updateItemQuantity(item.id, Math.max(0, item.currentCount - 1), false)}
+                                style={{
+                                  width: '2rem',
+                                  height: '2rem',
+                                  borderRadius: '50%',
+                                  border: 'none',
+                                  background: 'linear-gradient(to right, #ef4444, #dc2626)',
+                                  color: 'white',
+                                  cursor: 'pointer',
+                                  fontSize: '1rem',
+                                  fontWeight: 'bold'
+                                }}
+                              >
+                                -
+                              </button>
+                              <div style={{textAlign: 'center'}}>
+                                <p style={styles.stockValue}>{item.currentCount}</p>
+                                <p style={styles.stockUnit}>{item.unit}</p>
+                              </div>
+                              <button
+                                onClick={() => updateItemQuantity(item.id, item.currentCount + 1, true)}
+                                style={{
+                                  width: '2rem',
+                                  height: '2rem',
+                                  borderRadius: '50%',
+                                  border: 'none',
+                                  background: 'linear-gradient(to right, #10b981, #059669)',
+                                  color: 'white',
+                                  cursor: 'pointer',
+                                  fontSize: '1rem',
+                                  fontWeight: 'bold'
+                                }}
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+                          <div style={styles.stockInfo}>
+                            <p style={styles.stockLabel}>Min Required</p>
+                            <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+                              <button
+                                onClick={() => updateItemMinCount(item.id, Math.max(1, item.minCount - 1))}
+                                style={{
+                                  width: '1.5rem',
+                                  height: '1.5rem',
+                                  borderRadius: '50%',
+                                  border: 'none',
+                                  background: 'linear-gradient(to right, #6366f1, #8b5cf6)',
+                                  color: 'white',
+                                  cursor: 'pointer',
+                                  fontSize: '0.75rem',
+                                  fontWeight: 'bold'
+                                }}
+                              >
+                                -
+                              </button>
+                              <div style={{textAlign: 'center'}}>
+                                <p style={styles.stockValue}>{item.minCount}</p>
+                                <p style={styles.stockUnit}>{item.unit}</p>
+                              </div>
+                              <button
+                                onClick={() => updateItemMinCount(item.id, item.minCount + 1)}
+                                style={{
+                                  width: '1.5rem',
+                                  height: '1.5rem',
+                                  borderRadius: '50%',
+                                  border: 'none',
+                                  background: 'linear-gradient(to right, #6366f1, #8b5cf6)',
+                                  color: 'white',
+                                  cursor: 'pointer',
+                                  fontSize: '0.75rem',
+                                  fontWeight: 'bold'
+                                }}
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+                          <div style={{...styles.statusBadge, ...getStatusStyle()}}>
+                            {getStatusText()}
+                          </div>
                         </div>
                       </div>
                     </div>
                   );
                 })
               )}
-              
-              {pantryItems.length > 5 && (
-                <div style={{...styles.listItem, textAlign: 'center', padding: '1rem'}}>
-                  <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem'}}>
-                    ...and {pantryItems.length - 5} more items
-                  </p>
-                </div>
-              )}
             </div>
-
           </div>
-        </div>
+        )}
       </main>
 
       {/* Add Item Modal */}
