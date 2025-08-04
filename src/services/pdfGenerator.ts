@@ -302,7 +302,7 @@ export class PDFGeneratorService {
     const footerWidth = pdf.getTextWidth(footerText);
     pdf.text(footerText, (pageWidth - footerWidth) / 2, footerY);
 
-    const pageInfo = `Page ${pdf.getNumberOfPages()}`;
+    const pageInfo = `Page 1`;
     pdf.text(pageInfo, pageWidth - margin - pdf.getTextWidth(pageInfo), footerY);
   }
 

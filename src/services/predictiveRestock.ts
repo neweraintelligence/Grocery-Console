@@ -114,7 +114,7 @@ export class PredictiveRestockService {
     if (stockChanges.length < 3) return null; // Not enough data
 
     // Calculate daily consumption rate
-    const consumptionEvents = stockChanges.filter(change => change.change < 0);
+    const consumptionEvents = stockChanges.filter((change: any) => change.change < 0);
     if (consumptionEvents.length === 0) return null;
 
     const totalConsumption = consumptionEvents.reduce((sum: number, event: any) => sum + Math.abs(event.change), 0);
