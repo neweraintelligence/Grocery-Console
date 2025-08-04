@@ -130,7 +130,7 @@ const styles = {
   },
   quickAddBtn: {
     padding: '0.75rem 1.5rem',
-    background: 'linear-gradient(to right, #10b981, #059669)',
+    background: 'linear-gradient(to right, rgba(16,185,129,0.7), rgba(5,150,105,0.7))',
     color: 'white',
     borderRadius: '0.75rem',
     fontSize: '0.875rem',
@@ -197,7 +197,7 @@ const styles = {
   },
   addBtn: {
     padding: '0.75rem 1.5rem',
-    background: 'linear-gradient(to right, #f97316, #ec4899)',
+    background: 'linear-gradient(to right, rgba(249,115,22,0.7), rgba(236,72,153,0.6))',
     color: 'white',
     borderRadius: '0.75rem',
     fontWeight: '600',
@@ -208,7 +208,7 @@ const styles = {
   },
   pantryBtn: {
     padding: '0.75rem 1.5rem',
-    background: 'linear-gradient(to right, #10b981, #059669)',
+    background: 'linear-gradient(to right, rgba(16,185,129,0.7), rgba(5,150,105,0.7))',
     color: 'white',
     borderRadius: '0.75rem',
     fontWeight: '600',
@@ -317,14 +317,14 @@ const styles = {
     whiteSpace: 'nowrap' as const
   },
   statusLow: {
-    background: 'linear-gradient(to right, #eab308, #f97316)'
+    background: 'linear-gradient(to right, rgba(234,179,8,0.7), rgba(249,115,22,0.7))'
   },
   statusOut: {
-    background: 'linear-gradient(to right, #ef4444, #ec4899)',
+    background: 'linear-gradient(to right, rgba(239,68,68,0.7), rgba(236,72,153,0.7))',
     animation: 'pulse 2s ease-in-out infinite'
   },
   statusGood: {
-    background: 'linear-gradient(to right, #10b981, #059669)'
+    background: 'linear-gradient(to right, rgba(16,185,129,0.7), rgba(5,150,105,0.7))'
   },
   sidebar: {
     display: 'flex',
@@ -1412,7 +1412,7 @@ function App() {
                         height: '2rem',
                         borderRadius: '50%',
                         border: 'none',
-                        background: 'linear-gradient(to right, #f87171, #ef4444)',
+                        background: 'linear-gradient(to right, rgba(239,68,68,0.6), rgba(220,38,38,0.7))',
                         color: 'white',
                         cursor: 'pointer',
                         fontSize: '1rem',
@@ -1440,7 +1440,7 @@ function App() {
                         height: '2rem',
                         borderRadius: '50%',
                         border: 'none',
-                        background: 'linear-gradient(to right, #4ade80, #10b981)',
+                        background: 'linear-gradient(to right, rgba(34,197,94,0.6), rgba(22,163,74,0.7))',
                         color: 'white',
                         cursor: 'pointer',
                         fontSize: '1rem',
@@ -1462,7 +1462,7 @@ function App() {
                       height: '2rem',
                       borderRadius: '50%',
                       border: 'none',
-                      background: 'rgba(239,68,68,0.8)',
+                      background: 'rgba(239,68,68,0.5)',
                       color: 'white',
                       cursor: 'pointer',
                       fontSize: '1rem',
@@ -1638,7 +1638,7 @@ function App() {
                     padding: '1rem',
                     borderRadius: '0.75rem',
                     border: 'none',
-                    background: 'linear-gradient(to right, #10b981, #059669)',
+                    background: 'linear-gradient(to right, rgba(16,185,129,0.7), rgba(5,150,105,0.7))',
                     color: 'white',
                     fontWeight: 'bold',
                     cursor: 'pointer'
@@ -1869,7 +1869,7 @@ function App() {
                                     alignItems: 'center',
                                     justifyContent: 'center'
                                   }),
-                                  background: 'linear-gradient(to right, #f87171, #ef4444)'
+                                  background: 'linear-gradient(to right, rgba(239,68,68,0.6), rgba(220,38,38,0.7))'
                                 }}
                               >
                                 -
@@ -1897,7 +1897,7 @@ function App() {
                                     alignItems: 'center',
                                     justifyContent: 'center'
                                   }),
-                                  background: 'linear-gradient(to right, #4ade80, #10b981)'
+                                  background: 'linear-gradient(to right, rgba(34,197,94,0.6), rgba(22,163,74,0.7))'
                                 }}
                               >
                                 +
@@ -1939,7 +1939,7 @@ function App() {
               <button 
                 style={{
                   ...styles.addBtn,
-                  background: 'linear-gradient(to right, #6366f1, #8b5cf6)'
+                  background: 'linear-gradient(to right, rgba(99,102,241,0.7), rgba(139,92,246,0.7))'
                 }}
                 onClick={() => {
                   setModalType('pantry');
@@ -2047,7 +2047,7 @@ function App() {
                                     alignItems: 'center',
                                     justifyContent: 'center'
                                   }),
-                                  background: 'linear-gradient(to right, #f87171, #ef4444)'
+                                  background: 'linear-gradient(to right, rgba(239,68,68,0.6), rgba(220,38,38,0.7))'
                                 }}
                               >
                                 -
@@ -2072,7 +2072,7 @@ function App() {
                                     alignItems: 'center',
                                     justifyContent: 'center'
                                   }),
-                                  background: 'linear-gradient(to right, #4ade80, #10b981)'
+                                  background: 'linear-gradient(to right, rgba(34,197,94,0.6), rgba(22,163,74,0.7))'
                                 }}
                               >
                                 +
