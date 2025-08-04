@@ -149,6 +149,7 @@ app.post('/api/pantry', async (req, res) => {
     }
 
     const { name, category, currentCount, minCount, unit, notes } = req.body;
+    console.log(`Adding pantry item:`, { name, category, currentCount, minCount, unit, notes });
 
     // Add to Pantry sheet: Name, Category, Current Count, Min Count, Unit, Last Updated, Notes
     const lastUpdated = new Date().toISOString().split('T')[0];
@@ -169,6 +170,7 @@ app.post('/api/pantry', async (req, res) => {
       resource: { values }
     });
 
+    console.log(`Successfully added pantry item: ${name}`);
     res.json({ message: 'Pantry item added successfully' });
   } catch (error) {
     console.error('Error adding pantry item:', error);
@@ -269,6 +271,8 @@ app.put('/api/groceries/:id', async (req, res) => {
     const rowId = req.params.id;
     const { name, category, currentCount, minCount, unit, notes, onList, completed } = req.body;
     const lastUpdated = new Date().toISOString().split('T')[0];
+    
+    console.log(`Updating grocery item ${rowId}:`, { name, category, currentCount, onList, completed });
 
     // Complete row update: A=Name, B=Category, C=Quantity, D=Priority, E=Notes, F=Added Date, G=Completed, H=On List
     const values = [[
@@ -289,6 +293,7 @@ app.put('/api/groceries/:id', async (req, res) => {
       resource: { values }
     });
 
+    console.log(`Successfully updated grocery item ${rowId} with onList=${onList}`);
     res.json({ message: 'Grocery item updated successfully' });
   } catch (error) {
     console.error('Error updating grocery:', error);
@@ -394,7 +399,8 @@ app.get('/api/shopping-list', async (req, res) => {
           onListValue = row[onListColumnIndex];
         }
         
-        console.log(`Item: ${row[0]}, OnList Value at column ${onListColumnIndex}: ${onListValue}`);
+        console.log(`Item: ${row[0]}, OnList Value at column ${onListColumnIndex}: ${onListValue}, Row length: ${row.length}`);
+        console.log(`Full row data: ${JSON.stringify(row)}`);
         
         // Check for TRUE, true, 1, "1", or any checkbox-like value
         const onList = onListValue && (
