@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { WeeksListBox } from './components/WeeksListBox';
+import { predictiveRestockService } from './services/predictiveRestock';
 
 // TypeScript interfaces for proper typing
 interface PantryItem {
@@ -10,6 +12,7 @@ interface PantryItem {
   unit: string;
   lastUpdated: string;
   notes?: string;
+  expiryDate?: string;
 }
 
 interface GroceryItem {
@@ -36,6 +39,7 @@ interface ShoppingListItem {
   unit: string; // Now contains UOM from Notes column
   priority?: 'High' | 'Medium' | 'Low';
   notes?: string;
+  expiryDate?: string;
 }
 
 interface Recipe {
@@ -787,13 +791,33 @@ function App() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loadingRecipes, setLoadingRecipes] = useState(false);
   const [pantryCategoryFilter, setPantryCategoryFilter] = useState<string[]>(['all']);
+  const [showWeeksListBox, setShowWeeksListBox] = useState(false);
+  const [predictiveRestockData, setPredictiveRestockData] = useState<any[]>([]);
 
   // Fetch data on component mount
   useEffect(() => {
     fetchPantryItems();
     fetchGroceryItems();
     fetchShoppingList();
+    fetchPredictiveRestockData();
   }, []);
+
+  // Check for Friday restock time
+  useEffect(() => {
+    const checkFridayStatus = () => {
+      const isFridayTime = predictiveRestockService.isFridayRestockTime();
+      if (isFridayTime && !showWeeksListBox) {
+        setShowWeeksListBox(true);
+      }
+    };
+
+    checkFridayStatus();
+    
+    // Check every 5 minutes for Friday status
+    const interval = setInterval(checkFridayStatus, 5 * 60 * 1000);
+    
+    return () => clearInterval(interval);
+  }, [showWeeksListBox]);
 
   // Track window size for mobile responsiveness
   useEffect(() => {
@@ -855,6 +879,22 @@ function App() {
     } catch (error) {
       console.error('Error fetching shopping list:', error);
       setShoppingList([]);
+    }
+  };
+
+  const fetchPredictiveRestockData = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/predictive-restock`);
+      if (response.ok) {
+        const data = await response.json();
+        setPredictiveRestockData(Array.isArray(data) ? data : []);
+      } else {
+        console.error('Failed to fetch predictive restock data:', response.status);
+        setPredictiveRestockData([]);
+      }
+    } catch (error) {
+      console.error('Error fetching predictive restock data:', error);
+      setPredictiveRestockData([]);
     }
   };
 
@@ -1557,7 +1597,8 @@ function App() {
       currentCount: 0,
       minCount: 1,
       unit: '',
-      notes: ''
+      notes: '',
+      expiryDate: ''
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -1579,7 +1620,8 @@ function App() {
             currentCount: 0,
             minCount: 1,
             unit: '',
-            notes: ''
+            notes: '',
+            expiryDate: ''
           });
           fetchPantryItems();
           fetchShoppingList();
@@ -1767,21 +1809,41 @@ function App() {
                 </div>
               </div>
               
-              <textarea
-                placeholder="📝 Storage notes... (special instructions, expiration dates, or cooking tips)"
-                value={formData.notes}
-                onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                rows={3}
-                style={{
-                  padding: '1rem',
-                  borderRadius: '0.75rem',
-                  border: '2px solid rgba(59, 130, 246, 0.4)',
-                  backgroundColor: 'rgba(30, 58, 138, 0.6)',
-                  color: '#bfdbfe',
-                  resize: 'none',
-                  fontFamily: 'inherit'
-                }}
-              />
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
+                <textarea
+                  placeholder="📝 Storage notes... (special instructions or cooking tips)"
+                  value={formData.notes}
+                  onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                  rows={3}
+                  style={{
+                    padding: '1rem',
+                    borderRadius: '0.75rem',
+                    border: '2px solid rgba(59, 130, 246, 0.4)',
+                    backgroundColor: 'rgba(30, 58, 138, 0.6)',
+                    color: '#bfdbfe',
+                    resize: 'none',
+                    fontFamily: 'inherit'
+                  }}
+                />
+                <div>
+                  <label style={{color: '#bfdbfe', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold'}}>
+                    📅 Expiry Date (Optional)
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.expiryDate}
+                    onChange={(e) => setFormData({...formData, expiryDate: e.target.value})}
+                    style={{
+                      padding: '1rem',
+                      borderRadius: '0.75rem',
+                      border: '2px solid rgba(59, 130, 246, 0.4)',
+                      backgroundColor: 'rgba(30, 58, 138, 0.6)',
+                      color: '#bfdbfe',
+                      width: '100%'
+                    }}
+                  />
+                </div>
+              </div>
             </div>
             
             <div style={{display: 'flex', gap: '1rem', marginTop: '1.5rem', width: '100%'}}>
@@ -1850,13 +1912,15 @@ function App() {
     const qty = qtyStr ? parseInt(qtyStr) : 1;
     if (isNaN(qty) || qty <= 0) return;
     const unit = prompt('Enter unit (e.g., pcs, packs):', 'units') || 'units';
+    const expiryDate = prompt('Enter expiry date (YYYY-MM-DD) or leave empty:', '') || '';
     const newItem = {
       id: `new-${Date.now()}`,
       name: name.trim(),
       quantity: qty,
       unit,
       category: 'Misc',
-      source: 'new' as const
+      source: 'new' as const,
+      expiryDate
     };
     setReviewItems(prev => [...prev, newItem]);
   };
@@ -1881,7 +1945,8 @@ function App() {
           currentCount: item.quantity,
           minCount: 1,
           unit: item.unit || 'units', // Unit comes from item.unit (which was mapped from Notes column)
-          notes: `Added from shopping list on ${new Date().toLocaleDateString()}`
+          notes: `Added from shopping list on ${new Date().toLocaleDateString()}`,
+          expiryDate: item.expiryDate || ''
         };
 
         console.log(`📦 Adding item to pantry:`, pantryData);
@@ -2094,6 +2159,15 @@ function App() {
                       fontSize: '0.9rem'
                     }}>
                       {item.category} • {item.unit || 'units'}
+                      {item.expiryDate && (
+                        <span style={{
+                          color: '#fbbf24',
+                          fontWeight: 'bold',
+                          marginLeft: '0.5rem'
+                        }}>
+                          • Expires: {new Date(item.expiryDate).toLocaleDateString()}
+                        </span>
+                      )}
                     </p>
                   </div>
                 </div>
@@ -2412,6 +2486,34 @@ function App() {
             >
               📊 View Spreadsheet
             </button>
+            <button
+              style={{
+                padding: '0.75rem 1.25rem',
+                background: 'linear-gradient(to right, rgba(16,185,129,0.6), rgba(5,150,105,0.7))',
+                color: 'white',
+                borderRadius: '0.75rem',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+              onClick={() => setShowWeeksListBox(true)}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0,0,0,0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0px)';
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)';
+              }}
+            >
+              📋 Weeks List
+            </button>
           </div>
         </div>
       </header>
@@ -2419,28 +2521,34 @@ function App() {
       {/* Quick Stats Section */}
       <div style={{...styles.main, paddingBottom: 0}}>
         <div style={styles.quickStatsContainer}>
-          <div style={styles.quickStatsGrid}>
-            <div style={styles.quickStatCard}>
-              <div style={styles.quickStatValue}>{pantryItems.length}</div>
-              <div style={styles.quickStatLabel}>In Pantry</div>
-            </div>
-            <div style={styles.quickStatCard}>
-              <div style={{...styles.quickStatValue, color: '#fbbf24'}}>
-                {pantryItems.filter(item => item.currentCount <= item.minCount).length}
-              </div>
-              <div style={styles.quickStatLabel}>Running Low</div>
-            </div>
-            <div style={styles.quickStatCard}>
-              <div style={{...styles.quickStatValue, color: '#f87171'}}>
-                {pantryItems.filter(item => item.currentCount < item.minCount).length}
-              </div>
-              <div style={styles.quickStatLabel}>Items below minimum</div>
-            </div>
-            <div style={styles.quickStatCard}>
-              <div style={{...styles.quickStatValue, color: '#6ee7b7'}}>{shoppingList.length}</div>
-              <div style={styles.quickStatLabel}>Need to Buy</div>
-            </div>
+                  <div style={styles.quickStatsGrid}>
+          <div style={styles.quickStatCard}>
+            <div style={styles.quickStatValue}>{pantryItems.length}</div>
+            <div style={styles.quickStatLabel}>In Pantry</div>
           </div>
+          <div style={styles.quickStatCard}>
+            <div style={{...styles.quickStatValue, color: '#fbbf24'}}>
+              {pantryItems.filter(item => item.currentCount <= item.minCount).length}
+            </div>
+            <div style={styles.quickStatLabel}>Running Low</div>
+          </div>
+          <div style={styles.quickStatCard}>
+            <div style={{...styles.quickStatValue, color: '#f87171'}}>
+              {pantryItems.filter(item => item.currentCount < item.minCount).length}
+            </div>
+            <div style={styles.quickStatLabel}>Items below minimum</div>
+          </div>
+          <div style={styles.quickStatCard}>
+            <div style={{...styles.quickStatValue, color: '#6ee7b7'}}>{shoppingList.length}</div>
+            <div style={styles.quickStatLabel}>Need to Buy</div>
+          </div>
+          <div style={styles.quickStatCard}>
+            <div style={{...styles.quickStatValue, color: '#10b981'}}>
+              {predictiveRestockData.filter(item => item.urgency === 'critical' || item.urgency === 'high').length}
+            </div>
+            <div style={styles.quickStatLabel}>Predictive Alerts</div>
+          </div>
+        </div>
         </div>
       </div>
 
@@ -2604,6 +2712,15 @@ function App() {
                             <h3 style={styles.itemName}>{item.name}</h3>
                             <p style={styles.itemCategory}>
                               {getDescription()} • {item.source === 'pantry' ? 'From pantry stock' : 'Manual addition'}
+                              {item.expiryDate && (
+                                <span style={{
+                                  color: '#fbbf24',
+                                  fontWeight: 'bold',
+                                  marginLeft: '0.5rem'
+                                }}>
+                                  • Expires: {new Date(item.expiryDate).toLocaleDateString()}
+                                </span>
+                              )}
                             </p>
                           </div>
                         </div>
@@ -2886,6 +3003,15 @@ function App() {
                             <h3 style={styles.itemName}>{item.name}</h3>
                             <p style={styles.itemCategory}>
                               {item.category} • Last updated {item.lastUpdated}
+                              {item.expiryDate && (
+                                <span style={{
+                                  color: '#fbbf24',
+                                  fontWeight: 'bold',
+                                  marginLeft: '0.5rem'
+                                }}>
+                                  • Expires: {new Date(item.expiryDate).toLocaleDateString()}
+                                </span>
+                              )}
                             </p>
                           </div>
                         </div>
@@ -3425,6 +3551,13 @@ function App() {
 
       {/* Photo Analyzer Modal */}
       <PhotoAnalyzerModal />
+
+      {/* Weeks List Box Modal */}
+      <WeeksListBox 
+        pantryItems={pantryItems}
+        isVisible={showWeeksListBox}
+        onClose={() => setShowWeeksListBox(false)}
+      />
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');

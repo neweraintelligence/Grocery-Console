@@ -74,6 +74,32 @@ interface GroceryItem {
   unit: string;
   lastUpdated?: string;
   notes?: string;
+  expiryDate?: string;
+}
+
+// Purchase history interface
+interface PurchaseHistoryItem {
+  id?: string;
+  itemId: string;
+  itemName: string;
+  category: string;
+  quantity: number;
+  price?: number;
+  store?: string;
+  purchaseDate: string;
+  notes?: string;
+}
+
+// Pantry history interface for consumption tracking
+interface PantryHistoryItem {
+  id?: string;
+  itemId: string;
+  itemName: string;
+  previousCount: number;
+  currentCount: number;
+  changeReason: 'consumption' | 'purchase' | 'adjustment' | 'spoilage';
+  date: string;
+  notes?: string;
 }
 
 // API Routes
@@ -110,7 +136,8 @@ app.get('/api/pantry', async (req, res) => {
         minCount: parseInt(row[3]) || 1,
         unit: row[4] || 'units',
         lastUpdated: row[5] || new Date().toLocaleDateString(),
-        notes: row[6] || ''
+        notes: row[6] || '',
+        expiryDate: row[7] || '' // Column H (index 7) is Expiry Date
       }));
 
     res.json(pantryItems);
@@ -160,9 +187,9 @@ app.post('/api/pantry', async (req, res) => {
       return res.status(500).json({ error: 'Google Sheets not configured' });
     }
 
-    const { name, category, currentCount, minCount, unit, notes } = req.body;
+    const { name, category, currentCount, minCount, unit, notes, expiryDate } = req.body;
 
-    // Add to Grocery List sheet with full structure: Name, Category, Current Count, Min Count, Unit, On List (TRUE), Notes, Added Date, Completed
+    // Add to Pantry sheet with full structure: Name, Category, Current Count, Min Count, Unit, Last Updated, Notes, Expiry Date
     const lastUpdated = new Date().toISOString().split('T')[0];
     const values = [[
       name, 
@@ -170,15 +197,14 @@ app.post('/api/pantry', async (req, res) => {
       currentCount || 0, 
       minCount || 1, 
       unit || 'units', 
-      'TRUE', // Set On List to TRUE so it shows up on shopping list
-      notes || '', // Notes column (will be used for UOM)
-      lastUpdated, // Added Date
-      'FALSE' // Completed
+      lastUpdated, // Last Updated
+      notes || '', // Notes
+      expiryDate || '' // Expiry Date
     ]];
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Grocery List!A:I',
+      range: 'Pantry!A:H',
       valueInputOption: 'USER_ENTERED',
       resource: { values }
     });
@@ -559,6 +585,298 @@ app.get('/api/recipes', async (req, res) => {
   } catch (error) {
     console.error('Error fetching recipes:', error);
     res.status(500).json({ error: 'Failed to fetch recipes' });
+  }
+});
+
+// Purchase History API Endpoints
+
+// Get purchase history
+app.get('/api/purchase-history', async (req, res) => {
+  try {
+    if (!sheets || !process.env.GOOGLE_SHEET_ID) {
+      return res.status(500).json({ error: 'Google Sheets not configured' });
+    }
+
+    // Read from "Purchase History" sheet
+    let response;
+    try {
+      response = await sheets.spreadsheets.values.get({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'Purchase History!A2:Z',
+      });
+    } catch (error) {
+      console.log('No Purchase History sheet found, returning empty array');
+      res.json([]);
+      return;
+    }
+
+    const rows = response.data.values || [];
+    const purchaseHistory: PurchaseHistoryItem[] = rows
+      .filter((row: any[]) => row[0] && row[0].trim())
+      .map((row: any[], index: number) => ({
+        id: (index + 2).toString(),
+        itemId: row[0] || '',
+        itemName: row[1] || '',
+        category: row[2] || '',
+        quantity: parseInt(row[3]) || 0,
+        price: parseFloat(row[4]) || 0,
+        store: row[5] || '',
+        purchaseDate: row[6] || '',
+        notes: row[7] || ''
+      }));
+
+    res.json(purchaseHistory);
+  } catch (error) {
+    console.error('Error fetching purchase history:', error);
+    res.status(500).json({ error: 'Failed to fetch purchase history' });
+  }
+});
+
+// Add purchase history entry
+app.post('/api/purchase-history', async (req, res) => {
+  try {
+    if (!sheets || !process.env.GOOGLE_SHEET_ID) {
+      return res.status(500).json({ error: 'Google Sheets not configured' });
+    }
+
+    const { itemId, itemName, category, quantity, price, store, notes } = req.body;
+    const purchaseDate = new Date().toISOString().split('T')[0];
+
+    // Ensure Purchase History sheet exists or create it
+    try {
+      await sheets.spreadsheets.values.get({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'Purchase History!A1:A1',
+      });
+    } catch (error) {
+      // Create Purchase History sheet with headers
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'Purchase History!A1:H1',
+        valueInputOption: 'USER_ENTERED',
+        resource: {
+          values: [['Item ID', 'Item Name', 'Category', 'Quantity', 'Price', 'Store', 'Purchase Date', 'Notes']]
+        }
+      });
+    }
+
+    const values = [[
+      itemId || '',
+      itemName || '',
+      category || '',
+      quantity || 0,
+      price || 0,
+      store || '',
+      purchaseDate,
+      notes || ''
+    ]];
+
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID,
+      range: 'Purchase History!A:H',
+      valueInputOption: 'USER_ENTERED',
+      resource: { values }
+    });
+
+    res.json({ message: 'Purchase history entry added successfully' });
+  } catch (error) {
+    console.error('Error adding purchase history:', error);
+    res.status(500).json({ error: 'Failed to add purchase history' });
+  }
+});
+
+// Pantry History API Endpoints
+
+// Get pantry history (for consumption tracking)
+app.get('/api/pantry-history', async (req, res) => {
+  try {
+    if (!sheets || !process.env.GOOGLE_SHEET_ID) {
+      return res.status(500).json({ error: 'Google Sheets not configured' });
+    }
+
+    // Read from "Pantry History" sheet
+    let response;
+    try {
+      response = await sheets.spreadsheets.values.get({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'Pantry History!A2:Z',
+      });
+    } catch (error) {
+      console.log('No Pantry History sheet found, returning empty array');
+      res.json([]);
+      return;
+    }
+
+    const rows = response.data.values || [];
+    const pantryHistory: PantryHistoryItem[] = rows
+      .filter((row: any[]) => row[0] && row[0].trim())
+      .map((row: any[], index: number) => ({
+        id: (index + 2).toString(),
+        itemId: row[0] || '',
+        itemName: row[1] || '',
+        previousCount: parseInt(row[2]) || 0,
+        currentCount: parseInt(row[3]) || 0,
+        changeReason: row[4] || 'adjustment',
+        date: row[5] || '',
+        notes: row[6] || ''
+      }));
+
+    res.json(pantryHistory);
+  } catch (error) {
+    console.error('Error fetching pantry history:', error);
+    res.status(500).json({ error: 'Failed to fetch pantry history' });
+  }
+});
+
+// Add pantry history entry (automatically called when pantry items are updated)
+app.post('/api/pantry-history', async (req, res) => {
+  try {
+    if (!sheets || !process.env.GOOGLE_SHEET_ID) {
+      return res.status(500).json({ error: 'Google Sheets not configured' });
+    }
+
+    const { itemId, itemName, previousCount, currentCount, changeReason, notes } = req.body;
+    const date = new Date().toISOString().split('T')[0];
+
+    // Ensure Pantry History sheet exists or create it
+    try {
+      await sheets.spreadsheets.values.get({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'Pantry History!A1:A1',
+      });
+    } catch (error) {
+      // Create Pantry History sheet with headers
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'Pantry History!A1:G1',
+        valueInputOption: 'USER_ENTERED',
+        resource: {
+          values: [['Item ID', 'Item Name', 'Previous Count', 'Current Count', 'Change Reason', 'Date', 'Notes']]
+        }
+      });
+    }
+
+    const values = [[
+      itemId || '',
+      itemName || '',
+      previousCount || 0,
+      currentCount || 0,
+      changeReason || 'adjustment',
+      date,
+      notes || ''
+    ]];
+
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID,
+      range: 'Pantry History!A:G',
+      valueInputOption: 'USER_ENTERED',
+      resource: { values }
+    });
+
+    res.json({ message: 'Pantry history entry added successfully' });
+  } catch (error) {
+    console.error('Error adding pantry history:', error);
+    res.status(500).json({ error: 'Failed to add pantry history' });
+  }
+});
+
+// Predictive Restock API Endpoints
+
+// Get predictive restock recommendations
+app.get('/api/predictive-restock', async (req, res) => {
+  try {
+    if (!sheets || !process.env.GOOGLE_SHEET_ID) {
+      return res.status(500).json({ error: 'Google Sheets not configured' });
+    }
+
+    // Get pantry items
+    const pantryResponse = await sheets.spreadsheets.values.get({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID,
+      range: 'Pantry!A2:Z',
+    });
+
+    const pantryRows = pantryResponse.data.values || [];
+    const pantryItems = pantryRows
+      .filter((row: any[]) => row[0] && row[0].trim())
+      .map((row: any[], index: number) => ({
+        id: (index + 2).toString(),
+        name: row[0] || '',
+        category: row[1] || '',
+        currentCount: parseInt(row[2]) || 0,
+        minCount: parseInt(row[3]) || 1,
+        unit: row[4] || 'units',
+        lastUpdated: row[5] || '',
+        notes: row[6] || ''
+      }));
+
+    // Get purchase history for analysis
+    let purchaseHistoryResponse;
+    try {
+      purchaseHistoryResponse = await sheets.spreadsheets.values.get({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'Purchase History!A2:Z',
+      });
+    } catch (error) {
+      purchaseHistoryResponse = { data: { values: [] } };
+    }
+
+    const purchaseHistory = purchaseHistoryResponse.data.values || [];
+
+    // Get pantry history for consumption tracking
+    let pantryHistoryResponse;
+    try {
+      pantryHistoryResponse = await sheets.spreadsheets.values.get({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'Pantry History!A2:Z',
+      });
+    } catch (error) {
+      pantryHistoryResponse = { data: { values: [] } };
+    }
+
+    const pantryHistoryData = pantryHistoryResponse.data.values || [];
+
+    // Simple predictive algorithm (could be enhanced with the predictive service)
+    const predictions = pantryItems.map(item => {
+      const isLowStock = item.currentCount <= item.minCount;
+      const isCritical = item.currentCount === 0;
+      
+      const urgency = isCritical ? 'critical' : 
+                     isLowStock ? 'high' : 
+                     item.currentCount <= item.minCount * 1.5 ? 'medium' : 'low';
+
+      const runOutDays = Math.max(1, item.currentCount || 1);
+      const predictedRunOutDate = new Date();
+      predictedRunOutDate.setDate(predictedRunOutDate.getDate() + runOutDays);
+
+      const restockDate = new Date();
+      restockDate.setDate(restockDate.getDate() + Math.max(0, runOutDays - 2));
+
+      return {
+        itemId: item.id,
+        itemName: item.name,
+        category: item.category,
+        currentStock: item.currentCount,
+        predictedRunOutDate: predictedRunOutDate.toISOString(),
+        recommendedRestockDate: restockDate.toISOString(),
+        recommendedQuantity: Math.max(item.minCount * 2, 5),
+        confidence: 0.7, // Default confidence
+        urgency,
+        estimatedCost: 15, // Default estimate
+        bestStore: 'Grocery Store',
+        reasoning: [
+          `Current stock: ${item.currentCount}`,
+          `Minimum required: ${item.minCount}`,
+          urgency === 'critical' ? 'OUT OF STOCK - Immediate restocking needed!' : 
+          urgency === 'high' ? 'Below minimum threshold' : 
+          'Preventive restocking recommended'
+        ]
+      };
+    }).filter(prediction => prediction.urgency !== 'low' || prediction.currentStock <= prediction.recommendedQuantity * 0.5);
+
+    res.json(predictions);
+  } catch (error) {
+    console.error('Error generating predictive restock:', error);
+    res.status(500).json({ error: 'Failed to generate predictive restock recommendations' });
   }
 });
 
