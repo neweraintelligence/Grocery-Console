@@ -201,24 +201,24 @@ const styles = {
   },
   addBtn: {
     padding: '0.75rem 1.5rem',
-    background: 'linear-gradient(to right, rgba(249,115,22,0.7), rgba(236,72,153,0.6))',
+    background: 'linear-gradient(to right, rgba(120,120,120,0.4), rgba(140,140,140,0.3))',
     color: 'white',
     borderRadius: '0.75rem',
     fontWeight: '600',
-    border: 'none',
+    border: '1px solid rgba(255,255,255,0.2)',
     cursor: 'pointer',
-    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
     transition: 'all 0.2s ease'
   },
   pantryBtn: {
     padding: '0.75rem 1.5rem',
-    background: 'linear-gradient(to right, rgba(16,185,129,0.7), rgba(5,150,105,0.7))',
+    background: 'linear-gradient(to right, rgba(100,116,139,0.4), rgba(71,85,105,0.3))',
     color: 'white',
     borderRadius: '0.75rem',
     fontWeight: '600',
-    border: 'none',
+    border: '1px solid rgba(255,255,255,0.2)',
     cursor: 'pointer',
-    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
     transition: 'all 0.2s ease'
   },
   buttonGroup: {
