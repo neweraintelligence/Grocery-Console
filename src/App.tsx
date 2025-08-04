@@ -479,6 +479,252 @@ const styles = {
     borderLeft: '3px solid #10b981'
   }
 };
+
+// PantryAnalytics Component
+const PantryAnalytics = ({ pantryItems }: { pantryItems: PantryItem[] }) => {
+  const [sortBy, setSortBy] = useState<'stock' | 'category' | 'ratio'>('stock');
+  const [showHighest, setShowHighest] = useState(true);
+
+  // Process data for visualization
+  const getAnalyticsData = () => {
+    if (pantryItems.length === 0) return { highest: [], lowest: [], categories: [] };
+
+    let processedItems = pantryItems.map(item => ({
+      ...item,
+      ratio: item.minCount > 0 ? item.currentCount / item.minCount : item.currentCount
+    }));
+
+    // Sort based on selected criteria
+    if (sortBy === 'stock') {
+      processedItems.sort((a, b) => b.currentCount - a.currentCount);
+    } else if (sortBy === 'ratio') {
+      processedItems.sort((a, b) => b.ratio - a.ratio);
+    } else if (sortBy === 'category') {
+      processedItems.sort((a, b) => (a.category || '').localeCompare(b.category || ''));
+    }
+
+    const highest = processedItems.slice(0, 5);
+    const lowest = [...processedItems].reverse().slice(0, 5);
+
+    // Category analysis
+    const categoryData = pantryItems.reduce((acc, item) => {
+      const category = item.category || 'Uncategorized';
+      if (!acc[category]) {
+        acc[category] = { count: 0, totalStock: 0, items: [] };
+      }
+      acc[category].count++;
+      acc[category].totalStock += item.currentCount;
+      acc[category].items.push(item);
+      return acc;
+    }, {} as Record<string, { count: number; totalStock: number; items: PantryItem[] }>);
+
+    const categories = Object.entries(categoryData).map(([name, data]) => ({
+      name,
+      ...data
+    }));
+
+    return { highest, lowest, categories };
+  };
+
+  const { highest, lowest, categories } = getAnalyticsData();
+  const dataToShow = showHighest ? highest : lowest;
+
+  const getMaxValue = () => {
+    if (sortBy === 'stock') {
+      return Math.max(...pantryItems.map(item => item.currentCount));
+    } else if (sortBy === 'ratio') {
+      return Math.max(...pantryItems.map(item => item.minCount > 0 ? item.currentCount / item.minCount : item.currentCount));
+    }
+    return 10;
+  };
+
+  const maxValue = getMaxValue();
+
+  const getValue = (item: PantryItem) => {
+    if (sortBy === 'stock') return item.currentCount;
+    if (sortBy === 'ratio') return item.minCount > 0 ? item.currentCount / item.minCount : item.currentCount;
+    return item.currentCount;
+  };
+
+  const getValueLabel = (item: PantryItem) => {
+    if (sortBy === 'stock') return `${item.currentCount} ${item.unit}`;
+    if (sortBy === 'ratio') return `${(getValue(item)).toFixed(1)}x`;
+    return `${item.currentCount} ${item.unit}`;
+  };
+
+  if (pantryItems.length === 0) {
+    return (
+      <div style={{
+        padding: '2rem',
+        background: 'rgba(30,58,138,0.3)',
+        borderRadius: '1rem',
+        border: '1px solid rgba(59,130,246,0.3)',
+        textAlign: 'center'
+      }}>
+        <h3 style={{ color: 'white', marginBottom: '1rem' }}>📊 Pantry Analytics</h3>
+        <p style={{ color: 'rgba(255,255,255,0.7)' }}>Add items to your pantry to see analytics</p>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '1.5rem',
+      height: '100%'
+    }}>
+      {/* Controls */}
+      <div style={{
+        background: 'rgba(30,58,138,0.3)',
+        borderRadius: '1rem',
+        border: '1px solid rgba(59,130,246,0.3)',
+        padding: '1.5rem'
+      }}>
+        <h3 style={{ color: 'white', marginBottom: '1rem', fontSize: '1.2rem' }}>📊 Pantry Analytics</h3>
+        
+        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as 'stock' | 'category' | 'ratio')}
+            style={{
+              padding: '0.5rem',
+              borderRadius: '0.5rem',
+              border: '1px solid rgba(59,130,246,0.4)',
+              background: 'rgba(30,58,138,0.6)',
+              color: 'white',
+              fontSize: '0.875rem'
+            }}
+          >
+            <option value="stock">Sort by Stock Count</option>
+            <option value="ratio">Sort by Stock Ratio</option>
+            <option value="category">Sort by Category</option>
+          </select>
+          
+          <button
+            onClick={() => setShowHighest(!showHighest)}
+            style={{
+              padding: '0.5rem 1rem',
+              borderRadius: '0.5rem',
+              border: 'none',
+              background: showHighest 
+                ? 'linear-gradient(to right, rgba(34,197,94,0.6), rgba(22,163,74,0.6))'
+                : 'linear-gradient(to right, rgba(239,68,68,0.6), rgba(220,38,38,0.6))',
+              color: 'white',
+              fontSize: '0.875rem',
+              cursor: 'pointer'
+            }}
+          >
+            {showHighest ? '📈 Highest' : '📉 Lowest'}
+          </button>
+        </div>
+      </div>
+
+      {/* Bar Chart */}
+      <div style={{
+        background: 'rgba(30,58,138,0.3)',
+        borderRadius: '1rem',
+        border: '1px solid rgba(59,130,246,0.3)',
+        padding: '1.5rem',
+        flex: 1
+      }}>
+        <h4 style={{ 
+          color: 'white', 
+          marginBottom: '1rem',
+          fontSize: '1rem'
+        }}>
+          {showHighest ? 'Top 5 Items' : 'Bottom 5 Items'} 
+          {sortBy === 'ratio' ? ' (by Stock Ratio)' : sortBy === 'stock' ? ' (by Count)' : ' (by Category)'}
+        </h4>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {dataToShow.map((item, index) => {
+            const value = getValue(item);
+            const percentage = maxValue > 0 ? (value / maxValue) * 100 : 0;
+            
+            return (
+              <div key={item.id || index} style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem'
+              }}>
+                <div style={{ 
+                  width: '120px', 
+                  fontSize: '0.875rem', 
+                  color: 'white',
+                  textOverflow: 'ellipsis',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap'
+                }}>
+                  {item.name}
+                </div>
+                <div style={{ 
+                  flex: 1, 
+                  background: 'rgba(71,85,105,0.3)', 
+                  borderRadius: '0.25rem',
+                  height: '24px',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    background: value <= (item.minCount || 1) 
+                      ? 'linear-gradient(to right, rgba(239,68,68,0.8), rgba(220,38,38,0.8))'
+                      : 'linear-gradient(to right, rgba(34,197,94,0.8), rgba(22,163,74,0.8))',
+                    height: '100%',
+                    width: `${Math.max(5, percentage)}%`,
+                    borderRadius: '0.25rem',
+                    transition: 'width 0.3s ease'
+                  }} />
+                </div>
+                <div style={{ 
+                  width: '60px', 
+                  fontSize: '0.75rem', 
+                  color: 'rgba(255,255,255,0.8)',
+                  textAlign: 'right'
+                }}>
+                  {getValueLabel(item)}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Category Summary */}
+      {sortBy === 'category' && categories.length > 0 && (
+        <div style={{
+          background: 'rgba(30,58,138,0.3)',
+          borderRadius: '1rem',
+          border: '1px solid rgba(59,130,246,0.3)',
+          padding: '1.5rem'
+        }}>
+          <h4 style={{ color: 'white', marginBottom: '1rem', fontSize: '1rem' }}>📂 Categories Overview</h4>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.75rem' }}>
+            {categories.slice(0, 4).map((category, index) => (
+              <div key={index} style={{
+                background: 'rgba(71,85,105,0.3)',
+                padding: '0.75rem',
+                borderRadius: '0.5rem',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)' }}>
+                  {category.name}
+                </div>
+                <div style={{ fontSize: '1rem', color: 'white', fontWeight: 'bold' }}>
+                  {category.count} items
+                </div>
+                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)' }}>
+                  {category.totalStock} total
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 function App() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showPhotoModal, setShowPhotoModal] = useState(false);
@@ -2067,15 +2313,18 @@ function App() {
               </button>
             </div>
             
-            <div style={styles.inventoryList}>
-              {pantryItems.length === 0 ? (
-                <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
-                  <img src="/grocery icon 2.png" alt="Grocery Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
-                  <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem'}}>
-                    🕵️‍♀️ Laurie's stash is suspiciously empty... Time for a "Snack Attack"!
-                  </p>
-                </div>
-              ) : (
+            <div style={{display: 'flex', gap: '2rem', minHeight: '600px'}}>
+              {/* Left Half - Inventory List */}
+              <div style={{flex: '1', maxWidth: '50%'}}>
+                <div style={styles.inventoryList}>
+                  {pantryItems.length === 0 ? (
+                    <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
+                      <img src="/grocery icon 2.png" alt="Grocery Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
+                      <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem'}}>
+                        🕵️‍♀️ Laurie's stash is suspiciously empty... Time for a "Snack Attack"!
+                      </p>
+                    </div>
+                  ) : (
                 pantryItems.map((item, index) => {
                   const getStatusStyle = () => {
                     if (item.currentCount === 0) return styles.statusOut;
@@ -2238,7 +2487,14 @@ function App() {
                     </div>
                   );
                 })
-              )}
+                  )}
+                </div>
+              </div>
+              
+              {/* Right Half - Analytics */}
+              <div style={{flex: '1', maxWidth: '50%'}}>
+                <PantryAnalytics pantryItems={pantryItems} />
+              </div>
             </div>
           </div>
         )}
