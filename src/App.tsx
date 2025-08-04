@@ -404,7 +404,7 @@ function App() {
     }
   };
 
-  const updateItemQuantity = async (itemId: string, newQuantity: number, isIncrease: boolean) => {
+  const updateItemQuantity = async (itemId: string, newQuantity: number, _isIncrease: boolean) => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
         method: 'PUT',
