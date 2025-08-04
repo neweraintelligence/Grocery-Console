@@ -293,11 +293,62 @@ app.get('/', (req, res) => {
       health: '/api/health',
       pantry: '/api/pantry',
       groceries: '/api/groceries',
-      shoppingList: '/api/shopping-list'
+      shoppingList: '/api/shopping-list',
+      setupSheets: '/api/setup-sheets'
     },
     message: 'API is running! Visit /api/health to check system status.',
     timestamp: new Date().toISOString()
   });
+});
+
+// Setup sheets endpoint for emergency fixes
+app.post('/api/setup-sheets', async (req, res) => {
+  try {
+    if (!sheets || !process.env.GOOGLE_SHEET_ID) {
+      return res.status(500).json({ error: 'Google Sheets not configured' });
+    }
+
+    const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+
+    // Create Pantry sheet headers
+    const pantryHeaders = [
+      'Name', 'Category', 'Current Count', 'Min Count', 'Unit', 'Last Updated', 'Notes'
+    ];
+
+    // Create Grocery List sheet headers  
+    const groceryHeaders = [
+      'Name', 'Category', 'Quantity', 'Unit', 'Priority', 'Notes', 'Added Date', 'Completed'
+    ];
+
+    // Add headers to both sheets
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SHEET_ID,
+      range: 'Pantry!A1:G1',
+      valueInputOption: 'USER_ENTERED',
+      resource: {
+        values: [pantryHeaders]
+      }
+    });
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SHEET_ID,
+      range: 'Grocery List!A1:H1',
+      valueInputOption: 'USER_ENTERED',
+      resource: {
+        values: [groceryHeaders]
+      }
+    });
+
+    res.json({ 
+      success: true, 
+      message: 'Sheet headers set up successfully',
+      pantryHeaders,
+      groceryHeaders
+    });
+  } catch (error) {
+    console.error('Setup error:', error);
+    res.status(500).json({ error: 'Failed to setup sheets', details: error.message });
+  }
 });
 
 // Health check
