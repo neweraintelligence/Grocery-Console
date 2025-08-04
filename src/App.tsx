@@ -212,7 +212,7 @@ const styles = {
   cardSubtitle: {
     color: 'rgba(255,255,255,0.6)',
     fontSize: '0.875rem',
-    marginTop: '0.125rem'
+    marginTop: '0.05rem'
   },
   addBtn: {
     padding: '0.75rem 1.5rem',
@@ -1285,9 +1285,7 @@ function App() {
               />
               
               <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
-                <input
-                  type="text"
-                  placeholder="📂 Category"
+                <select
                   value={formData.category}
                   onChange={(e) => setFormData({...formData, category: e.target.value})}
                   style={{
@@ -1295,9 +1293,17 @@ function App() {
                     borderRadius: '0.75rem',
                     border: '2px solid rgba(255,215,0,0.4)',
                     backgroundColor: 'rgba(139,69,19,0.8)',
-                    color: '#ffd700'
+                    color: '#ffd700',
+                    fontSize: '1rem'
                   }}
-                />
+                >
+                  <option value="" disabled style={{backgroundColor: 'rgba(139,69,19,0.9)', color: '#ffd700'}}>📂 Select Category</option>
+                  {pantryCategories.filter(cat => cat !== 'all').map((category) => (
+                    <option key={category} value={category} style={{backgroundColor: 'rgba(139,69,19,0.9)', color: '#ffd700'}}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
                 <input
                   type="text"
                   placeholder="📦 Unit (pieces, bags)"
@@ -1419,7 +1425,6 @@ function App() {
       category: '',
       currentCount: 0,
       minCount: 1,
-      packSize: 1,
       unit: '',
       notes: ''
     });
@@ -1442,7 +1447,6 @@ function App() {
             category: '',
             currentCount: 0,
             minCount: 1,
-            packSize: 1,
             unit: '',
             notes: ''
           });
@@ -1480,6 +1484,33 @@ function App() {
           boxShadow: '0 25px 50px -12px rgba(30, 58, 138, 0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
           position: 'relative'
         }}>
+          {/* Close X button */}
+          <button
+            onClick={() => setShowAddModal(false)}
+            style={{
+              position: 'absolute',
+              top: '1rem',
+              right: '1rem',
+              background: 'rgba(255,255,255,0.2)',
+              border: 'none',
+              color: 'white',
+              width: '2.5rem',
+              height: '2.5rem',
+              borderRadius: '50%',
+              cursor: 'pointer',
+              fontSize: '1.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+              zIndex: 10
+            }}
+            onMouseEnter={(e) => (e.target as HTMLButtonElement).style.background = 'rgba(255,255,255,0.3)'}
+            onMouseLeave={(e) => (e.target as HTMLButtonElement).style.background = 'rgba(255,255,255,0.2)'}
+          >
+            ×
+          </button>
+          
           <div style={{
             position: 'absolute',
             top: '-15px',
@@ -1500,7 +1531,7 @@ function App() {
           
           <h2 style={{
             color: '#bfdbfe', 
-            marginBottom: '2rem', 
+            marginBottom: '1rem', 
             marginTop: '1.5rem',
             fontFamily: "'Fredoka', system-ui, sans-serif",
             fontSize: '1.9rem',
@@ -1511,7 +1542,7 @@ function App() {
           </h2>
           
           <form onSubmit={handleSubmit}>
-            <div style={{display: 'grid', gap: '1.5rem'}}>
+            <div style={{display: 'grid', gap: '1rem'}}>
               <input
                 type="text"
                 placeholder="What would you like to add to your pantry? (e.g., Extra Virgin Olive Oil)"
@@ -1531,19 +1562,26 @@ function App() {
               />
               
               <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
-                <input
-                  type="text"
-                  placeholder="🎪 Category"
+                <select
                   value={formData.category}
                   onChange={(e) => setFormData({...formData, category: e.target.value})}
+                  required
                   style={{
                     padding: '1rem',
                     borderRadius: '0.75rem',
                     border: '2px solid rgba(59, 130, 246, 0.4)',
                     backgroundColor: 'rgba(30, 58, 138, 0.6)',
-                    color: '#bfdbfe'
+                    color: '#bfdbfe',
+                    fontSize: '1rem'
                   }}
-                />
+                >
+                  <option value="" disabled style={{backgroundColor: 'rgba(30, 58, 138, 0.8)', color: '#bfdbfe'}}>🎪 Select Category</option>
+                  {pantryCategories.filter(cat => cat !== 'all').map((category) => (
+                    <option key={category} value={category} style={{backgroundColor: 'rgba(30, 58, 138, 0.8)', color: '#bfdbfe'}}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
                 <input
                   type="text"
                   placeholder="📦 Unit (jars, bottles, cups)"
@@ -1559,10 +1597,10 @@ function App() {
                 />
               </div>
               
-              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem'}}>
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
                 <div>
                   <label style={{color: '#bfdbfe', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold'}}>
-                    🎯 Current Stock
+                    📦 Quantity Added
                   </label>
                   <input
                     type="number"
@@ -1596,24 +1634,6 @@ function App() {
                     }}
                   />
                 </div>
-                <div>
-                  <label style={{color: '#bfdbfe', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold'}}>
-                    📦 Pack Size
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.packSize}
-                    onChange={(e) => setFormData({...formData, packSize: parseInt(e.target.value) || 1})}
-                    style={{
-                      padding: '1rem',
-                      borderRadius: '0.75rem',
-                      border: '2px solid rgba(59, 130, 246, 0.4)',
-                      backgroundColor: 'rgba(30, 58, 138, 0.6)',
-                      color: '#bfdbfe',
-                      width: '100%'
-                    }}
-                  />
-                </div>
               </div>
               
               <textarea
@@ -1633,7 +1653,7 @@ function App() {
               />
             </div>
             
-            <div style={{display: 'flex', gap: '1rem', marginTop: '2rem'}}>
+            <div style={{display: 'flex', gap: '1rem', marginTop: '1.5rem'}}>
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
@@ -2225,7 +2245,7 @@ function App() {
             <div style={styles.logoIcon}>
               <img src="/grocery scene 1.png" alt="Grocery Scene" style={{width: '90px', height: '90px', objectFit: 'contain'}} />
             </div>
-            <div>
+            <div style={{paddingLeft: '1.5rem'}}>
               <h1 style={styles.title}>Laurie's Legendary Kitchen</h1>
               <p style={styles.subtitle}>Where culinary magic meets smart organization! ✨</p>
             </div>
