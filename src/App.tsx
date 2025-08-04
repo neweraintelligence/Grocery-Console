@@ -908,6 +908,7 @@ function App() {
     'Pantry – Pasta',
     'Pantry – Rice & Grains',
     'Pantry – Baking & Misc. Dry Goods',
+    'Canned Goods',
     'Fridge'
   ];
 
@@ -2639,6 +2640,7 @@ function App() {
                      category === 'Pantry – Pasta' ? '🍝 Pasta' :
                      category === 'Pantry – Rice & Grains' ? '🌾 Rice & Grains' :
                      category === 'Pantry – Baking & Misc. Dry Goods' ? '🧁 Baking & Misc' :
+                     category === 'Canned Goods' ? '🥫 Canned Goods' :
                      category === 'Fridge' ? '❄️ Fridge' : category}
                   </label>
                 ))}
@@ -2655,7 +2657,14 @@ function App() {
                       <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem'}}>
                         {pantryCategoryFilter.includes('all') 
                           ? "🕵️‍♀️ Laurie's stash is suspiciously empty... Time for a 'Snack Attack'!"
-                          : `📦 No items found in selected categories`
+                          : `📦 No items found in ${pantryCategoryFilter.includes('Pantry – Staples') ? 'Staples' :
+                             pantryCategoryFilter.includes('Pantry – Oils, Vinegars & Condiments') ? 'Oils & Condiments' :
+                             pantryCategoryFilter.includes('Pantry – Cereals') ? 'Cereals' :
+                             pantryCategoryFilter.includes('Pantry – Pasta') ? 'Pasta' :
+                             pantryCategoryFilter.includes('Pantry – Rice & Grains') ? 'Rice & Grains' :
+                             pantryCategoryFilter.includes('Pantry – Baking & Misc. Dry Goods') ? 'Baking & Misc' :
+                             pantryCategoryFilter.includes('Canned Goods') ? 'Canned Goods' :
+                             pantryCategoryFilter.includes('Fridge') ? 'Fridge' : 'selected categories'}`
                         }
                       </p>
                     </div>
