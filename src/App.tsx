@@ -1026,14 +1026,14 @@ function App() {
             textAlign: 'center',
             textShadow: '2px 2px 4px rgba(0,0,0,0.4)'
           }}>
-            ✨ Stock the Royal Pantry! ✨
+            🏠 Add to Pantry Inventory
           </h2>
           
           <form onSubmit={handleSubmit}>
             <div style={{display: 'grid', gap: '1.5rem'}}>
               <input
                 type="text"
-                placeholder="🎭 What magical ingredient shall we add? (e.g., Enchanted Olive Oil)"
+                placeholder="What would you like to add to your pantry? (e.g., Extra Virgin Olive Oil)"
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                 required
@@ -1136,7 +1136,7 @@ function App() {
               </div>
               
               <textarea
-                placeholder="📋 Royal decree notes... (special storage instructions or cooking tips)"
+                placeholder="📝 Storage notes... (special instructions, expiration dates, or cooking tips)"
                 value={formData.notes}
                 onChange={(e) => setFormData({...formData, notes: e.target.value})}
                 rows={3}
@@ -1167,7 +1167,7 @@ function App() {
                   fontWeight: 'bold'
                 }}
               >
-                🚪 Close Vault
+                ❌ Cancel
               </button>
               <button
                 type="submit"
@@ -1183,7 +1183,7 @@ function App() {
                   boxShadow: '0 4px 8px rgba(30, 58, 138, 0.3)'
                 }}
               >
-                👑 Add to Kingdom!
+                ✅ Add to Pantry
               </button>
             </div>
           </form>
