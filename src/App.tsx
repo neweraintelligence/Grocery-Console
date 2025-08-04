@@ -1349,7 +1349,31 @@ function App() {
             </button>
           </div>
 
-          {/* Impulse add button */}\n          <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>\n            <button\n              onClick={addImpulseItem}\n              style={{\n                padding: '0.5rem 1rem',\n                background: 'linear-gradient(to right, rgba(251,146,60,0.6), rgba(236,72,153,0.6))',\n                color: 'white',\n                border: 'none',\n                borderRadius: '0.75rem',\n                fontWeight: 600,\n                cursor: 'pointer',\n                display: 'flex',\n                alignItems: 'center',\n                gap: '0.5rem',\n                transition: 'all 0.2s ease'\n              }}\n              onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-1px)')}\n              onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0px)')}\n            >\n              ➕ Item (Impulse Buy!)\n            </button>\n          </div>\n\n          {/* Items List */}
+          {/* Impulse add button */}
+          <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+            <button
+              onClick={addImpulseItem}
+              style={{
+                padding: '0.5rem 1rem',
+                background: 'linear-gradient(to right, rgba(251,146,60,0.6), rgba(236,72,153,0.6))',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.75rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-1px)')}
+              onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0px)')}
+            >
+              ➕ Item (Impulse Buy!)
+            </button>
+          </div>
+
+          {/* Items List */}
           <div style={{
             maxHeight: '50vh',
             overflowY: 'auto',
