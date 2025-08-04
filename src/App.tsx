@@ -1200,7 +1200,24 @@ function App() {
     setReviewItems(prevItems => prevItems.filter(item => item.id !== itemId));
   };
 
-  // Function to add a brand-new impulse item to the review list\n  const addImpulseItem = () => {\n    const name = prompt('Enter item name (Impulse Buy):');\n    if (!name || !name.trim()) return;\n    const qtyStr = prompt('Enter quantity:', '1');\n    const qty = qtyStr ? parseInt(qtyStr) : 1;\n    if (isNaN(qty) || qty <= 0) return;\n    const unit = prompt('Enter unit (e.g., pcs, packs):', 'units') || 'units';\n    const newItem = {\n      id: `new-${Date.now()}`,\n      name: name.trim(),\n      quantity: qty,\n      unit,\n      category: 'Misc',\n      source: 'new' as const\n    };\n    setReviewItems(prev => [...prev, newItem]);\n  };\n\n  // Function to add items to pantry and remove from shopping list
+  // Function to add a brand-new impulse item to the review list
+  const addImpulseItem = () => {
+    const name = prompt('Enter item name (Impulse Buy):');
+    if (!name || !name.trim()) return;
+    const qtyStr = prompt('Enter quantity:', '1');
+    const qty = qtyStr ? parseInt(qtyStr) : 1;
+    if (isNaN(qty) || qty <= 0) return;
+    const unit = prompt('Enter unit (e.g., pcs, packs):', 'units') || 'units';
+    const newItem = {
+      id: `new-${Date.now()}`,
+      name: name.trim(),
+      quantity: qty,
+      unit,
+      category: 'Misc',
+      source: 'new' as const
+    };
+    setReviewItems(prev => [...prev, newItem]);
+  };\n  // Function to add items to pantry and remove from shopping list
   const addItemsToPantry = async () => {
     try {
       // Filter out items with 0 quantity
