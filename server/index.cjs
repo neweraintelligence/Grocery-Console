@@ -73,12 +73,12 @@ app.get('/api/pantry', async (req, res) => {
       return res.status(500).json({ error: 'Google Sheets not configured' });
     }
 
-    // Read from "Grocery List" sheet - pantry items are stored there too
+    // Read from "Pantry" sheet (user-curated pantry items only)
     let response;
     try {
       response = await sheets.spreadsheets.values.get({
         spreadsheetId: process.env.GOOGLE_SHEET_ID,
-        range: 'Grocery List!A2:Z', // Skip header row, get all columns
+        range: 'Pantry!A2:Z', // Skip header row, get all columns
       });
     } catch (error) {
       console.log('No Grocery List sheet found, returning empty pantry');
@@ -191,7 +191,7 @@ app.post('/api/pantry', async (req, res) => {
 
     const { name, category, currentCount, minCount, unit, notes } = req.body;
 
-    // Add to Grocery List sheet with full structure: Name, Category, Current Count, Min Count, Unit, On List (TRUE), Notes, Added Date, Completed
+    // Add to Pantry sheet: Name, Category, Current Count, Min Count, Unit, Last Updated, Notes
     const lastUpdated = new Date().toISOString().split('T')[0];
     const values = [[
       name, 
@@ -207,7 +207,7 @@ app.post('/api/pantry', async (req, res) => {
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Grocery List!A:I',
+      range: 'Pantry!A:G',
       valueInputOption: 'USER_ENTERED',
       resource: { values }
     });
