@@ -213,7 +213,8 @@ export class PDFGeneratorService {
       pdf.setTextColor(opts.colorScheme === 'colorful' ? 16 : 0, opts.colorScheme === 'colorful' ? 185 : 0, opts.colorScheme === 'colorful' ? 129 : 0);
       
       const categoryIcon = this.getCategoryIcon(category);
-      pdf.text(`${categoryIcon} ${category} (${categoryItems.length} items)`, margin + 3, yPosition + 8);
+      const cleanCategory = this.cleanText(category);
+      pdf.text(`${categoryIcon} ${cleanCategory} (${categoryItems.length} items)`, margin + 3, yPosition + 8);
       
       yPosition += 16;
 
@@ -250,8 +251,12 @@ export class PDFGeneratorService {
         const quantityText = `${item.quantity} ${item.unit}`;
         const storeText = opts.includeStoreInfo ? ` • ${item.bestStore}` : '';
         
+        // Clean up item name and add checkbox
+        const cleanItemName = this.cleanText(item.name);
+        const checkbox = '☐'; // Empty checkbox
+        
         pdf.setFont('helvetica', 'bold');
-        pdf.text(`${urgencyEmoji} ${item.name}`, margin + 2, yPosition + 5);
+        pdf.text(`${checkbox} ${urgencyEmoji} ${cleanItemName}`, margin + 2, yPosition + 5);
         
         pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(9);
@@ -335,6 +340,15 @@ export class PDFGeneratorService {
 
   private formatDateForFilename(date: Date): string {
     return date.toISOString().split('T')[0].replace(/-/g, '_');
+  }
+
+  private cleanText(text: string): string {
+    // Remove strange symbols and encoding artifacts
+    return text
+      .replace(/[Ø=ßá]/g, '') // Remove specific strange symbols
+      .replace(/[^\x00-\x7F]/g, '') // Remove non-ASCII characters
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .trim();
   }
 
   // Generate PDF from HTML element (alternative method)
