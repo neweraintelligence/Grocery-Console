@@ -2052,9 +2052,16 @@ function App() {
                               >
                                 -
                               </button>
-                              <div style={{textAlign: 'center'}}>
-                                <p style={styles.stockValue}>{item.currentCount}</p>
-                                <p style={styles.stockUnit}>{item.unit}</p>
+                              <div style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                minWidth: '3rem',
+                                height: '2.2rem'
+                              }}>
+                                <p style={{...styles.stockValue, margin: 0, lineHeight: '1'}}>{item.currentCount}</p>
+                                <p style={{...styles.stockUnit, margin: 0, lineHeight: '1', fontSize: '0.65rem'}}>{item.unit}</p>
                               </div>
                               <button
                                 onClick={() => updateItemQuantity(item.id, item.currentCount + 1, true)}
