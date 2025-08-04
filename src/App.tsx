@@ -1268,7 +1268,7 @@ function App() {
           <div style={styles.quickStatsGrid}>
             <div style={styles.quickStatCard}>
               <div style={styles.quickStatValue}>{pantryItems.length}</div>
-              <div style={styles.quickStatLabel}>Total Items</div>
+              <div style={styles.quickStatLabel}>In Pantry</div>
             </div>
             <div style={styles.quickStatCard}>
               <div style={{...styles.quickStatValue, color: '#fbbf24'}}>
