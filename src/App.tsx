@@ -1217,7 +1217,9 @@ function App() {
       source: 'new' as const
     };
     setReviewItems(prev => [...prev, newItem]);
-  };\n  // Function to add items to pantry and remove from shopping list
+  };
+
+  // Function to add items to pantry and remove from shopping list
   const addItemsToPantry = async () => {
     try {
       // Filter out items with 0 quantity
