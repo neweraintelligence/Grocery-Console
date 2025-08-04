@@ -48,6 +48,7 @@ interface Recipe {
   ingredients: string[];
   instructions: string[];
   cuisine: string;
+  mealType: 'breakfast' | 'lunch' | 'dinner' | 'dessert';
   availableIngredients: string[];
   missingIngredients: string[];
 }
@@ -952,52 +953,73 @@ function App() {
       }
 
       // Mock LLM response for now - in production, you'd call OpenAI or similar
-      const mockRecipes: Recipe[] = Array.from({ length: 5 }, (_, i) => {
+      const mockRecipes: Recipe[] = Array.from({ length: 6 }, (_, i) => {
         const recipeTemplates = [
+          // Breakfast
           {
-            title: "Mediterranean Herb Crusted Chicken",
-            description: "A fragrant and flavorful chicken dish with Mediterranean herbs and spices",
-            cookTime: "35 minutes",
-            servings: 4,
-            difficulty: "Medium" as const,
-            cuisine: "Mediterranean",
-            baseIngredients: ["chicken", "olive oil", "garlic", "herbs"]
-          },
-          {
-            title: "Rustic Vegetable Pasta",
-            description: "A hearty pasta dish loaded with fresh vegetables and aromatic herbs",
-            cookTime: "25 minutes", 
-            servings: 4,
+            title: "Sunrise Garden Omelette",
+            description: "A vibrant breakfast omelette filled with fresh vegetables and herbs",
+            cookTime: "15 minutes",
+            servings: 2,
             difficulty: "Easy" as const,
-            cuisine: "Italian",
-            baseIngredients: ["pasta", "tomatoes", "onion", "garlic"]
+            cuisine: "American",
+            mealType: "breakfast" as const,
+            baseIngredients: ["eggs", "vegetables", "herbs", "cheese"]
           },
+          // Lunch 1
           {
-            title: "Asian-Inspired Stir Fry Bowl",
-            description: "A colorful and nutritious stir fry with bold Asian flavors",
+            title: "Mediterranean Quinoa Bowl",
+            description: "A healthy and colorful quinoa bowl with Mediterranean flavors",
+            cookTime: "25 minutes",
+            servings: 3,
+            difficulty: "Easy" as const,
+            cuisine: "Mediterranean",
+            mealType: "lunch" as const,
+            baseIngredients: ["quinoa", "vegetables", "olive oil", "herbs"]
+          },
+          // Lunch 2
+          {
+            title: "Asian-Inspired Stir Fry",
+            description: "A quick and flavorful stir fry with bold Asian spices",
             cookTime: "20 minutes",
             servings: 3,
             difficulty: "Easy" as const,
             cuisine: "Asian Fusion",
+            mealType: "lunch" as const,
             baseIngredients: ["rice", "vegetables", "soy sauce", "ginger"]
           },
+          // Dinner 1
           {
-            title: "Classic American Comfort Casserole",
-            description: "A warming casserole perfect for family dinners",
-            cookTime: "45 minutes",
-            servings: 6,
+            title: "Herb Crusted Chicken with Roasted Vegetables",
+            description: "A fragrant and flavorful chicken dish with Mediterranean herbs",
+            cookTime: "40 minutes",
+            servings: 4,
             difficulty: "Medium" as const,
-            cuisine: "American",
-            baseIngredients: ["ground meat", "potatoes", "cheese", "onion"]
+            cuisine: "Mediterranean",
+            mealType: "dinner" as const,
+            baseIngredients: ["chicken", "olive oil", "garlic", "herbs"]
           },
+          // Dinner 2
           {
-            title: "French-Style Herb Omelette",
-            description: "An elegant omelette with fresh herbs and creamy texture",
-            cookTime: "15 minutes",
-            servings: 2,
+            title: "Rustic Vegetable Pasta",
+            description: "A hearty pasta dish loaded with fresh vegetables and aromatic herbs",
+            cookTime: "30 minutes", 
+            servings: 4,
             difficulty: "Medium" as const,
-            cuisine: "French",
-            baseIngredients: ["eggs", "butter", "herbs", "cheese"]
+            cuisine: "Italian",
+            mealType: "dinner" as const,
+            baseIngredients: ["pasta", "tomatoes", "onion", "garlic"]
+          },
+          // Dessert
+          {
+            title: "Warm Apple Cinnamon Crumble",
+            description: "A comforting dessert with sweet apples and warm spices",
+            cookTime: "35 minutes",
+            servings: 6,
+            difficulty: "Easy" as const,
+            cuisine: "American",
+            mealType: "dessert" as const,
+            baseIngredients: ["apples", "flour", "butter", "cinnamon"]
           }
         ];
 
@@ -1022,6 +1044,7 @@ function App() {
           servings: template.servings,
           difficulty: template.difficulty,
           cuisine: template.cuisine,
+          mealType: template.mealType,
           ingredients: [
             ...template.baseIngredients,
             "Salt and pepper to taste",
@@ -2913,7 +2936,12 @@ function App() {
                   gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
                   gap: '1.5rem'
                 }}>
-                  {recipes.map((recipe) => (
+                  {recipes
+                    .sort((a, b) => {
+                      const mealOrder = { breakfast: 1, lunch: 2, dinner: 3, dessert: 4 };
+                      return mealOrder[a.mealType] - mealOrder[b.mealType];
+                    })
+                    .map((recipe) => (
                     <div key={recipe.id} style={{
                       background: 'linear-gradient(145deg, rgba(168,85,247,0.1), rgba(139,92,246,0.05))',
                       borderRadius: '1rem',
@@ -2951,6 +2979,18 @@ function App() {
                           <span>👥 {recipe.servings} servings</span>
                           <span>📊 {recipe.difficulty}</span>
                           <span>🌍 {recipe.cuisine}</span>
+                          <span style={{
+                            background: 'rgba(168,85,247,0.3)',
+                            color: 'rgba(168,85,247,1)',
+                            padding: '0.125rem 0.375rem',
+                            borderRadius: '0.25rem',
+                            fontWeight: 'bold'
+                          }}>
+                            {recipe.mealType === 'breakfast' ? '🌅 Breakfast' :
+                             recipe.mealType === 'lunch' ? '🌞 Lunch' :
+                             recipe.mealType === 'dinner' ? '🌙 Dinner' :
+                             '🍰 Dessert'}
+                          </span>
                         </div>
                       </div>
 
