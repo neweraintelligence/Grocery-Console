@@ -602,7 +602,7 @@ app.get('/api/recipes', async (req, res) => {
     const suggestedRecipes = recipeDatabase
       .map(recipe => {
         const matchingIngredients = recipe.ingredients.filter(ingredient => 
-          availableItems.some(item => 
+          availableItems.some((item: string) => 
             item.includes(ingredient.toLowerCase()) || 
             ingredient.toLowerCase().includes(item)
           )
