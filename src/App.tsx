@@ -2150,7 +2150,7 @@ function App() {
         <div style={styles.headerContent}>
           <div style={styles.logoSection}>
             <div style={styles.logoIcon}>
-              <img src="/grocery scene 1.png" alt="Grocery Scene" style={{width: '48px', height: '48px', objectFit: 'contain'}} />
+              <img src="/grocery scene 1.png" alt="Grocery Scene" style={{width: '72px', height: '72px', objectFit: 'contain'}} />
             </div>
             <div>
               <h1 style={styles.title}>Laurie's Legendary Kitchen</h1>
