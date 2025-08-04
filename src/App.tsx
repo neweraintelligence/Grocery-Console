@@ -792,14 +792,11 @@ function App() {
   const [loadingRecipes, setLoadingRecipes] = useState(false);
   const [pantryCategoryFilter, setPantryCategoryFilter] = useState<string[]>(['all']);
   const [showWeeksListBox, setShowWeeksListBox] = useState(false);
-  const [predictiveRestockData, setPredictiveRestockData] = useState<any[]>([]);
-
   // Fetch data on component mount
   useEffect(() => {
     fetchPantryItems();
     fetchGroceryItems();
     fetchShoppingList();
-    fetchPredictiveRestockData();
   }, []);
 
   // Check for Friday restock time
@@ -882,21 +879,7 @@ function App() {
     }
   };
 
-  const fetchPredictiveRestockData = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/predictive-restock`);
-      if (response.ok) {
-        const data = await response.json();
-        setPredictiveRestockData(Array.isArray(data) ? data : []);
-      } else {
-        console.error('Failed to fetch predictive restock data:', response.status);
-        setPredictiveRestockData([]);
-      }
-    } catch (error) {
-      console.error('Error fetching predictive restock data:', error);
-      setPredictiveRestockData([]);
-    }
-  };
+
 
   const updateItemQuantity = async (itemId: string, newQuantity: number, _isIncrease: boolean) => {
     try {
