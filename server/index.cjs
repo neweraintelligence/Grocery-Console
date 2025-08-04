@@ -79,8 +79,10 @@ async function initializeGoogleSheets() {
 
 // Get pantry items (current inventory)
 app.get('/api/pantry', async (req, res) => {
+  console.log('🔍 Pantry GET endpoint called');
   try {
     if (!sheets || !process.env.GOOGLE_SHEET_ID) {
+      console.log('❌ Google Sheets not configured');
       return res.status(500).json({ error: 'Google Sheets not configured' });
     }
 
