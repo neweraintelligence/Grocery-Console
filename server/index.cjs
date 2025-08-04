@@ -81,56 +81,16 @@ app.get('/api/pantry', async (req, res) => {
         range: 'Pantry!A2:Z', // Skip header row, get all columns
       });
     } catch (error) {
-      console.log('No Grocery List sheet found, returning empty pantry');
+      console.log('No Pantry sheet found, returning empty pantry');
       res.json([]);
       return;
     }
 
     const rows = response.data.values || [];
     
-    // Get header row to find the "On List" column
-    let headerResponse;
-    try {
-      headerResponse = await sheets.spreadsheets.values.get({
-        spreadsheetId: process.env.GOOGLE_SHEET_ID,
-        range: 'Grocery List!A1:Z1',
-      });
-    } catch (error) {
-      console.log('Could not get headers');
-      res.json([]);
-      return;
-    }
-    
-    const headers = headerResponse.data.values?.[0] || [];
-    let onListColumnIndex = -1;
-    for (let i = 0; i < headers.length; i++) {
-      const header = headers[i]?.toString().toLowerCase().trim();
-      if (header.includes('on list') || header.includes('onlist')) {
-        onListColumnIndex = i;
-        break;
-      }
-    }
-    
-    // Filter for pantry items (items NOT currently on shopping list)
+    // Map pantry items directly (no filtering needed since this is the dedicated pantry sheet)
     const pantryItems = rows
-      .filter((row) => {
-        if (!row[0] || !row[0].trim()) return false; // Must have name
-        
-        // Check if item is NOT on shopping list (On List = FALSE)
-        let onListValue = null;
-        if (onListColumnIndex >= 0 && onListColumnIndex < row.length) {
-          onListValue = row[onListColumnIndex];
-        }
-        
-        const onList = onListValue && (
-          onListValue.toString().toUpperCase() === 'TRUE' || 
-          onListValue === true || 
-          onListValue === 1 ||
-          onListValue === '1'
-        );
-        
-        return !onList; // Return items that are NOT on the shopping list
-      })
+      .filter((row) => row[0] && row[0].trim()) // Only include rows with names
       .map((row, index) => ({
         id: (rows.indexOf(row) + 2).toString(), // Use actual row number as ID
         name: row[0] || '',
@@ -138,7 +98,7 @@ app.get('/api/pantry', async (req, res) => {
         currentCount: parseInt(row[2]) || 0,
         minCount: parseInt(row[3]) || 1,
         unit: row[4] || 'units',
-        lastUpdated: row[7] || new Date().toLocaleDateString(), // Column H is Added Date
+        lastUpdated: row[5] || new Date().toLocaleDateString(), // Column F is Last Updated
         notes: row[6] || '' // Column G is Notes
       }));
 
@@ -199,10 +159,8 @@ app.post('/api/pantry', async (req, res) => {
       currentCount || 0, 
       minCount || 1, 
       unit || 'units', 
-      'TRUE', // Set On List to TRUE so it shows up on shopping list
-      notes || '', // Notes column (will be used for UOM)
-      lastUpdated, // Added Date
-      'FALSE' // Completed
+      lastUpdated, // Last Updated
+      notes || '' // Notes
     ]];
 
     await sheets.spreadsheets.values.append({
@@ -265,13 +223,13 @@ app.put('/api/pantry/:id', async (req, res) => {
     const rowId = req.params.id;
     const { currentCount, minCount } = req.body;
 
-    // Update current count (column C) and/or min count (column D) in the Grocery List sheet
+    // Update current count (column C) and/or min count (column D) in the Pantry sheet
     if (currentCount !== undefined && minCount !== undefined) {
       // Update both current and min count
       const values = [[currentCount || 0, minCount || 1]];
       await sheets.spreadsheets.values.update({
         spreadsheetId: process.env.GOOGLE_SHEET_ID,
-        range: `Grocery List!C${rowId}:D${rowId}`,
+        range: `Pantry!C${rowId}:D${rowId}`,
         valueInputOption: 'USER_ENTERED',
         resource: { values }
       });
@@ -280,7 +238,7 @@ app.put('/api/pantry/:id', async (req, res) => {
       const values = [[currentCount || 0]];
       await sheets.spreadsheets.values.update({
         spreadsheetId: process.env.GOOGLE_SHEET_ID,
-        range: `Grocery List!C${rowId}:C${rowId}`,
+        range: `Pantry!C${rowId}:C${rowId}`,
         valueInputOption: 'USER_ENTERED',
         resource: { values }
       });
@@ -289,7 +247,7 @@ app.put('/api/pantry/:id', async (req, res) => {
       const values = [[minCount || 1]];
       await sheets.spreadsheets.values.update({
         spreadsheetId: process.env.GOOGLE_SHEET_ID,
-        range: `Grocery List!D${rowId}:D${rowId}`,
+        range: `Pantry!D${rowId}:D${rowId}`,
         valueInputOption: 'USER_ENTERED',
         resource: { values }
       });
