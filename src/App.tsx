@@ -32,8 +32,9 @@ interface ShoppingListItem {
   minCount?: number;
   needed?: number;
   quantity?: number;
-  unit: string;
+  unit: string; // Now contains UOM from Notes column
   priority?: 'High' | 'Medium' | 'Low';
+  notes?: string;
 }
 
 const styles = {
@@ -446,7 +447,10 @@ const styles = {
 function App() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [showQuantityModal, setShowQuantityModal] = useState(false);
   const [modalType, setModalType] = useState<'loot' | 'pantry'>('loot');
+  const [editingItem, setEditingItem] = useState<ShoppingListItem | null>(null);
+  const [newQuantity, setNewQuantity] = useState<string>('');
   const [pantryItems, setPantryItems] = useState<PantryItem[]>([]);
   const [, setGroceryItems] = useState<GroceryItem[]>([]);
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
@@ -619,6 +623,27 @@ function App() {
     } catch (error) {
       console.error('Error updating shopping list item quantity:', error);
     }
+  };
+
+  const openQuantityModal = (item: ShoppingListItem) => {
+    setEditingItem(item);
+    setNewQuantity((item.quantity || item.needed || 1).toString());
+    setShowQuantityModal(true);
+  };
+
+  const handleQuantityUpdate = async () => {
+    if (!editingItem || !newQuantity) return;
+    
+    const quantity = parseInt(newQuantity);
+    if (isNaN(quantity) || quantity < 1) {
+      alert('Please enter a valid quantity');
+      return;
+    }
+
+    await updateShoppingListQuantity(editingItem.id, quantity);
+    setShowQuantityModal(false);
+    setEditingItem(null);
+    setNewQuantity('');
   };
 
   const LootListModal = () => {
@@ -1380,10 +1405,12 @@ function App() {
                   };
                   
                   const getDescription = () => {
+                    const qty = item.quantity || item.needed || 1;
+                    const uom = item.unit || '';
                     if (item.source === 'pantry') {
-                      return `Need ${item.needed || 1} ${item.unit}`;
+                      return `Need ${qty}${uom}`;
                     }
-                    return `${item.quantity || 1} ${item.unit}`;
+                    return `${qty}${uom}`;
                   };
                   
                   return (
@@ -1405,7 +1432,7 @@ function App() {
                             <p style={styles.stockLabel}>Quantity</p>
                             <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
                               <button
-                                onClick={() => updateShoppingListQuantity(item.id, Math.max(1, (item.quantity || item.needed || 1) - 1))}
+                                onClick={() => openQuantityModal(item)}
                                 style={{
                                   ...(isMobile ? styles.mobileButton : {
                                     width: '2.2rem',
@@ -1425,12 +1452,15 @@ function App() {
                               >
                                 -
                               </button>
-                              <div style={{textAlign: 'center'}}>
-                                <p style={styles.stockValue}>{item.quantity || item.needed || 1}</p>
-                                <p style={styles.stockUnit}>{item.unit}</p>
+                              <div 
+                                style={{textAlign: 'center', cursor: 'pointer'}}
+                                onClick={() => openQuantityModal(item)}
+                              >
+                                <p style={styles.stockValue}>{(item.quantity || item.needed || 1) + (item.unit || '')}</p>
+                                <p style={styles.stockUnit}>click to edit</p>
                               </div>
                               <button
-                                onClick={() => updateShoppingListQuantity(item.id, (item.quantity || item.needed || 1) + 1)}
+                                onClick={() => openQuantityModal(item)}
                                 style={{
                                   ...(isMobile ? styles.mobileButton : {
                                     width: '2.2rem',
@@ -1671,6 +1701,118 @@ function App() {
       {/* Add Item Modals */}
       <LootListModal />
       <PantryModal />
+
+      {/* Quantity Edit Modal */}
+      {showQuantityModal && editingItem && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: 'linear-gradient(145deg, #1e3a8a 0%, #1e40af 25%, #2563eb 50%, #1d4ed8 75%, #1e3a8a 100%)',
+            padding: '2rem',
+            borderRadius: '1rem',
+            width: '90%',
+            maxWidth: '400px',
+            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+            border: '1px solid rgba(255,255,255,0.1)'
+          }}>
+            <div style={{
+              background: 'linear-gradient(45deg, #60a5fa, #3b82f6)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              fontSize: '1.5rem',
+              fontWeight: 'bold',
+              marginBottom: '1.5rem',
+              fontFamily: "'Fredoka', system-ui, sans-serif"
+            }}>
+              Edit Quantity
+            </div>
+            
+            <div style={{marginBottom: '1rem'}}>
+              <p style={{color: 'white', marginBottom: '0.5rem'}}>
+                {editingItem.name}
+              </p>
+              <label style={{
+                display: 'block',
+                color: 'rgba(255,255,255,0.8)',
+                fontSize: '0.875rem',
+                marginBottom: '0.5rem'
+              }}>
+                Total Amount Needed:
+              </label>
+              <input
+                type="number"
+                value={newQuantity}
+                onChange={(e) => setNewQuantity(e.target.value)}
+                placeholder="Enter total quantity"
+                min="1"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  borderRadius: '0.5rem',
+                  border: 'none',
+                  backgroundColor: 'rgba(30, 58, 138, 0.6)',
+                  color: 'white',
+                  fontSize: '1rem',
+                  outline: 'none'
+                }}
+              />
+              <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.75rem', marginTop: '0.25rem'}}>
+                UOM: {editingItem.unit || 'No unit specified'}
+              </p>
+            </div>
+
+            <div style={{display: 'flex', gap: '1rem'}}>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowQuantityModal(false);
+                  setEditingItem(null);
+                  setNewQuantity('');
+                }}
+                style={{
+                  flex: 1,
+                  padding: '0.75rem',
+                  borderRadius: '0.5rem',
+                  border: 'none',
+                  backgroundColor: 'rgba(30, 58, 138, 0.6)',
+                  color: 'rgba(255,255,255,0.8)',
+                  cursor: 'pointer',
+                  fontSize: '1rem'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleQuantityUpdate}
+                style={{
+                  flex: 1,
+                  padding: '0.75rem',
+                  borderRadius: '0.5rem',
+                  border: 'none',
+                  background: 'linear-gradient(to right, #3b82f6, #60a5fa)',
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: '600'
+                }}
+              >
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Photo Analyzer Modal */}
       <PhotoAnalyzerModal />

@@ -407,7 +407,7 @@ app.get('/api/shopping-list', async (req, res) => {
             category: row[1] || 'General',
             source: 'grocery' as const,
             quantity: parseInt(row[2]) || 1,
-            unit: row[4] || 'units', // Column E is Unit
+            unit: row[6] || '', // Column G is Notes (now used for UOM)
             priority: 'Medium',
             needed: parseInt(row[2]) || 1
           }
