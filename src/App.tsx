@@ -1324,9 +1324,7 @@ function App() {
             }}
             onClick={() => setActiveTab('shopping')}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: '8px'}}>
-              <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.3 15.7 4.6 16.5 5.1 16.5H17M17 13V17A2 2 0 0 1 15 19H9A2 2 0 0 1 7 17V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <img src="/grocery icon 1.png" alt="Grocery Icon" style={{width: '20px', height: '20px', objectFit: 'contain', marginRight: '8px'}} />
             Laurie's Loot List
           </button>
           <button 
@@ -1336,9 +1334,7 @@ function App() {
             }}
             onClick={() => setActiveTab('pantry')}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: '8px'}}>
-              <path d="M19 7H16V6A4 4 0 0 0 8 6V7H5A1 1 0 0 0 4 8V19A3 3 0 0 0 7 22H17A3 3 0 0 0 20 19V8A1 1 0 0 0 19 7ZM10 6A2 2 0 0 1 14 6V7H10V6Z" fill="currentColor"/>
-            </svg>
+            <img src="/grocery icon 2.png" alt="Grocery Icon" style={{width: '20px', height: '20px', objectFit: 'contain', marginRight: '8px'}} />
             Laurie's Secret Stash
           </button>
         </div>
@@ -1349,7 +1345,7 @@ function App() {
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
                 <div style={styles.cardIcon}>
-                  <img src="/kitchen icon 2.png" alt="Kitchen Icon" style={{width: '36px', height: '36px', objectFit: 'contain'}} />
+                  <img src="/grocery icon 1.png" alt="Grocery Icon" style={{width: '40px', height: '40px', objectFit: 'contain'}} />
                 </div>
                 <div>
                   <h2 style={styles.cardTitleText}>Laurie's Loot List</h2>
@@ -1363,9 +1359,7 @@ function App() {
                   setShowAddModal(true);
                 }}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: '6px'}}>
-                  <path d="M12 5V19M5 12H19" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
+                <img src="/grocery icon 1.png" alt="Add Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
                 🎯 Add Treasure!
               </button>
             </div>
@@ -1373,7 +1367,7 @@ function App() {
             <div style={styles.inventoryList}>
               {shoppingList.length === 0 ? (
                 <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
-                  <img src="/kitchen icon 2.png" alt="Kitchen Icon" style={{width: '64px', height: '64px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.6}} />
+                  <img src="/grocery icon 1.png" alt="Grocery Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
                   <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem'}}>
                     🎉 Laurie's all set! The snack gods are pleased! ✨
                   </p>
@@ -1414,17 +1408,9 @@ function App() {
                   
                   const getItemIcon = () => {
                     if (item.source === 'pantry') {
-                      return (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M19 7H16V6A4 4 0 0 0 8 6V7H5A1 1 0 0 0 4 8V19A3 3 0 0 0 7 22H17A3 3 0 0 0 20 19V8A1 1 0 0 0 19 7ZM10 6A2 2 0 0 1 14 6V7H10V6Z" fill="white"/>
-                        </svg>
-                      );
+                      return <img src="/grocery icon 2.png" alt="Pantry Item" style={{width: '24px', height: '24px', objectFit: 'contain'}} />;
                     }
-                    return (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.3 15.7 4.6 16.5 5.1 16.5H17M17 13V17A2 2 0 0 1 15 19H9A2 2 0 0 1 7 17V13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    );
+                    return <img src="/grocery icon 1.png" alt="Shopping Item" style={{width: '24px', height: '24px', objectFit: 'contain'}} />;
                   };
                   
                   const getDescription = () => {
@@ -1519,7 +1505,7 @@ function App() {
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
                 <div style={styles.cardIcon}>
-                  <img src="/kitchen icon 1.png" alt="Kitchen Icon" style={{width: '36px', height: '36px', objectFit: 'contain'}} />
+                  <img src="/grocery icon 2.png" alt="Grocery Icon" style={{width: '40px', height: '40px', objectFit: 'contain'}} />
                 </div>
                 <div>
                   <h2 style={styles.cardTitleText}>Laurie's Secret Stash</h2>
@@ -1536,9 +1522,7 @@ function App() {
                   setShowAddModal(true);
                 }}
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: '6px'}}>
-                  <path d="M12 5V19M5 12H19" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
+                <img src="/grocery icon 2.png" alt="Add Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
                 🏺 Top Up Stash!
               </button>
             </div>
@@ -1546,7 +1530,7 @@ function App() {
             <div style={styles.inventoryList}>
               {pantryItems.length === 0 ? (
                 <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
-                  <img src="/kitchen icon 1.png" alt="Kitchen Icon" style={{width: '64px', height: '64px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.6}} />
+                  <img src="/grocery icon 2.png" alt="Grocery Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
                   <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem'}}>
                     🕵️‍♀️ Laurie's stash is suspiciously empty... Time for a "Snack Attack"!
                   </p>
@@ -1584,12 +1568,7 @@ function App() {
                       );
                     }
                     if (category.includes('produce')) {
-                      return (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="white" strokeWidth="2"/>
-                          <path d="M8 12L11 15L16 9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      );
+                      return <img src="/grocery icon 1.png" alt="Produce" style={{width: '24px', height: '24px', objectFit: 'contain'}} />;
                     }
                     if (category.includes('bakery')) {
                       return (
@@ -1599,12 +1578,7 @@ function App() {
                       );
                     }
                     if (category.includes('pantry') || category.includes('canned')) {
-                      return (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <rect x="4" y="4" width="16" height="16" rx="2" stroke="white" strokeWidth="2"/>
-                          <path d="M8 8H16M8 12H16M8 16H12" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                        </svg>
-                      );
+                      return <img src="/grocery icon 2.png" alt="Pantry" style={{width: '24px', height: '24px', objectFit: 'contain'}} />;
                     }
                     
                     // Default icon
