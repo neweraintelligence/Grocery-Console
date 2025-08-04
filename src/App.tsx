@@ -558,6 +558,28 @@ function App() {
     }
   };
 
+  const updateShoppingListQuantity = async (itemId: string, newQuantity: number) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ currentCount: newQuantity }),
+      });
+      
+      if (response.ok) {
+        // Refresh data after successful update
+        fetchShoppingList();
+        fetchPantryItems();
+      } else {
+        console.error('Failed to update shopping list item quantity');
+      }
+    } catch (error) {
+      console.error('Error updating shopping list item quantity:', error);
+    }
+  };
+
   const AddItemModal = () => {
     const [formData, setFormData] = useState({
       name: '',
@@ -921,29 +943,34 @@ function App() {
             </div>
           </div>
                       <div style={styles.headerActions}>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    analyzePhoto(file);
-                  }
-                }}
-                style={{ display: 'none' }}
-                id="photo-upload"
-              />
-              <label
-                htmlFor="photo-upload"
-                style={{
-                  ...styles.quickAddBtn,
-                  background: analyzingPhoto ? 'linear-gradient(to right, #6b7280, #4b5563)' : 'linear-gradient(to right, #6366f1, #8b5cf6)',
-                  cursor: analyzingPhoto ? 'not-allowed' : 'pointer',
-                  marginRight: '1rem'
-                }}
-              >
-                {analyzingPhoto ? '🔍 Magic Happening...' : '📸 Fridge Detective'}
-              </label>
+              {/* Temporarily disabled photo upload */}
+              {false && (
+                <>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        analyzePhoto(file);
+                      }
+                    }}
+                    style={{ display: 'none' }}
+                    id="photo-upload"
+                  />
+                  <label
+                    htmlFor="photo-upload"
+                    style={{
+                      ...styles.quickAddBtn,
+                      background: analyzingPhoto ? 'linear-gradient(to right, #6b7280, #4b5563)' : 'linear-gradient(to right, #6366f1, #8b5cf6)',
+                      cursor: analyzingPhoto ? 'not-allowed' : 'pointer',
+                      marginRight: '1rem'
+                    }}
+                  >
+                    {analyzingPhoto ? '🔍 Magic Happening...' : '📸 Fridge Detective'}
+                  </label>
+                </>
+              )}
               <button 
                 style={styles.quickAddBtn}
                 onClick={() => setShowAddModal(true)}
@@ -1074,9 +1101,43 @@ function App() {
                         <div style={styles.itemRight}>
                           <div style={styles.stockInfo}>
                             <p style={styles.stockLabel}>Quantity</p>
-                            <div style={{textAlign: 'center'}}>
-                              <p style={styles.stockValue}>{item.quantity || item.needed || 1}</p>
-                              <p style={styles.stockUnit}>{item.unit}</p>
+                            <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+                              <button
+                                onClick={() => updateShoppingListQuantity(item.id, Math.max(1, (item.quantity || item.needed || 1) - 1))}
+                                style={{
+                                  width: '2rem',
+                                  height: '2rem',
+                                  borderRadius: '50%',
+                                  border: 'none',
+                                  background: 'linear-gradient(to right, #ef4444, #dc2626)',
+                                  color: 'white',
+                                  cursor: 'pointer',
+                                  fontSize: '1rem',
+                                  fontWeight: 'bold'
+                                }}
+                              >
+                                -
+                              </button>
+                              <div style={{textAlign: 'center'}}>
+                                <p style={styles.stockValue}>{item.quantity || item.needed || 1}</p>
+                                <p style={styles.stockUnit}>{item.unit}</p>
+                              </div>
+                              <button
+                                onClick={() => updateShoppingListQuantity(item.id, (item.quantity || item.needed || 1) + 1)}
+                                style={{
+                                  width: '2rem',
+                                  height: '2rem',
+                                  borderRadius: '50%',
+                                  border: 'none',
+                                  background: 'linear-gradient(to right, #10b981, #059669)',
+                                  color: 'white',
+                                  cursor: 'pointer',
+                                  fontSize: '1rem',
+                                  fontWeight: 'bold'
+                                }}
+                              >
+                                +
+                              </button>
                             </div>
                           </div>
                           <div style={{

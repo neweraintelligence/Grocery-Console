@@ -6,29 +6,13 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { google } from 'googleapis';
 import path from 'path';
-import multer from 'multer';
 import fs from 'fs';
-import fetch from 'node-fetch';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Configure multer for file uploads
-const upload = multer({
-  dest: 'uploads/',
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
-  },
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed'));
-    }
-  }
-});
 
 // Middleware
 app.use(helmet());
@@ -410,119 +394,6 @@ app.get('/api/shopping-list', async (req, res) => {
   }
 });
 
-// Analyze photo for pantry items using computer vision
-app.post('/api/analyze-photo', upload.single('photo'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No photo uploaded' });
-    }
-
-    const imagePath = req.file.path;
-    
-    // Convert image to base64 for API call
-    const imageBuffer = fs.readFileSync(imagePath);
-    const base64Image = imageBuffer.toString('base64');
-    
-    // Use a simple food detection approach
-    // In a real implementation, you'd use services like:
-    // - Google Vision API
-    // - AWS Rekognition 
-    // - Azure Computer Vision
-    // - Open source models like YOLO
-    
-    // For now, we'll simulate computer vision analysis with common food items
-    const detectedItems = await analyzeImageForFoodItems(base64Image);
-    
-    // Clean up uploaded file
-    fs.unlinkSync(imagePath);
-    
-    res.json({ 
-      success: true, 
-      detectedItems,
-      message: `Detected ${detectedItems.length} items in the photo`
-    });
-    
-  } catch (error) {
-    console.error('Error analyzing photo:', error);
-    // Clean up file if it exists
-    if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
-    res.status(500).json({ error: 'Failed to analyze photo' });
-  }
-});
-
-// Helper function to analyze image for food items
-async function analyzeImageForFoodItems(base64Image: string) {
-  // This is a simplified implementation
-  // In production, you would integrate with a real computer vision service
-  
-  // Simulate detection with common pantry items
-  const commonItems = [
-    { name: 'Bananas', category: 'Produce', confidence: 0.95, estimatedCount: 3, unit: 'pieces' },
-    { name: 'Milk', category: 'Dairy', confidence: 0.87, estimatedCount: 1, unit: 'bottle' },
-    { name: 'Bread', category: 'Bakery', confidence: 0.92, estimatedCount: 1, unit: 'loaf' },
-    { name: 'Eggs', category: 'Dairy', confidence: 0.89, estimatedCount: 12, unit: 'pieces' },
-    { name: 'Tomatoes', category: 'Produce', confidence: 0.83, estimatedCount: 4, unit: 'pieces' },
-    { name: 'Chicken', category: 'Meat', confidence: 0.78, estimatedCount: 1, unit: 'package' },
-    { name: 'Rice', category: 'Pantry', confidence: 0.85, estimatedCount: 1, unit: 'bag' },
-    { name: 'Pasta', category: 'Pantry', confidence: 0.90, estimatedCount: 2, unit: 'boxes' }
-  ];
-  
-  // Randomly select 3-6 items to simulate detection
-  const numItems = Math.floor(Math.random() * 4) + 3; // 3-6 items
-  const shuffled = commonItems.sort(() => 0.5 - Math.random());
-  const detected = shuffled.slice(0, numItems);
-  
-  // Add some randomness to confidence and counts
-  return detected.map(item => ({
-    ...item,
-    confidence: Math.max(0.6, item.confidence + (Math.random() - 0.5) * 0.2),
-    estimatedCount: Math.max(1, item.estimatedCount + Math.floor((Math.random() - 0.5) * 3))
-  }));
-}
-
-// Add detected items to pantry
-app.post('/api/add-detected-items', async (req, res) => {
-  try {
-    if (!sheets || !process.env.GOOGLE_SHEET_ID) {
-      return res.status(500).json({ error: 'Google Sheets not configured' });
-    }
-
-    const { items } = req.body;
-    
-    if (!items || !Array.isArray(items)) {
-      return res.status(400).json({ error: 'Items array is required' });
-    }
-
-    // Prepare data for batch insert
-    const values = items.map((item: any) => [
-      item.name,
-      item.category || 'General',
-      item.estimatedCount || 1,
-      1, // Default min count
-      item.unit || 'units',
-      'TRUE', // Set On List to TRUE
-      `Added via photo analysis (${Math.round(item.confidence * 100)}% confidence)`
-    ]);
-
-    await sheets.spreadsheets.values.append({
-      spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Grocery List!A:G',
-      valueInputOption: 'USER_ENTERED',
-      resource: { values }
-    });
-
-    res.json({ 
-      success: true, 
-      message: `Added ${items.length} items to pantry`,
-      addedItems: items.length
-    });
-  } catch (error) {
-    console.error('Error adding detected items:', error);
-    res.status(500).json({ error: 'Failed to add detected items' });
-  }
-});
 
 // Get recipe suggestions based on pantry items
 app.get('/api/recipes', async (req, res) => {
