@@ -1247,11 +1247,19 @@ function App() {
           notes: `Added from shopping list on ${new Date().toLocaleDateString()}`
         };
 
-        await fetch('/api/pantry', {
+        console.log(`📦 Adding item to pantry:`, pantryData);
+        const pantryResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(pantryData)
         });
+        
+        if (!pantryResponse.ok) {
+          const errorText = await pantryResponse.text();
+          console.error(`❌ Failed to add ${item.name} to pantry:`, pantryResponse.status, errorText);
+        } else {
+          console.log(`✅ Successfully added ${item.name} to pantry`);
+        }
 
         // If this item originally came from the grocery list, mark it off that list
         if (item.source === 'grocery') {
@@ -1260,7 +1268,7 @@ function App() {
             onList: false
           });
           
-          const updateResponse = await fetch(`/api/groceries/${item.id}`, {
+          const updateResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/groceries/${item.id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
