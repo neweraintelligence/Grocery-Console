@@ -772,7 +772,7 @@ function App() {
   const [reviewItems, setReviewItems] = useState<ShoppingListItem[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loadingRecipes, setLoadingRecipes] = useState(false);
-  const [pantryCategoryFilter, setPantryCategoryFilter] = useState<string>('all');
+  const [pantryCategoryFilter, setPantryCategoryFilter] = useState<string[]>(['all']);
 
   // Fetch data on component mount
   useEffect(() => {
@@ -909,10 +909,31 @@ function App() {
     'Fridge'
   ];
 
-  // Filter pantry items by selected category
-  const filteredPantryItems = pantryCategoryFilter === 'all' 
+  // Filter pantry items by selected categories
+  const filteredPantryItems = pantryCategoryFilter.includes('all') 
     ? pantryItems 
-    : pantryItems.filter(item => item.category === pantryCategoryFilter);
+    : pantryItems.filter(item => pantryCategoryFilter.includes(item.category));
+
+  // Handle category filter checkbox changes
+  const handleCategoryFilterChange = (category: string) => {
+    if (category === 'all') {
+      // If "All" is selected, clear other selections
+      setPantryCategoryFilter(['all']);
+    } else {
+      // Remove 'all' if it was selected
+      const newFilters = pantryCategoryFilter.filter(c => c !== 'all');
+      
+      if (pantryCategoryFilter.includes(category)) {
+        // Remove category if already selected
+        const updatedFilters = newFilters.filter(c => c !== category);
+        // If no categories selected, default to 'all'
+        setPantryCategoryFilter(updatedFilters.length > 0 ? updatedFilters : ['all']);
+      } else {
+        // Add category to selection
+        setPantryCategoryFilter([...newFilters, category]);
+      }
+    }
+  };
 
   const generateRecipes = async () => {
     setLoadingRecipes(true);
@@ -2493,40 +2514,72 @@ function App() {
               </button>
             </div>
             
-            {/* Pantry Category Dropdown */}
+            {/* Pantry Category Multi-Select */}
             <div style={{
               padding: '0 1rem 1rem',
               borderBottom: '1px solid rgba(255,255,255,0.1)',
-              marginBottom: '1rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem'
+              marginBottom: '1rem'
             }}>
-              <label style={{
+              <div style={{
                 color: 'rgba(255,255,255,0.8)',
                 fontSize: '0.875rem',
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                marginBottom: '0.75rem'
               }}>
                 📂 Filter by Category:
-              </label>
-              <select
-                value={pantryCategoryFilter}
-                onChange={(e) => setPantryCategoryFilter(e.target.value)}
-                style={{
-                  padding: '0.5rem 1rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid rgba(255,255,255,0.3)',
-                  background: 'rgba(0,0,0,0.3)',
-                  color: 'white',
-                  fontSize: '0.875rem',
-                  cursor: 'pointer',
-                  minWidth: '200px',
-                  backdropFilter: 'blur(10px)',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-                }}
-              >
+              </div>
+              <div style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '0.5rem'
+              }}>
                 {pantryCategories.map((category) => (
-                  <option key={category} value={category}>
+                  <label
+                    key={category}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      padding: '0.5rem 0.75rem',
+                      borderRadius: '0.5rem',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      background: pantryCategoryFilter.includes(category)
+                        ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(59, 130, 246, 0.2))'
+                        : 'rgba(255,255,255,0.05)',
+                      color: pantryCategoryFilter.includes(category) ? 'white' : 'rgba(255,255,255,0.7)',
+                      fontSize: '0.75rem',
+                      fontWeight: pantryCategoryFilter.includes(category) ? 'bold' : 'normal',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      boxShadow: pantryCategoryFilter.includes(category) 
+                        ? '0 4px 8px rgba(16, 185, 129, 0.3)' 
+                        : 'none',
+                      userSelect: 'none'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!pantryCategoryFilter.includes(category)) {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                        e.currentTarget.style.color = 'rgba(255,255,255,0.9)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!pantryCategoryFilter.includes(category)) {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                        e.currentTarget.style.color = 'rgba(255,255,255,0.7)';
+                      }
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={pantryCategoryFilter.includes(category)}
+                      onChange={() => handleCategoryFilterChange(category)}
+                      style={{
+                        width: '16px',
+                        height: '16px',
+                        accentColor: '#10b981',
+                        cursor: 'pointer'
+                      }}
+                    />
                     {category === 'all' ? '📦 All Items' : 
                      category === 'Pantry – Staples' ? '🥫 Staples' :
                      category === 'Pantry – Oils, Vinegars & Condiments' ? '🫙 Oils & Condiments' :
@@ -2535,9 +2588,9 @@ function App() {
                      category === 'Pantry – Rice & Grains' ? '🌾 Rice & Grains' :
                      category === 'Pantry – Baking & Misc. Dry Goods' ? '🧁 Baking & Misc' :
                      category === 'Fridge' ? '❄️ Fridge' : category}
-                  </option>
+                  </label>
                 ))}
-              </select>
+              </div>
             </div>
             
             <div style={{display: 'flex', gap: '2rem', minHeight: '600px'}}>
@@ -2548,15 +2601,9 @@ function App() {
                     <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
                       <img src="/grocery icon 2.png" alt="Grocery Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
                       <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem'}}>
-                        {pantryCategoryFilter === 'all' 
+                        {pantryCategoryFilter.includes('all') 
                           ? "🕵️‍♀️ Laurie's stash is suspiciously empty... Time for a 'Snack Attack'!"
-                          : `📦 No items found in ${pantryCategoryFilter === 'Pantry – Staples' ? 'Staples' :
-                             pantryCategoryFilter === 'Pantry – Oils, Vinegars & Condiments' ? 'Oils & Condiments' :
-                             pantryCategoryFilter === 'Pantry – Cereals' ? 'Cereals' :
-                             pantryCategoryFilter === 'Pantry – Pasta' ? 'Pasta' :
-                             pantryCategoryFilter === 'Pantry – Rice & Grains' ? 'Rice & Grains' :
-                             pantryCategoryFilter === 'Pantry – Baking & Misc. Dry Goods' ? 'Baking & Misc' :
-                             pantryCategoryFilter === 'Fridge' ? 'Fridge' : pantryCategoryFilter}`
+                          : `📦 No items found in selected categories`
                         }
                       </p>
                     </div>
