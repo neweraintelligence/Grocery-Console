@@ -211,7 +211,7 @@ const styles = {
   cardSubtitle: {
     color: 'rgba(255,255,255,0.6)',
     fontSize: '0.875rem',
-    marginTop: '0.25rem'
+    marginTop: '0.125rem'
   },
   addBtn: {
     padding: '0.75rem 1.5rem',
