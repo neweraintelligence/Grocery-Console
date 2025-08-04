@@ -451,7 +451,6 @@ function App() {
   const [, setGroceryItems] = useState<GroceryItem[]>([]);
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
   const [detectedItems, setDetectedItems] = useState<any[]>([]);
-  const [analyzingPhoto, setAnalyzingPhoto] = useState(false);
   const [activeTab, setActiveTab] = useState<'shopping' | 'pantry'>('shopping');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
@@ -569,32 +568,6 @@ function App() {
     }
   };
 
-  const analyzePhoto = async (file: File) => {
-    setAnalyzingPhoto(true);
-    try {
-      const formData = new FormData();
-      formData.append('photo', file);
-
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/analyze-photo`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setDetectedItems(data.detectedItems);
-        setShowPhotoModal(true);
-      } else {
-        console.error('Failed to analyze photo');
-        alert('Failed to analyze photo. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error analyzing photo:', error);
-      alert('Error analyzing photo. Please try again.');
-    } finally {
-      setAnalyzingPhoto(false);
-    }
-  };
 
   const addDetectedItems = async (items: any[]) => {
     try {
