@@ -236,14 +236,14 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
           }}>
             🛒 Laurie's Weekly Adventure List! ✨
           </h2>
-          <p style={{
-            color: 'rgba(255,255,255,0.9)',
-            fontSize: '1.1rem',
-            margin: '0 0 1rem 0',
-            fontWeight: '500'
-          }}>
-            The kitchen oracle has spoken! Here's what you'll need this week.
-          </p>
+                     <p style={{
+             color: 'rgba(255,255,255,0.9)',
+             fontSize: '1.1rem',
+             margin: '0 0 1rem 0',
+             fontWeight: '500'
+           }}>
+             New food adventures await! Here's your culinary roadmap for the week ahead! 🌟
+           </p>
         </div>
 
         {/* Summary Stats */}
