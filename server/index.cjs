@@ -283,6 +283,23 @@ app.get('/api/shopping-list', async (req, res) => {
   }
 });
 
+// Root route - helpful info page
+app.get('/', (req, res) => {
+  res.json({
+    name: 'Mom\'s Grocery Dashboard API',
+    status: 'running',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      pantry: '/api/pantry',
+      groceries: '/api/groceries',
+      shoppingList: '/api/shopping-list'
+    },
+    message: 'API is running! Visit /api/health to check system status.',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ 
