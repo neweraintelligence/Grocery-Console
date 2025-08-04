@@ -103,13 +103,10 @@ const styles = {
   logoIcon: {
     width: '3.5rem',
     height: '3.5rem',
-    background: 'linear-gradient(135deg, #fb923c, #ec4899)',
-    borderRadius: '1rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '1.5rem',
-    boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)'
+    fontSize: '1.5rem'
   },
   title: {
     fontSize: '2.5rem',
@@ -182,13 +179,10 @@ const styles = {
   cardIcon: {
     width: '4rem',
     height: '4rem',
-    background: 'linear-gradient(135deg, #fb923c, #ec4899)',
-    borderRadius: '1rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '2rem',
-    boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)'
+    fontSize: '2rem'
   },
   cardTitleText: {
     fontSize: '2rem',
@@ -239,12 +233,10 @@ const styles = {
   itemIcon: {
     width: '3.5rem',
     height: '3.5rem',
-    borderRadius: '0.75rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '1.5rem',
-    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'
+    fontSize: '1.5rem'
   },
   itemDetails: {
     display: 'flex',
@@ -340,12 +332,10 @@ const styles = {
   sidebarIcon: {
     width: '3rem',
     height: '3rem',
-    borderRadius: '0.75rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '1.25rem',
-    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'
+    fontSize: '1.25rem'
   },
   sidebarTitle: {
     color: 'white',
@@ -1417,7 +1407,7 @@ function App() {
                     <div key={item.id || index} style={styles.inventoryItem}>
                       <div style={styles.itemContent}>
                         <div style={styles.itemLeft}>
-                          <div style={{...styles.itemIcon, background: 'transparent'}}>
+                          <div style={styles.itemIcon}>
                             {getItemIcon()}
                           </div>
                           <div style={styles.itemDetails}>
@@ -1595,7 +1585,7 @@ function App() {
                     <div key={item.id || index} style={styles.inventoryItem}>
                       <div style={styles.itemContent}>
                         <div style={styles.itemLeft}>
-                          <div style={{...styles.itemIcon, background: 'transparent'}}>
+                          <div style={styles.itemIcon}>
                             {getItemIcon()}
                           </div>
                           <div style={styles.itemDetails}>
