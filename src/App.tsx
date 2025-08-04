@@ -38,6 +38,20 @@ interface ShoppingListItem {
   notes?: string;
 }
 
+interface Recipe {
+  id: string;
+  title: string;
+  description: string;
+  cookTime: string;
+  servings: number;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  ingredients: string[];
+  instructions: string[];
+  cuisine: string;
+  availableIngredients: string[];
+  missingIngredients: string[];
+}
+
 const styles = {
   container: {
     minHeight: '100vh',
@@ -477,6 +491,21 @@ const styles = {
     color: 'white',
     boxShadow: '0 10px 15px -3px rgba(16, 185, 129, 0.3)',
     borderLeft: '3px solid #10b981'
+  },
+  tabRecipes: {
+    background: 'rgba(168, 85, 247, 0.1)', // Purple tint for recipes
+    borderLeft: '3px solid #a855f7'
+  },
+  tabRecipesHover: {
+    background: 'rgba(168, 85, 247, 0.2)',
+    color: 'rgba(255,255,255,0.8)',
+    transform: 'translateY(-1px)'
+  },
+  tabRecipesActive: {
+    background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(139, 92, 246, 0.2))',
+    color: 'white',
+    boxShadow: '0 10px 15px -3px rgba(168, 85, 247, 0.3)',
+    borderLeft: '3px solid #a855f7'
   }
 };
 
@@ -736,11 +765,13 @@ function App() {
   const [, setGroceryItems] = useState<GroceryItem[]>([]);
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
   const [detectedItems, setDetectedItems] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'shopping' | 'pantry'>('shopping');
+  const [activeTab, setActiveTab] = useState<'shopping' | 'pantry' | 'recipes'>('shopping');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [hoveredTab, setHoveredTab] = useState<'shopping' | 'pantry' | null>(null);
+  const [hoveredTab, setHoveredTab] = useState<'shopping' | 'pantry' | 'recipes' | null>(null);
   const [showPantryReviewModal, setShowPantryReviewModal] = useState(false);
   const [reviewItems, setReviewItems] = useState<ShoppingListItem[]>([]);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [loadingRecipes, setLoadingRecipes] = useState(false);
 
   // Fetch data on component mount
   useEffect(() => {
@@ -865,6 +896,119 @@ function App() {
     }
   };
 
+  const generateRecipes = async () => {
+    setLoadingRecipes(true);
+    try {
+      // Get available ingredients from pantry
+      const availableIngredients = pantryItems
+        .filter(item => item.currentCount > 0)
+        .map(item => item.name)
+        .join(', ');
+
+      if (availableIngredients.length === 0) {
+        alert('Add some items to your pantry first to get recipe suggestions!');
+        setLoadingRecipes(false);
+        return;
+      }
+
+      // Mock LLM response for now - in production, you'd call OpenAI or similar
+      const mockRecipes: Recipe[] = Array.from({ length: 5 }, (_, i) => {
+        const recipeTemplates = [
+          {
+            title: "Mediterranean Herb Crusted Chicken",
+            description: "A fragrant and flavorful chicken dish with Mediterranean herbs and spices",
+            cookTime: "35 minutes",
+            servings: 4,
+            difficulty: "Medium" as const,
+            cuisine: "Mediterranean",
+            baseIngredients: ["chicken", "olive oil", "garlic", "herbs"]
+          },
+          {
+            title: "Rustic Vegetable Pasta",
+            description: "A hearty pasta dish loaded with fresh vegetables and aromatic herbs",
+            cookTime: "25 minutes", 
+            servings: 4,
+            difficulty: "Easy" as const,
+            cuisine: "Italian",
+            baseIngredients: ["pasta", "tomatoes", "onion", "garlic"]
+          },
+          {
+            title: "Asian-Inspired Stir Fry Bowl",
+            description: "A colorful and nutritious stir fry with bold Asian flavors",
+            cookTime: "20 minutes",
+            servings: 3,
+            difficulty: "Easy" as const,
+            cuisine: "Asian Fusion",
+            baseIngredients: ["rice", "vegetables", "soy sauce", "ginger"]
+          },
+          {
+            title: "Classic American Comfort Casserole",
+            description: "A warming casserole perfect for family dinners",
+            cookTime: "45 minutes",
+            servings: 6,
+            difficulty: "Medium" as const,
+            cuisine: "American",
+            baseIngredients: ["ground meat", "potatoes", "cheese", "onion"]
+          },
+          {
+            title: "French-Style Herb Omelette",
+            description: "An elegant omelette with fresh herbs and creamy texture",
+            cookTime: "15 minutes",
+            servings: 2,
+            difficulty: "Medium" as const,
+            cuisine: "French",
+            baseIngredients: ["eggs", "butter", "herbs", "cheese"]
+          }
+        ];
+
+        const template = recipeTemplates[i % recipeTemplates.length];
+        const pantryNames = pantryItems.map(item => item.name.toLowerCase());
+        
+        // Find available ingredients from pantry
+        const available = pantryNames.filter(name => 
+          template.baseIngredients.some(base => name.includes(base.toLowerCase()) || base.toLowerCase().includes(name))
+        );
+        
+        // Generate missing ingredients
+        const missing = template.baseIngredients.filter(base => 
+          !pantryNames.some(name => name.includes(base.toLowerCase()) || base.toLowerCase().includes(name))
+        );
+
+        return {
+          id: `recipe-${Date.now()}-${i}`,
+          title: template.title,
+          description: template.description,
+          cookTime: template.cookTime,
+          servings: template.servings,
+          difficulty: template.difficulty,
+          cuisine: template.cuisine,
+          ingredients: [
+            ...template.baseIngredients,
+            "Salt and pepper to taste",
+            "2 tbsp cooking oil",
+            "1 medium onion, diced"
+          ],
+          instructions: [
+            "Prep all ingredients according to recipe requirements",
+            "Heat oil in a large pan over medium-high heat",
+            "Add aromatics and cook until fragrant (2-3 minutes)", 
+            "Add main ingredients and cook according to recipe timing",
+            "Season with salt and pepper to taste",
+            "Serve hot and enjoy!"
+          ],
+          availableIngredients: available,
+          missingIngredients: missing
+        };
+      });
+
+      setRecipes(mockRecipes);
+    } catch (error) {
+      console.error('Error generating recipes:', error);
+      alert('Failed to generate recipes. Please try again.');
+    } finally {
+      setLoadingRecipes(false);
+    }
+  };
 
   const addDetectedItems = async (items: any[]) => {
     try {
@@ -2096,6 +2240,24 @@ function App() {
             <img src="/grocery icon 2.png" alt="Grocery Icon" style={{width: '20px', height: '20px', objectFit: 'contain', marginRight: '8px'}} />
             Laurie's Secret Stash
           </button>
+          <button 
+            style={{
+              ...styles.tab,
+              ...styles.tabRecipes,
+              ...(activeTab === 'recipes' 
+                ? styles.tabRecipesActive 
+                : hoveredTab === 'recipes' 
+                ? styles.tabRecipesHover 
+                : {}
+              )
+            }}
+            onClick={() => setActiveTab('recipes')}
+            onMouseEnter={() => setHoveredTab('recipes')}
+            onMouseLeave={() => setHoveredTab(null)}
+          >
+            <img src="/kitchen icon 2.png" alt="Recipe Icon" style={{width: '20px', height: '20px', objectFit: 'contain', marginRight: '8px'}} />
+            Recipe Ideas
+          </button>
         </div>
 
         {/* Tab Content */}
@@ -2495,6 +2657,212 @@ function App() {
               <div style={{flex: '1', maxWidth: '50%'}}>
                 <PantryAnalytics pantryItems={pantryItems} />
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Recipes Tab Content */}
+        {activeTab === 'recipes' && (
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <div style={styles.cardTitle}>
+                <div style={styles.cardIcon}>
+                  <img src="/kitchen icon 2.png" alt="Recipe Icon" style={{width: '40px', height: '40px', objectFit: 'contain'}} />
+                </div>
+                <div>
+                  <h2 style={styles.cardTitleText}>Recipe Inspiration</h2>
+                  <p style={styles.cardSubtitle}>Delicious ideas based on your pantry ingredients! 👨‍🍳✨</p>
+                </div>
+              </div>
+              <button 
+                style={{
+                  ...styles.addBtn,
+                  background: loadingRecipes 
+                    ? 'linear-gradient(to right, rgba(120,120,120,0.4), rgba(140,140,140,0.3))'
+                    : 'linear-gradient(to right, rgba(168,85,247,0.4), rgba(139,92,246,0.4))',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                onClick={generateRecipes}
+                disabled={loadingRecipes}
+              >
+                <img src="/kitchen icon 2.png" alt="Refresh Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+                {loadingRecipes ? 'Finding Recipes...' : 'Get New Recipes'}
+              </button>
+            </div>
+            
+            <div style={{padding: '1rem'}}>
+              {recipes.length === 0 ? (
+                <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
+                  <img src="/kitchen icon 2.png" alt="Recipe Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
+                  <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem', marginBottom: '1rem'}}>
+                    🍽️ Ready to cook something amazing?
+                  </p>
+                  <p style={{color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem'}}>
+                    Click "Get New Recipes" to discover dishes you can make with your pantry ingredients!
+                  </p>
+                </div>
+              ) : (
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+                  gap: '1.5rem'
+                }}>
+                  {recipes.map((recipe, index) => (
+                    <div key={recipe.id} style={{
+                      background: 'linear-gradient(145deg, rgba(168,85,247,0.1), rgba(139,92,246,0.05))',
+                      borderRadius: '1rem',
+                      border: '1px solid rgba(168,85,247,0.3)',
+                      padding: '1.5rem',
+                      backdropFilter: 'blur(10px)'
+                    }}>
+                      {/* Recipe Header */}
+                      <div style={{ marginBottom: '1rem' }}>
+                        <h3 style={{
+                          color: 'white',
+                          fontSize: '1.2rem',
+                          fontWeight: 'bold',
+                          marginBottom: '0.5rem'
+                        }}>
+                          {recipe.title}
+                        </h3>
+                        <p style={{
+                          color: 'rgba(255,255,255,0.7)',
+                          fontSize: '0.875rem',
+                          lineHeight: '1.4',
+                          marginBottom: '0.75rem'
+                        }}>
+                          {recipe.description}
+                        </p>
+                        
+                        {/* Recipe Meta */}
+                        <div style={{
+                          display: 'flex',
+                          gap: '1rem',
+                          fontSize: '0.75rem',
+                          color: 'rgba(255,255,255,0.6)'
+                        }}>
+                          <span>⏱️ {recipe.cookTime}</span>
+                          <span>👥 {recipe.servings} servings</span>
+                          <span>📊 {recipe.difficulty}</span>
+                          <span>🌍 {recipe.cuisine}</span>
+                        </div>
+                      </div>
+
+                      {/* Ingredient Availability */}
+                      <div style={{ marginBottom: '1rem' }}>
+                        <div style={{
+                          display: 'flex',
+                          gap: '0.5rem',
+                          fontSize: '0.75rem',
+                          marginBottom: '0.5rem'
+                        }}>
+                          {recipe.availableIngredients.length > 0 && (
+                            <span style={{
+                              background: 'rgba(34,197,94,0.3)',
+                              color: 'rgba(34,197,94,1)',
+                              padding: '0.25rem 0.5rem',
+                              borderRadius: '0.25rem',
+                              fontWeight: 'bold'
+                            }}>
+                              ✅ {recipe.availableIngredients.length} available
+                            </span>
+                          )}
+                          {recipe.missingIngredients.length > 0 && (
+                            <span style={{
+                              background: 'rgba(239,68,68,0.3)',
+                              color: 'rgba(239,68,68,1)',
+                              padding: '0.25rem 0.5rem',
+                              borderRadius: '0.25rem',
+                              fontWeight: 'bold'
+                            }}>
+                              🛒 {recipe.missingIngredients.length} needed
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Ingredients List */}
+                      <div style={{ marginBottom: '1rem' }}>
+                        <h4 style={{
+                          color: 'rgba(255,255,255,0.9)',
+                          fontSize: '0.875rem',
+                          marginBottom: '0.5rem',
+                          fontWeight: 'bold'
+                        }}>
+                          🥘 Ingredients:
+                        </h4>
+                        <ul style={{
+                          listStyle: 'none',
+                          padding: 0,
+                          margin: 0,
+                          fontSize: '0.75rem'
+                        }}>
+                          {recipe.ingredients.slice(0, 6).map((ingredient, i) => (
+                            <li key={i} style={{
+                              color: 'rgba(255,255,255,0.7)',
+                              marginBottom: '0.25rem',
+                              paddingLeft: '1rem',
+                              position: 'relative'
+                            }}>
+                              <span style={{
+                                position: 'absolute',
+                                left: 0,
+                                color: 'rgba(168,85,247,0.8)'
+                              }}>•</span>
+                              {ingredient}
+                            </li>
+                          ))}
+                          {recipe.ingredients.length > 6 && (
+                            <li style={{
+                              color: 'rgba(255,255,255,0.5)',
+                              fontStyle: 'italic',
+                              fontSize: '0.7rem'
+                            }}>
+                              ... and {recipe.ingredients.length - 6} more
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+
+                      {/* Instructions Preview */}
+                      <div>
+                        <h4 style={{
+                          color: 'rgba(255,255,255,0.9)',
+                          fontSize: '0.875rem',
+                          marginBottom: '0.5rem',
+                          fontWeight: 'bold'
+                        }}>
+                          📝 Instructions:
+                        </h4>
+                        <div style={{ fontSize: '0.75rem' }}>
+                          {recipe.instructions.slice(0, 3).map((step, i) => (
+                            <p key={i} style={{
+                              color: 'rgba(255,255,255,0.7)',
+                              marginBottom: '0.5rem',
+                              lineHeight: '1.3'
+                            }}>
+                              <span style={{ color: 'rgba(168,85,247,0.8)', fontWeight: 'bold' }}>
+                                {i + 1}.
+                              </span> {step}
+                            </p>
+                          ))}
+                          {recipe.instructions.length > 3 && (
+                            <p style={{
+                              color: 'rgba(255,255,255,0.5)',
+                              fontStyle: 'italic',
+                              fontSize: '0.7rem'
+                            }}>
+                              ... {recipe.instructions.length - 3} more steps
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
