@@ -17,8 +17,9 @@ app.use(morgan('combined'));
 app.use(cors({
   origin: [
     process.env.FRONTEND_URL || 'http://localhost:5178',
+    'http://localhost:5173',
     'http://localhost:5183',
-    'https://grocery-dashboard.onrender.com'
+    'https://grocery-dashboard-frontend.onrender.com'
   ],
   credentials: true
 }));
