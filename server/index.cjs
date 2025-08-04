@@ -409,7 +409,7 @@ app.get('/api/shopping-list', async (req, res) => {
             category: row[1] || 'General',
             source: 'grocery',
             quantity: parseInt(row[2]) || 1,
-            unit: row[6] || '', // Column G is Notes (used for UOM)
+            unit: row[4] || '', // Column E is Notes (used for UOM)
             priority: 'Medium',
             needed: parseInt(row[2]) || 1
           }
