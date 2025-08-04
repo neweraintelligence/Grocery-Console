@@ -3,7 +3,7 @@ import { predictiveRestockService } from '../services/predictiveRestock';
 import { pdfGeneratorService } from '../services/pdfGenerator';
 
 interface WeeksListBoxProps {
-  pantryItems: any[];
+  pantryItems: any[]; // This will now be shopping list items
   isVisible?: boolean;
   onClose?: () => void;
 }
@@ -54,7 +54,18 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
   // Generate predictions when component becomes visible
   useEffect(() => {
     if (isVisible && pantryItems.length > 0) {
-      const weeklyList = predictiveRestockService.getWeeklyRestockList(pantryItems);
+      // Convert shopping list items to the format expected by predictive service
+      const convertedItems = pantryItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        category: item.category || 'General',
+        currentCount: item.quantity || 1,
+        minCount: 1,
+        unit: item.unit || 'units',
+        lastUpdated: new Date().toISOString()
+      }));
+      
+      const weeklyList = predictiveRestockService.getWeeklyRestockList(convertedItems);
       setPredictions(weeklyList);
     }
   }, [isVisible, pantryItems]);
@@ -80,14 +91,14 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
         predictedRunOutDate: prediction.predictedRunOutDate
       }));
 
-      await pdfGeneratorService.generateWeeklyListPDF(weeklyListItems, {
-        includeImages: true,
-        includePricing: true,
-        includeStoreInfo: true,
-        includeReasoningDetails: showDetails,
-        colorScheme: 'colorful',
-        paperSize: 'letter'
-      });
+             await pdfGeneratorService.generateWeeklyListPDF(weeklyListItems, {
+         includeImages: true,
+         includePricing: false,
+         includeStoreInfo: true,
+         includeReasoningDetails: showDetails,
+         colorScheme: 'colorful',
+         paperSize: 'letter'
+       });
 
       // Show success message
       alert('📄 Your weekly grocery list has been downloaded! Happy shopping! 🛒✨');

@@ -3560,7 +3560,7 @@ function App() {
 
       {/* Weeks List Box Modal */}
       <WeeksListBox 
-        pantryItems={pantryItems}
+        pantryItems={shoppingList}
         isVisible={showWeeksListBox}
         onClose={() => setShowWeeksListBox(false)}
       />
