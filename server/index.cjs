@@ -118,7 +118,7 @@ app.get('/api/groceries', async (req, res) => {
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Grocery List!A2:I', // Skip header row, include all columns
+      range: 'Grocery List!A2:H', // Skip header row, include all columns
     });
 
     const rows = response.data.values || [];
@@ -127,12 +127,11 @@ app.get('/api/groceries', async (req, res) => {
       name: row[0] || '',
       category: row[1] || '',
       quantity: parseInt(row[2]) || 1,
-      minCount: parseInt(row[3]) || 1,
-      unit: row[4] || '',
-      onList: row[5] === 'TRUE' || row[5] === true,
-      notes: row[6] || '',
-      addedDate: row[7] || '',
-      completed: row[8] === 'TRUE' || row[8] === true
+      priority: row[3] || 'Medium',
+      notes: row[4] || '', // Contains units
+      addedDate: row[5] || '',
+      completed: row[6] === 'TRUE' || row[6] === true,
+      onList: row[7] === 'TRUE' || row[7] === true
     }));
 
     res.json(groceries);
@@ -271,22 +270,21 @@ app.put('/api/groceries/:id', async (req, res) => {
     const { name, category, currentCount, minCount, unit, notes, onList, completed } = req.body;
     const lastUpdated = new Date().toISOString().split('T')[0];
 
-    // Complete row update: A=Name, B=Category, C=Quantity, D=Min Count, E=Unit, F=On List, G=Notes, H=Added Date, I=Completed
+    // Complete row update: A=Name, B=Category, C=Quantity, D=Priority, E=Notes, F=Added Date, G=Completed, H=On List
     const values = [[
       name, 
       category, 
       currentCount, 
-      minCount, 
-      unit, 
-      onList !== undefined ? (onList ? 'TRUE' : 'FALSE') : 'TRUE', // Column F - On List
-      notes || '', // Column G - Notes
-      lastUpdated, // Column H - Added Date
-      completed !== undefined ? (completed ? 'TRUE' : 'FALSE') : 'FALSE' // Column I - Completed
+      'Medium', // Column D - Priority (default to Medium)
+      notes || '', // Column E - Notes (contains units)
+      lastUpdated, // Column F - Added Date
+      completed !== undefined ? (completed ? 'TRUE' : 'FALSE') : 'FALSE', // Column G - Completed
+      onList !== undefined ? (onList ? 'TRUE' : 'FALSE') : 'TRUE' // Column H - On List
     ]];
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: `Grocery List!A${rowId}:I${rowId}`,
+      range: `Grocery List!A${rowId}:H${rowId}`,
       valueInputOption: 'USER_ENTERED',
       resource: { values }
     });

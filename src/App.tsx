@@ -1213,14 +1213,14 @@ function App() {
 
       // Add items to pantry and remove from shopping list
       for (const item of itemsToAdd) {
-        // Add to pantry
+        // Add to pantry - convert from grocery list format to pantry format
         const pantryData = {
           name: item.name,
-          category: item.category,
+          category: item.category || 'Misc',
           currentCount: item.quantity,
           minCount: 1,
-          unit: item.unit || 'units',
-          notes: `Added from shopping list`
+          unit: item.unit || 'units', // Unit comes from item.unit (which was mapped from Notes column)
+          notes: `Added from shopping list on ${new Date().toLocaleDateString()}`
         };
 
         await fetch('/api/pantry', {
@@ -1236,13 +1236,13 @@ function App() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               name: item.name,
-              category: item.category,
+              category: item.category || 'Misc',
               currentCount: item.quantity,
               minCount: 1,
               unit: item.unit || 'units',
-              notes: item.unit || 'units',
-              onList: false,
-              completed: false
+              notes: item.unit || 'units', // Keep unit in Notes column (E)
+              onList: false, // Column H - mark as not on list
+              completed: false // Column G - mark as not completed
             })
           });
         }
