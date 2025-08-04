@@ -953,87 +953,120 @@ function App() {
       }
 
       // Mock LLM response for now - in production, you'd call OpenAI or similar
-      const mockRecipes: Recipe[] = Array.from({ length: 6 }, (_, i) => {
-        const recipeTemplates = [
-          // Breakfast
-          {
-            title: "Sunrise Garden Omelette",
-            description: "A vibrant breakfast omelette filled with fresh vegetables and herbs",
-            cookTime: "15 minutes",
-            servings: 2,
-            difficulty: "Easy" as const,
-            cuisine: "American",
-            mealType: "breakfast" as const,
-            baseIngredients: ["eggs", "vegetables", "herbs", "cheese"]
-          },
-          // Lunch 1
-          {
-            title: "Mediterranean Quinoa Bowl",
-            description: "A healthy and colorful quinoa bowl with Mediterranean flavors",
-            cookTime: "25 minutes",
-            servings: 3,
-            difficulty: "Easy" as const,
-            cuisine: "Mediterranean",
-            mealType: "lunch" as const,
-            baseIngredients: ["quinoa", "vegetables", "olive oil", "herbs"]
-          },
-          // Lunch 2
-          {
-            title: "Asian-Inspired Stir Fry",
-            description: "A quick and flavorful stir fry with bold Asian spices",
-            cookTime: "20 minutes",
-            servings: 3,
-            difficulty: "Easy" as const,
-            cuisine: "Asian Fusion",
-            mealType: "lunch" as const,
-            baseIngredients: ["rice", "vegetables", "soy sauce", "ginger"]
-          },
-          // Dinner 1
-          {
-            title: "Herb Crusted Chicken with Roasted Vegetables",
-            description: "A fragrant and flavorful chicken dish with Mediterranean herbs",
-            cookTime: "40 minutes",
-            servings: 4,
-            difficulty: "Medium" as const,
-            cuisine: "Mediterranean",
-            mealType: "dinner" as const,
-            baseIngredients: ["chicken", "olive oil", "garlic", "herbs"]
-          },
-          // Dinner 2
-          {
-            title: "Rustic Vegetable Pasta",
-            description: "A hearty pasta dish loaded with fresh vegetables and aromatic herbs",
-            cookTime: "30 minutes", 
-            servings: 4,
-            difficulty: "Medium" as const,
-            cuisine: "Italian",
-            mealType: "dinner" as const,
-            baseIngredients: ["pasta", "tomatoes", "onion", "garlic"]
-          },
-          // Dessert
-          {
-            title: "Warm Apple Cinnamon Crumble",
-            description: "A comforting dessert with sweet apples and warm spices",
-            cookTime: "35 minutes",
-            servings: 6,
-            difficulty: "Easy" as const,
-            cuisine: "American",
-            mealType: "dessert" as const,
-            baseIngredients: ["apples", "flour", "butter", "cinnamon"]
-          }
-        ];
+      // Only generate recipes if we have ingredients that can actually make something
+      const pantryNames = pantryItems
+        .filter(item => item.currentCount > 0) // Only items actually in stock
+        .map(item => item.name.toLowerCase());
 
-        const template = recipeTemplates[i % recipeTemplates.length];
-        const pantryNames = pantryItems.map(item => item.name.toLowerCase());
-        
+      console.log('Available pantry ingredients:', pantryNames);
+
+      if (pantryNames.length === 0) {
+        setRecipes([]);
+        return;
+      }
+
+      const allRecipeTemplates = [
+        // Coconut-based recipes
+        {
+          title: "Coconut Rice Pudding",
+          description: "A creamy and comforting dessert made with coconut milk",
+          cookTime: "25 minutes",
+          servings: 4,
+          difficulty: "Easy" as const,
+          cuisine: "Asian",
+          mealType: "dessert" as const,
+          requiredIngredients: ["coconut milk"],
+          baseIngredients: ["coconut milk", "rice", "sugar"]
+        },
+        {
+          title: "Thai Coconut Curry Base",
+          description: "A simple coconut curry base that can be enhanced with vegetables",
+          cookTime: "20 minutes",
+          servings: 3,
+          difficulty: "Easy" as const,
+          cuisine: "Thai",
+          mealType: "dinner" as const,
+          requiredIngredients: ["coconut milk"],
+          baseIngredients: ["coconut milk", "curry powder", "onion"]
+        },
+        {
+          title: "Coconut Chia Pudding",
+          description: "A healthy breakfast pudding made with coconut milk",
+          cookTime: "10 minutes prep + 4 hours chill",
+          servings: 2,
+          difficulty: "Easy" as const,
+          cuisine: "Modern",
+          mealType: "breakfast" as const,
+          requiredIngredients: ["coconut milk"],
+          baseIngredients: ["coconut milk", "chia seeds", "honey"]
+        },
+        // Multi-ingredient recipes (need multiple pantry items)
+        {
+          title: "Mediterranean Quinoa Bowl",
+          description: "A healthy and colorful quinoa bowl with Mediterranean flavors",
+          cookTime: "25 minutes",
+          servings: 3,
+          difficulty: "Easy" as const,
+          cuisine: "Mediterranean",
+          mealType: "lunch" as const,
+          requiredIngredients: ["quinoa", "olive oil"],
+          baseIngredients: ["quinoa", "olive oil", "vegetables", "herbs"]
+        },
+        {
+          title: "Herb Crusted Chicken",
+          description: "A fragrant chicken dish with Mediterranean herbs",
+          cookTime: "40 minutes",
+          servings: 4,
+          difficulty: "Medium" as const,
+          cuisine: "Mediterranean",
+          mealType: "dinner" as const,
+          requiredIngredients: ["chicken", "olive oil", "herbs"],
+          baseIngredients: ["chicken", "olive oil", "garlic", "herbs"]
+        },
+        {
+          title: "Rustic Vegetable Pasta",
+          description: "A hearty pasta dish with vegetables and herbs",
+          cookTime: "30 minutes", 
+          servings: 4,
+          difficulty: "Medium" as const,
+          cuisine: "Italian",
+          mealType: "dinner" as const,
+          requiredIngredients: ["pasta", "olive oil"],
+          baseIngredients: ["pasta", "tomatoes", "onion", "olive oil"]
+        }
+      ];
+
+      // Filter recipes to only those we can actually make
+      const viableRecipes = allRecipeTemplates.filter(template => {
+        return template.requiredIngredients.every(required => 
+          pantryNames.some(pantryItem => 
+            pantryItem.includes(required.toLowerCase()) || 
+            required.toLowerCase().includes(pantryItem)
+          )
+        );
+      });
+
+      console.log('Viable recipes based on pantry:', viableRecipes.length);
+
+      if (viableRecipes.length === 0) {
+        setRecipes([]);
+        return;
+      }
+
+      // Generate recipes from viable options (up to 6, but could be fewer)
+      const mockRecipes: Recipe[] = viableRecipes.slice(0, 6).map((template, i) => {
         // Find available ingredients from pantry
         const available = pantryNames.filter(name => 
-          template.baseIngredients.some(base => name.includes(base.toLowerCase()) || base.toLowerCase().includes(name))
+          template.baseIngredients.some(base => 
+            name.includes(base.toLowerCase()) || base.toLowerCase().includes(name)
+          )
         );
         
         // Generate missing ingredients
         const missing = template.baseIngredients.filter(base => 
-          !pantryNames.some(name => name.includes(base.toLowerCase()) || base.toLowerCase().includes(name))
+          !pantryNames.some(name => 
+            name.includes(base.toLowerCase()) || base.toLowerCase().includes(name)
+          )
         );
 
         return {
@@ -1045,25 +1078,20 @@ function App() {
           difficulty: template.difficulty,
           cuisine: template.cuisine,
           mealType: template.mealType,
-          ingredients: [
-            ...template.baseIngredients,
-            "Salt and pepper to taste",
-            "2 tbsp cooking oil",
-            "1 medium onion, diced"
-          ],
+          ingredients: template.baseIngredients,
           instructions: [
             "Prep all ingredients according to recipe requirements",
-            "Heat oil in a large pan over medium-high heat",
-            "Add aromatics and cook until fragrant (2-3 minutes)", 
-            "Add main ingredients and cook according to recipe timing",
-            "Season with salt and pepper to taste",
-            "Serve hot and enjoy!"
+            "Follow cooking method appropriate for this dish",
+            "Combine ingredients as needed for best results", 
+            "Cook until done and season to taste",
+            "Serve and enjoy your homemade meal!"
           ],
           availableIngredients: available,
           missingIngredients: missing
         };
       });
 
+      console.log('Generated recipes:', mockRecipes.length);
       setRecipes(mockRecipes);
     } catch (error) {
       console.error('Error generating recipes:', error);
@@ -2924,10 +2952,14 @@ function App() {
                 <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
                   <img src="/kitchen icon 2.png" alt="Recipe Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
                   <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem', marginBottom: '1rem'}}>
-                    🍽️ Ready to cook something amazing?
+                    🍽️ {pantryItems.filter(item => item.currentCount > 0).length === 0 
+                      ? "Add some ingredients to your pantry first!" 
+                      : "Not enough ingredients for complete recipes"}
                   </p>
                   <p style={{color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem'}}>
-                    Click "Get New Recipes" to discover dishes you can make with your pantry ingredients!
+                    {pantryItems.filter(item => item.currentCount > 0).length === 0 
+                      ? "Stock up your pantry, then click 'Get New Recipes' to discover dishes you can make!"
+                      : "Try adding more ingredients to your pantry for more recipe options. We only suggest recipes you can actually make!"}
                   </p>
                 </div>
               ) : (
