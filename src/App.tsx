@@ -74,12 +74,11 @@ const styles = {
     animation: 'pulse 3s ease-in-out infinite 1s'
   },
   header: {
-    position: 'relative' as const,
+    position: 'sticky' as const,
     backgroundColor: 'rgba(0,0,0,0.2)',
     backdropFilter: 'blur(20px)',
     borderBottom: '1px solid rgba(255,255,255,0.1)',
     boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
-    position: 'sticky' as const,
     top: 0,
     zIndex: 50
   },
@@ -365,7 +364,7 @@ const styles = {
 function App() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [pantryItems, setPantryItems] = useState<PantryItem[]>([]);
-  const [groceryItems, setGroceryItems] = useState<GroceryItem[]>([]);
+  const [, setGroceryItems] = useState<GroceryItem[]>([]);
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
 
   // Fetch data on component mount
@@ -405,7 +404,7 @@ function App() {
     }
   };
 
-  const updateItemQuantity = async (itemId, newQuantity, isIncrease) => {
+  const updateItemQuantity = async (itemId: string, newQuantity: number, isIncrease: boolean) => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
         method: 'PUT',
@@ -438,7 +437,7 @@ function App() {
       notes: ''
     });
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       try {
         const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry`, {
@@ -687,7 +686,7 @@ function App() {
 
       {/* Main Content */}
       <main style={styles.main}>
-        <div style={{...styles.grid, gridTemplateColumns: 'minmax(0, 1fr)', '@media (min-width: 1280px)': {gridTemplateColumns: '3fr 2fr'}}}>
+        <div style={{...styles.grid, gridTemplateColumns: window.innerWidth >= 1280 ? '3fr 2fr' : 'minmax(0, 1fr)'}}>
           
           {/* Main Inventory Section */}
           <div style={styles.card}>
