@@ -269,14 +269,25 @@ app.put('/api/groceries/:id', async (req, res) => {
     }
 
     const rowId = req.params.id;
-    const { name, category, currentCount, minCount, unit, notes } = req.body;
+    const { name, category, currentCount, minCount, unit, notes, onList, completed } = req.body;
     const lastUpdated = new Date().toISOString().split('T')[0];
 
-    const values = [[name, category, currentCount, minCount, unit, lastUpdated, notes || '']];
+    // Complete row update: A=Name, B=Category, C=Quantity, D=Min Count, E=Unit, F=On List, G=Notes, H=Added Date, I=Completed
+    const values = [[
+      name, 
+      category, 
+      currentCount, 
+      minCount, 
+      unit, 
+      onList !== undefined ? (onList ? 'TRUE' : 'FALSE') : 'TRUE', // Column F - On List
+      notes || '', // Column G - Notes
+      lastUpdated, // Column H - Added Date
+      completed !== undefined ? (completed ? 'TRUE' : 'FALSE') : 'FALSE' // Column I - Completed
+    ]];
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: `Grocery List!A${rowId}:G${rowId}`,
+      range: `Grocery List!A${rowId}:I${rowId}`,
       valueInputOption: 'USER_ENTERED',
       resource: { values }
     });

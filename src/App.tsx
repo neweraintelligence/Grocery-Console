@@ -206,6 +206,22 @@ const styles = {
     boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
     transition: 'all 0.2s ease'
   },
+  pantryBtn: {
+    padding: '0.75rem 1.5rem',
+    background: 'linear-gradient(to right, #10b981, #059669)',
+    color: 'white',
+    borderRadius: '0.75rem',
+    fontWeight: '600',
+    border: 'none',
+    cursor: 'pointer',
+    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+    transition: 'all 0.2s ease'
+  },
+  buttonGroup: {
+    display: 'flex',
+    gap: '1rem',
+    flexWrap: 'wrap' as const
+  },
   inventoryList: {
     display: 'flex',
     flexDirection: 'column' as const,
@@ -473,6 +489,8 @@ function App() {
   const [activeTab, setActiveTab] = useState<'shopping' | 'pantry'>('shopping');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [hoveredTab, setHoveredTab] = useState<'shopping' | 'pantry' | null>(null);
+  const [showPantryReviewModal, setShowPantryReviewModal] = useState(false);
+  const [reviewItems, setReviewItems] = useState<ShoppingListItem[]>([]);
 
   // Fetch data on component mount
   useEffect(() => {
@@ -1165,6 +1183,364 @@ function App() {
     );
   };
 
+  // Function to handle quantity changes in review modal
+  const updateReviewItemQuantity = (itemId: string, newQuantity: number) => {
+    setReviewItems(prevItems => 
+      prevItems.map(item => 
+        item.id === itemId 
+          ? { ...item, quantity: Math.max(0, newQuantity) }
+          : item
+      )
+    );
+  };
+
+  // Function to remove item from review list
+  const removeReviewItem = (itemId: string) => {
+    setReviewItems(prevItems => prevItems.filter(item => item.id !== itemId));
+  };
+
+  // Function to add items to pantry and remove from shopping list
+  const addItemsToPantry = async () => {
+    try {
+      // Filter out items with 0 quantity
+      const itemsToAdd = reviewItems.filter(item => item.quantity > 0);
+      
+      if (itemsToAdd.length === 0) {
+        alert('No items to add to pantry!');
+        return;
+      }
+
+      // Add items to pantry and remove from shopping list
+      for (const item of itemsToAdd) {
+        // Add to pantry
+        const pantryData = {
+          name: item.name,
+          category: item.category,
+          currentCount: item.quantity,
+          minCount: 1,
+          unit: item.unit || 'units',
+          notes: `Added from shopping list`
+        };
+
+        await fetch('/api/pantry', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(pantryData)
+        });
+
+        // Remove from shopping list by updating the row to set "On List" to FALSE
+        await fetch(`/api/groceries/${item.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: item.name,
+            category: item.category,
+            currentCount: item.quantity,
+            minCount: 1,
+            unit: item.unit || 'units',
+            notes: item.unit || 'units',
+            onList: false,
+            completed: false
+          })
+        });
+      }
+
+      // Refresh data
+      await fetchPantryItems();
+      await fetchShoppingList();
+      
+      // Close modal and reset
+      setShowPantryReviewModal(false);
+      setReviewItems([]);
+      
+      alert(`Successfully added ${itemsToAdd.length} items to pantry!`);
+      
+    } catch (error) {
+      console.error('Error adding items to pantry:', error);
+      alert('Error adding items to pantry. Please try again.');
+    }
+  };
+
+  const PantryReviewModal = () => {
+    if (!showPantryReviewModal) return null;
+
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+        padding: '1rem'
+      }}>
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(16,185,129,0.95) 0%, rgba(5,150,105,0.95) 25%, rgba(4,120,87,0.95) 75%, rgba(6,78,59,0.95) 100%)',
+          backdropFilter: 'blur(20px)',
+          borderRadius: '2rem',
+          border: '3px solid rgba(16,185,129,0.6)',
+          padding: '2rem',
+          width: '95%',
+          maxWidth: '800px',
+          maxHeight: '90vh',
+          overflow: 'hidden',
+          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
+          position: 'relative'
+        }}>
+          {/* Header */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '2rem',
+            paddingBottom: '1rem',
+            borderBottom: '2px solid rgba(255,255,255,0.2)'
+          }}>
+            <div>
+              <h2 style={{
+                color: 'white',
+                fontFamily: "'Fredoka', system-ui, sans-serif",
+                fontSize: '2rem',
+                fontWeight: 'bold',
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem'
+              }}>
+                <img src="/grocery icon 2.png" alt="Pantry Icon" style={{width: '32px', height: '32px', objectFit: 'contain'}} />
+                Review & Add to Pantry
+              </h2>
+              <p style={{
+                color: 'rgba(255,255,255,0.8)',
+                margin: '0.5rem 0 0 0',
+                fontSize: '1rem'
+              }}>
+                Adjust quantities for items you actually purchased
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setShowPantryReviewModal(false);
+                setReviewItems([]);
+              }}
+              style={{
+                background: 'rgba(255,255,255,0.2)',
+                border: 'none',
+                color: 'white',
+                width: '2.5rem',
+                height: '2.5rem',
+                borderRadius: '50%',
+                cursor: 'pointer',
+                fontSize: '1.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              ×
+            </button>
+          </div>
+
+          {/* Items List */}
+          <div style={{
+            maxHeight: '50vh',
+            overflowY: 'auto',
+            marginBottom: '2rem',
+            paddingRight: '0.5rem'
+          }}>
+            {reviewItems.map((item, index) => (
+              <div key={item.id || index} style={{
+                background: 'rgba(255,255,255,0.1)',
+                borderRadius: '1rem',
+                padding: '1.5rem',
+                marginBottom: '1rem',
+                border: '1px solid rgba(255,255,255,0.2)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '1rem'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  flex: 1
+                }}>
+                  <img src="/grocery icon 1.png" alt="Item Icon" style={{width: '32px', height: '32px', objectFit: 'contain'}} />
+                  <div>
+                    <h3 style={{
+                      color: 'white',
+                      margin: 0,
+                      fontSize: '1.1rem',
+                      fontWeight: '600'
+                    }}>
+                      {item.name}
+                    </h3>
+                    <p style={{
+                      color: 'rgba(255,255,255,0.7)',
+                      margin: '0.25rem 0 0 0',
+                      fontSize: '0.9rem'
+                    }}>
+                      {item.category} • {item.unit || 'units'}
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem'
+                }}>
+                  {/* Quantity Controls */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    background: 'rgba(0,0,0,0.3)',
+                    borderRadius: '0.75rem',
+                    padding: '0.5rem'
+                  }}>
+                    <button
+                      onClick={() => updateReviewItemQuantity(item.id, item.quantity - 1)}
+                      style={{
+                        width: '2rem',
+                        height: '2rem',
+                        borderRadius: '50%',
+                        border: 'none',
+                        background: 'linear-gradient(to right, #f87171, #ef4444)',
+                        color: 'white',
+                        cursor: 'pointer',
+                        fontSize: '1rem',
+                        fontWeight: 'bold',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      -
+                    </button>
+                    <span style={{
+                      color: 'white',
+                      fontWeight: 'bold',
+                      fontSize: '1.1rem',
+                      minWidth: '2.5rem',
+                      textAlign: 'center'
+                    }}>
+                      {item.quantity}
+                    </span>
+                    <button
+                      onClick={() => updateReviewItemQuantity(item.id, item.quantity + 1)}
+                      style={{
+                        width: '2rem',
+                        height: '2rem',
+                        borderRadius: '50%',
+                        border: 'none',
+                        background: 'linear-gradient(to right, #4ade80, #10b981)',
+                        color: 'white',
+                        cursor: 'pointer',
+                        fontSize: '1rem',
+                        fontWeight: 'bold',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  {/* Remove Item Button */}
+                  <button
+                    onClick={() => removeReviewItem(item.id)}
+                    style={{
+                      width: '2rem',
+                      height: '2rem',
+                      borderRadius: '50%',
+                      border: 'none',
+                      background: 'rgba(239,68,68,0.8)',
+                      color: 'white',
+                      cursor: 'pointer',
+                      fontSize: '1rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                    title="Remove item"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Footer */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            paddingTop: '1rem',
+            borderTop: '2px solid rgba(255,255,255,0.2)'
+          }}>
+            <div style={{
+              color: 'rgba(255,255,255,0.8)',
+              fontSize: '0.9rem'
+            }}>
+              {reviewItems.filter(item => item.quantity > 0).length} items ready to add
+            </div>
+            <div style={{
+              display: 'flex',
+              gap: '1rem'
+            }}>
+              <button
+                onClick={() => {
+                  setShowPantryReviewModal(false);
+                  setReviewItems([]);
+                }}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: 'rgba(255,255,255,0.2)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.75rem',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={addItemsToPantry}
+                disabled={reviewItems.filter(item => item.quantity > 0).length === 0}
+                style={{
+                  padding: '0.75rem 2rem',
+                  background: reviewItems.filter(item => item.quantity > 0).length > 0 
+                    ? 'linear-gradient(to right, #22c55e, #16a34a)' 
+                    : 'rgba(255,255,255,0.2)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.75rem',
+                  cursor: reviewItems.filter(item => item.quantity > 0).length > 0 ? 'pointer' : 'not-allowed',
+                  fontWeight: '600',
+                  transition: 'all 0.2s ease',
+                  opacity: reviewItems.filter(item => item.quantity > 0).length > 0 ? 1 : 0.5
+                }}
+              >
+                Add {reviewItems.filter(item => item.quantity > 0).length} to Pantry
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const PhotoAnalyzerModal = () => {
     if (!showPhotoModal) return null;
 
@@ -1386,16 +1762,30 @@ function App() {
                   <p style={styles.cardSubtitle}>Adventures awaiting in the grocery jungle! 🛒✨</p>
                 </div>
               </div>
-              <button 
-                style={styles.addBtn}
-                onClick={() => {
-                  setModalType('loot');
-                  setShowAddModal(true);
-                }}
-              >
-                <img src="/grocery icon 1.png" alt="Add Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
-                Add Treasure!
-              </button>
+              <div style={styles.buttonGroup}>
+                <button 
+                  style={styles.addBtn}
+                  onClick={() => {
+                    setModalType('loot');
+                    setShowAddModal(true);
+                  }}
+                >
+                  <img src="/grocery icon 1.png" alt="Add Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+                  Add Treasure!
+                </button>
+                {shoppingList.length > 0 && (
+                  <button 
+                    style={styles.pantryBtn}
+                    onClick={() => {
+                      setReviewItems([...shoppingList]);
+                      setShowPantryReviewModal(true);
+                    }}
+                  >
+                    <img src="/grocery icon 2.png" alt="Pantry Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+                    Add All to Pantry
+                  </button>
+                )}
+              </div>
             </div>
             
             <div style={styles.inventoryList}>
@@ -1733,6 +2123,7 @@ function App() {
       {/* Add Item Modals */}
       <LootListModal />
       <PantryModal />
+      <PantryReviewModal />
 
       {/* Quantity Edit Modal */}
       {showQuantityModal && editingItem && (
