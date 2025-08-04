@@ -384,14 +384,14 @@ const styles = {
     fontSize: '1.5rem'
   },
   quickStatsContainer: {
-    backgroundColor: 'rgba(0,0,0,0.2)',
+    backgroundColor: 'rgba(0,0,0,0.3)',
     backdropFilter: 'blur(20px)',
     borderRadius: '1.5rem',
-    border: '1px solid rgba(255,255,255,0.1)',
+    border: '1px solid rgba(255,255,255,0.15)',
     padding: '1.5rem',
     marginBottom: '2rem',
     boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
-    background: 'linear-gradient(135deg, rgba(99,102,241,0.8), rgba(147,51,234,0.8))'
+    background: 'linear-gradient(135deg, rgba(30, 58, 138, 0.6), rgba(59, 130, 246, 0.4))'
   },
   quickStatsGrid: {
     display: 'grid',
@@ -418,11 +418,11 @@ const styles = {
   },
   tabContainer: {
     display: 'flex',
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: 'rgba(0,0,0,0.4)',
     borderRadius: '1rem',
     padding: '0.5rem',
     marginBottom: '2rem',
-    border: '1px solid rgba(255,255,255,0.1)'
+    border: '1px solid rgba(255,255,255,0.15)'
   },
   tab: {
     flex: 1,
@@ -438,9 +438,9 @@ const styles = {
     fontFamily: "'Fredoka', system-ui, sans-serif"
   },
   activeTab: {
-    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(30, 58, 138, 0.8))',
     color: 'white',
-    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'
+    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.2)'
   }
 };
 function App() {
@@ -1277,13 +1277,13 @@ function App() {
               <div style={styles.quickStatLabel}>Running Low</div>
             </div>
             <div style={styles.quickStatCard}>
-              <div style={{...styles.quickStatValue, color: '#ef4444'}}>
+              <div style={{...styles.quickStatValue, color: '#f87171'}}>
                 {pantryItems.filter(item => item.currentCount < item.minCount).length}
               </div>
               <div style={styles.quickStatLabel}>Items below minimum</div>
             </div>
             <div style={styles.quickStatCard}>
-              <div style={{...styles.quickStatValue, color: '#34d399'}}>{shoppingList.length}</div>
+              <div style={{...styles.quickStatValue, color: '#6ee7b7'}}>{shoppingList.length}</div>
               <div style={styles.quickStatLabel}>Need to Buy</div>
             </div>
           </div>
