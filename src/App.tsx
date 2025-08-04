@@ -512,9 +512,14 @@ function App() {
 
   const fetchPantryItems = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry`);
+      console.log('🔍 Frontend: Calling pantry endpoint...');
+      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry`;
+      console.log('🔍 Frontend: API URL:', apiUrl);
+      const response = await fetch(apiUrl);
+      console.log('🔍 Frontend: Pantry response status:', response.status);
       if (response.ok) {
         const data = await response.json();
+        console.log('🔍 Frontend: Pantry data received:', data);
         setPantryItems(Array.isArray(data) ? data : []);
       } else {
         console.error('Failed to fetch pantry items:', response.status);
