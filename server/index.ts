@@ -343,25 +343,48 @@ app.get('/api/shopping-list', async (req, res) => {
 
     const rows = response.data.values || [];
     
+    // Get the header row first to find the "On List" column position
+    let headerResponse;
+    try {
+      headerResponse = await sheets.spreadsheets.values.get({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'Grocery List!A1:Z1',
+      });
+    } catch (error) {
+      // Fallback to Groceries sheet
+      headerResponse = await sheets.spreadsheets.values.get({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'Groceries!A1:Z1',
+      });
+    }
+    
+    const headers = headerResponse.data.values?.[0] || [];
+    console.log('Headers found:', headers);
+    
+    // Find the "On List" column index
+    let onListColumnIndex = -1;
+    for (let i = 0; i < headers.length; i++) {
+      const header = headers[i]?.toString().toLowerCase().trim();
+      if (header.includes('on list') || header.includes('onlist')) {
+        onListColumnIndex = i;
+        break;
+      }
+    }
+    
+    console.log(`"On List" column found at index: ${onListColumnIndex}`);
+    
     // Filter for items with names AND where "On List" column is TRUE
     const shoppingItems = rows
       .map((row: any[], index: number) => {
         const hasName = row[0] && row[0].trim();
         
-        // Check multiple possible positions for "On List" column
-        // It could be in column F (index 5) or G (index 6) depending on spreadsheet structure
+        // Get the value from the correct "On List" column
         let onListValue = null;
-        
-        // Try index 5 (column F) first
-        if (row[5] !== undefined && row[5] !== null && row[5] !== '') {
-          onListValue = row[5];
-        }
-        // If nothing in column F, try column G (index 6)
-        else if (row[6] !== undefined && row[6] !== null && row[6] !== '') {
-          onListValue = row[6];
+        if (onListColumnIndex >= 0 && onListColumnIndex < row.length) {
+          onListValue = row[onListColumnIndex];
         }
         
-        console.log(`Item: ${row[0]}, OnList Value (F): ${row[5]}, OnList Value (G): ${row[6]}, Selected: ${onListValue}`);
+        console.log(`Item: ${row[0]}, OnList Value at column ${onListColumnIndex}: ${onListValue}`);
         
         // Check for TRUE, true, 1, "1", or any checkbox-like value
         const onList = onListValue && (
@@ -390,8 +413,14 @@ app.get('/api/shopping-list', async (req, res) => {
           }
         };
       })
-      .filter((item: any) => item.hasName && item.onList)
+      .filter((item: any) => {
+        const shouldInclude = item.hasName && item.onList;
+        console.log(`Item ${item.data.name}: hasName=${item.hasName}, onList=${item.onList}, shouldInclude=${shouldInclude}`);
+        return shouldInclude;
+      })
       .map((item: any) => item.data);
+    
+    console.log(`Total rows processed: ${rows.length}, Items with names: ${rows.filter((row: any[]) => row[0] && row[0].trim()).length}, Items on list: ${shoppingItems.length}`);
 
     res.json(shoppingItems);
   } catch (error) {
