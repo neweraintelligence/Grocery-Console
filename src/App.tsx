@@ -102,8 +102,8 @@ const styles = {
     gap: '1rem'
   },
   logoIcon: {
-    width: '3.5rem',
-    height: '3.5rem',
+    width: '4rem',
+    height: '4rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -116,11 +116,14 @@ const styles = {
     backgroundClip: 'text',
     WebkitBackgroundClip: 'text',
     color: 'transparent',
-    fontFamily: "'Fredoka', system-ui, sans-serif"
+    fontFamily: "'Fredoka', system-ui, sans-serif",
+    margin: '0',
+    lineHeight: '1.2'
   },
   subtitle: {
     color: 'rgba(255,255,255,0.7)',
-    marginTop: '0.25rem',
+    margin: '0',
+    marginTop: '0.125rem',
     fontSize: '0.875rem',
     fontWeight: '500'
   },
@@ -1739,7 +1742,7 @@ function App() {
         <div style={styles.headerContent}>
           <div style={styles.logoSection}>
             <div style={styles.logoIcon}>
-              <img src="/grocery scene 1.png" alt="Grocery Scene" style={{width: '32px', height: '32px', objectFit: 'contain'}} />
+              <img src="/grocery scene 1.png" alt="Grocery Scene" style={{width: '48px', height: '48px', objectFit: 'contain'}} />
             </div>
             <div>
               <h1 style={styles.title}>Laurie's Legendary Kitchen</h1>
