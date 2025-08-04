@@ -70,8 +70,8 @@ interface GroceryItem {
 
 // API Routes
 
-// Get all grocery items
-app.get('/api/groceries', async (req, res) => {
+// Get pantry items (current inventory)
+app.get('/api/pantry', async (req, res) => {
   try {
     if (!sheets || !process.env.GOOGLE_SHEET_ID) {
       return res.status(500).json({ error: 'Google Sheets not configured' });
@@ -79,11 +79,11 @@ app.get('/api/groceries', async (req, res) => {
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Groceries!A2:H', // Skip header row
+      range: 'Pantry!A2:H', // Skip header row
     });
 
     const rows = response.data.values || [];
-    const groceries: GroceryItem[] = rows.map((row: any[], index: number) => ({
+    const pantryItems: GroceryItem[] = rows.map((row: any[], index: number) => ({
       id: (index + 2).toString(), // Row number as ID
       name: row[0] || '',
       category: row[1] || '',
@@ -94,10 +94,42 @@ app.get('/api/groceries', async (req, res) => {
       notes: row[6] || ''
     }));
 
+    res.json(pantryItems);
+  } catch (error) {
+    console.error('Error fetching pantry items:', error);
+    res.status(500).json({ error: 'Failed to fetch pantry items' });
+  }
+});
+
+// Get grocery list (shopping items)
+app.get('/api/groceries', async (req, res) => {
+  try {
+    if (!sheets || !process.env.GOOGLE_SHEET_ID) {
+      return res.status(500).json({ error: 'Google Sheets not configured' });
+    }
+
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID,
+      range: 'Grocery List!A2:H', // Skip header row
+    });
+
+    const rows = response.data.values || [];
+    const groceries = rows.map((row: any[], index: number) => ({
+      id: (index + 2).toString(), // Row number as ID
+      name: row[0] || '',
+      category: row[1] || '',
+      quantity: parseInt(row[2]) || 1,
+      unit: row[3] || '',
+      priority: row[4] || 'Medium',
+      notes: row[5] || '',
+      addedDate: row[6] || '',
+      completed: row[7] === 'TRUE' || row[7] === true
+    }));
+
     res.json(groceries);
   } catch (error) {
-    console.error('Error fetching groceries:', error);
-    res.status(500).json({ error: 'Failed to fetch groceries' });
+    console.error('Error fetching grocery list:', error);
+    res.status(500).json({ error: 'Failed to fetch grocery list' });
   }
 });
 

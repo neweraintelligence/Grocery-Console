@@ -118,7 +118,10 @@ npm run preview      # Preview production build
 \`\`\`
 
 ### Google Sheets Structure
-The system expects a sheet named "Groceries" with the following columns:
+The system uses **two sheets** in your Google Spreadsheet:
+
+#### Sheet 1: "Pantry" (Inventory Management)
+Tracks what you currently have at home:
 - **Name**: Item name (e.g., "Organic Milk")
 - **Category**: Item category (e.g., "Dairy")
 - **Current Count**: Items currently in stock
@@ -126,6 +129,17 @@ The system expects a sheet named "Groceries" with the following columns:
 - **Unit**: Unit of measurement (e.g., "cartons")
 - **Last Updated**: Last modification date
 - **Notes**: Additional notes
+
+#### Sheet 2: "Grocery List" (Shopping List)
+Tracks what you need to buy:
+- **Name**: Item name (e.g., "Organic Apples")
+- **Category**: Item category (e.g., "Produce")
+- **Quantity**: How many to buy
+- **Unit**: Unit of measurement (e.g., "bags")
+- **Priority**: High/Medium/Low priority
+- **Notes**: Additional notes
+- **Added Date**: When item was added
+- **Completed**: TRUE/FALSE if purchased
 
 ## 🔒 Security Notes
 

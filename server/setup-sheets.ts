@@ -33,18 +33,32 @@ async function setupGoogleSheet() {
       throw new Error('GOOGLE_SHEET_ID not found in environment variables');
     }
 
-    // Create headers
-    const headers = [
+    // Create Pantry sheet headers
+    const pantryHeaders = [
       'Name', 'Category', 'Current Count', 'Min Count', 'Unit', 'Last Updated', 'Notes'
     ];
 
-    // Add headers to the sheet
+    // Create Grocery List sheet headers  
+    const groceryHeaders = [
+      'Name', 'Category', 'Quantity', 'Unit', 'Priority', 'Notes', 'Added Date', 'Completed'
+    ];
+
+    // Add headers to both sheets
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
-      range: 'Groceries!A1:G1',
+      range: 'Pantry!A1:G1',
       valueInputOption: 'USER_ENTERED',
       resource: {
-        values: [headers]
+        values: [pantryHeaders]
+      }
+    });
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SHEET_ID,
+      range: 'Grocery List!A1:H1',
+      valueInputOption: 'USER_ENTERED',
+      resource: {
+        values: [groceryHeaders]
       }
     });
 
@@ -78,8 +92,8 @@ async function setupGoogleSheet() {
       }
     });
 
-    // Add some sample data
-    const sampleData = [
+    // Add sample pantry data
+    const pantryData = [
       ['Milk', 'Dairy', 1, 2, 'cartons', new Date().toISOString().split('T')[0], 'Always need backup'],
       ['Bread', 'Bakery', 0, 1, 'loaves', new Date().toISOString().split('T')[0], 'Running low!'],
       ['Bananas', 'Produce', 3, 5, 'bunches', new Date().toISOString().split('T')[0], ''],
@@ -87,18 +101,36 @@ async function setupGoogleSheet() {
       ['Rice', 'Pantry', 0, 1, 'bags', new Date().toISOString().split('T')[0], 'Need to buy']
     ];
 
+    // Add sample grocery list data
+    const groceryData = [
+      ['Organic Apples', 'Produce', 3, 'bags', 'High', 'For healthy snacks', new Date().toISOString().split('T')[0], false],
+      ['Chicken Breast', 'Meat', 2, 'lbs', 'High', 'Dinner tonight', new Date().toISOString().split('T')[0], false],
+      ['Olive Oil', 'Pantry', 1, 'bottle', 'Medium', 'Running low', new Date().toISOString().split('T')[0], false],
+      ['Greek Yogurt', 'Dairy', 4, 'cups', 'Medium', 'Breakfast', new Date().toISOString().split('T')[0], false]
+    ];
+
     await sheets.spreadsheets.values.append({
       spreadsheetId: SHEET_ID,
-      range: 'Groceries!A2:G',
+      range: 'Pantry!A2:G',
       valueInputOption: 'USER_ENTERED',
       resource: {
-        values: sampleData
+        values: pantryData
+      }
+    });
+
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SHEET_ID,
+      range: 'Grocery List!A2:H',
+      valueInputOption: 'USER_ENTERED',
+      resource: {
+        values: groceryData
       }
     });
 
     console.log('✅ Google Sheet setup complete!');
     console.log(`📊 Sheet ID: ${SHEET_ID}`);
-    console.log('🥫 Sample grocery data added');
+    console.log('🏠 Pantry sheet created with sample inventory data');
+    console.log('🛒 Grocery List sheet created with sample shopping items');
     console.log('🎯 Headers formatted and ready to use');
 
   } catch (error) {
