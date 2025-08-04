@@ -284,19 +284,20 @@ app.put('/api/groceries/:id', async (req, res) => {
     }
 
     const rowId = req.params.id;
-    const { name, category, currentCount, minCount, unit, notes, onList, completed } = req.body;
+    const { name, category, currentCount, priority, notes, addedDate, onList, completed } = req.body;
     const lastUpdated = new Date().toISOString().split('T')[0];
     
-    console.log(`Updating grocery item ${rowId}:`, { name, category, currentCount, onList, completed });
+    console.log(`Updating grocery item ${rowId}:`, { name, category, currentCount, priority, notes, addedDate, onList, completed });
+    console.log(`Setting onList to: ${onList} (will be converted to: ${onList !== undefined ? (onList ? 'TRUE' : 'FALSE') : 'TRUE'})`);
 
     // Complete row update: A=Name, B=Category, C=Quantity, D=Priority, E=Notes, F=Added Date, G=Completed, H=On List
     const values = [[
       name, 
       category, 
       currentCount, 
-      'Medium', // Column D - Priority (default to Medium)
+      priority || 'Medium', // Column D - Priority
       notes || '', // Column E - Notes (contains units)
-      lastUpdated, // Column F - Added Date
+      addedDate || lastUpdated, // Column F - Added Date (use provided date or current)
       completed !== undefined ? (completed ? 'TRUE' : 'FALSE') : 'FALSE', // Column G - Completed
       onList !== undefined ? (onList ? 'TRUE' : 'FALSE') : 'TRUE' // Column H - On List
     ]];

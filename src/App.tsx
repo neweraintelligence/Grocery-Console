@@ -1255,7 +1255,12 @@ function App() {
 
         // If this item originally came from the grocery list, mark it off that list
         if (item.source === 'grocery') {
-          await fetch(`/api/groceries/${item.id}`, {
+          console.log(`🔄 Updating grocery item ${item.id} to remove from shopping list:`, {
+            name: item.name,
+            onList: false
+          });
+          
+          const updateResponse = await fetch(`/api/groceries/${item.id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1269,6 +1274,12 @@ function App() {
               onList: false // Column H: On List - mark as not on list
             })
           });
+          
+          if (!updateResponse.ok) {
+            console.error(`❌ Failed to update grocery item ${item.id}:`, updateResponse.status);
+          } else {
+            console.log(`✅ Successfully updated grocery item ${item.id} onList to FALSE`);
+          }
         }
       }
 
