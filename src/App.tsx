@@ -2493,58 +2493,51 @@ function App() {
               </button>
             </div>
             
-            {/* Pantry Category Sub-tabs */}
+            {/* Pantry Category Dropdown */}
             <div style={{
-              display: 'flex',
-              gap: '0.5rem',
               padding: '0 1rem 1rem',
-              flexWrap: 'wrap',
               borderBottom: '1px solid rgba(255,255,255,0.1)',
-              marginBottom: '1rem'
+              marginBottom: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem'
             }}>
-              {pantryCategories.map((category) => (
-                <button
-                  key={category}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    borderRadius: '0.5rem',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    background: pantryCategoryFilter === category
-                      ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(59, 130, 246, 0.2))'
-                      : 'rgba(255,255,255,0.05)',
-                    color: pantryCategoryFilter === category ? 'white' : 'rgba(255,255,255,0.7)',
-                    fontSize: '0.75rem',
-                    fontWeight: pantryCategoryFilter === category ? 'bold' : 'normal',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    boxShadow: pantryCategoryFilter === category 
-                      ? '0 4px 8px rgba(16, 185, 129, 0.3)' 
-                      : 'none'
-                  }}
-                  onClick={() => setPantryCategoryFilter(category)}
-                  onMouseEnter={(e) => {
-                    if (pantryCategoryFilter !== category) {
-                      e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-                      e.currentTarget.style.color = 'rgba(255,255,255,0.9)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (pantryCategoryFilter !== category) {
-                      e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                      e.currentTarget.style.color = 'rgba(255,255,255,0.7)';
-                    }
-                  }}
-                >
-                  {category === 'all' ? '📦 All Items' : 
-                   category === 'Pantry – Staples' ? '🥫 Staples' :
-                   category === 'Pantry – Oils, Vinegars & Condiments' ? '🫙 Oils & Condiments' :
-                   category === 'Pantry – Cereals' ? '🥣 Cereals' :
-                   category === 'Pantry – Pasta' ? '🍝 Pasta' :
-                   category === 'Pantry – Rice & Grains' ? '🌾 Rice & Grains' :
-                   category === 'Pantry – Baking & Misc. Dry Goods' ? '🧁 Baking & Misc' :
-                   category === 'Fridge' ? '❄️ Fridge' : category}
-                </button>
-              ))}
+              <label style={{
+                color: 'rgba(255,255,255,0.8)',
+                fontSize: '0.875rem',
+                fontWeight: 'bold'
+              }}>
+                📂 Filter by Category:
+              </label>
+              <select
+                value={pantryCategoryFilter}
+                onChange={(e) => setPantryCategoryFilter(e.target.value)}
+                style={{
+                  padding: '0.5rem 1rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  background: 'rgba(0,0,0,0.3)',
+                  color: 'white',
+                  fontSize: '0.875rem',
+                  cursor: 'pointer',
+                  minWidth: '200px',
+                  backdropFilter: 'blur(10px)',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                }}
+              >
+                {pantryCategories.map((category) => (
+                  <option key={category} value={category}>
+                    {category === 'all' ? '📦 All Items' : 
+                     category === 'Pantry – Staples' ? '🥫 Staples' :
+                     category === 'Pantry – Oils, Vinegars & Condiments' ? '🫙 Oils & Condiments' :
+                     category === 'Pantry – Cereals' ? '🥣 Cereals' :
+                     category === 'Pantry – Pasta' ? '🍝 Pasta' :
+                     category === 'Pantry – Rice & Grains' ? '🌾 Rice & Grains' :
+                     category === 'Pantry – Baking & Misc. Dry Goods' ? '🧁 Baking & Misc' :
+                     category === 'Fridge' ? '❄️ Fridge' : category}
+                  </option>
+                ))}
+              </select>
             </div>
             
             <div style={{display: 'flex', gap: '2rem', minHeight: '600px'}}>
