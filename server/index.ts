@@ -130,13 +130,13 @@ app.get('/api/pantry', async (req, res) => {
       .filter((row: any[]) => row[0] && row[0].trim()) // Only include rows with names
       .map((row: any[], index: number) => ({
         id: (index + 2).toString(), // Row number as ID
-        name: row[0] || '',
-        category: row[1] || '',
+        name: cleanTextData(row[0] || ''),
+        category: cleanTextData(row[1] || ''),
         currentCount: parseInt(row[2]) || 0,
         minCount: parseInt(row[3]) || 1,
-        unit: row[4] || 'units',
+        unit: cleanTextData(row[4] || 'units'),
         lastUpdated: row[5] || new Date().toLocaleDateString(),
-        notes: row[6] || '',
+        notes: cleanTextData(row[6] || ''),
         expiryDate: row[7] || '' // Column H (index 7) is Expiry Date
       }));
 
@@ -162,13 +162,13 @@ app.get('/api/groceries', async (req, res) => {
     const rows = response.data.values || [];
     const groceries = rows.map((row: any[], index: number) => ({
       id: (index + 2).toString(), // Row number as ID
-      name: row[0] || '',
-      category: row[1] || '',
+      name: cleanTextData(row[0] || ''),
+      category: cleanTextData(row[1] || ''),
       quantity: parseInt(row[2]) || 1,
       minCount: parseInt(row[3]) || 1,
-      unit: row[4] || '',
+      unit: cleanTextData(row[4] || ''),
       onList: row[5] === 'TRUE' || row[5] === true,
-      notes: row[6] || '',
+      notes: cleanTextData(row[6] || ''),
       addedDate: row[7] || '',
       completed: row[8] === 'TRUE' || row[8] === true
     }));
@@ -222,6 +222,16 @@ app.post('/api/pantry', async (req, res) => {
     res.status(500).json({ error: 'Failed to add pantry item' });
   }
 });
+
+// Helper function to clean text data
+function cleanTextData(text: string): string {
+  if (!text) return '';
+  return text
+    .replace(/[Ø=ßá]/g, '') // Remove specific strange symbols
+    .replace(/[^\x00-\x7F]/g, '') // Remove non-ASCII characters
+    .replace(/\s+/g, ' ') // Normalize whitespace
+    .trim();
+}
 
 // Add new grocery item
 app.post('/api/groceries', async (req, res) => {
@@ -450,11 +460,11 @@ app.get('/api/shopping-list', async (req, res) => {
           originalRowIndex: index + 2, // +2 because spreadsheet rows are 1-indexed and we skip header
           data: {
             id: (index + 2).toString(), // Use original row number as ID
-            name: row[0] || '',
-            category: row[1] || 'General',
+            name: cleanTextData(row[0] || ''),
+            category: cleanTextData(row[1] || 'General'),
             source: 'grocery' as const,
             quantity: parseInt(row[2]) || 1,
-            unit: row[6] || '', // Column G is Notes (used for UOM)
+            unit: cleanTextData(row[6] || ''), // Column G is Notes (used for UOM)
             priority: 'Medium',
             needed: parseInt(row[2]) || 1
           }
