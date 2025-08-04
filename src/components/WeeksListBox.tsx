@@ -179,7 +179,8 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
           color: '#8b4513',
           boxShadow: '0 8px 16px rgba(255,215,0,0.3)',
           textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
-          animation: 'pulse 2s ease-in-out infinite'
+          animation: 'pulse 2s ease-in-out infinite',
+          whiteSpace: 'nowrap'
         }}>
           🎉 FRIDAY'S HERE! WEEKS LIST TIME! 🎉
         </div>
@@ -213,15 +214,15 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
         {/* Header */}
         <div style={{
           textAlign: 'center',
-          marginTop: '1rem',
-          marginBottom: '2rem'
+          marginTop: '2rem',
+          marginBottom: '3rem'
         }}>
           <h2 style={{
             color: 'white',
             fontFamily: "'Fredoka', system-ui, sans-serif",
             fontSize: '2.2rem',
             fontWeight: 'bold',
-            margin: '0 0 0.5rem 0',
+            margin: '0 0 1rem 0',
             textShadow: '2px 2px 4px rgba(0,0,0,0.4)'
           }}>
             🛒 Laurie's Weekly Adventure List! ✨
@@ -229,7 +230,7 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
           <p style={{
             color: 'rgba(255,255,255,0.9)',
             fontSize: '1.1rem',
-            margin: 0,
+            margin: '0 0 1rem 0',
             fontWeight: '500'
           }}>
             The kitchen oracle has spoken! Here's what you'll need this week.
