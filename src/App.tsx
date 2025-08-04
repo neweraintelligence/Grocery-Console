@@ -2570,12 +2570,7 @@ function App() {
             <div style={{...styles.quickStatValue, color: '#6ee7b7'}}>{shoppingList.length}</div>
             <div style={styles.quickStatLabel}>Need to Buy</div>
           </div>
-          <div style={styles.quickStatCard}>
-            <div style={{...styles.quickStatValue, color: '#10b981'}}>
-              {predictiveRestockData.filter(item => item.urgency === 'critical' || item.urgency === 'high').length}
-            </div>
-            <div style={styles.quickStatLabel}>Predictive Alerts</div>
-          </div>
+
         </div>
         </div>
       </div>
