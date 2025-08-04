@@ -1,5 +1,41 @@
 import React, { useState, useEffect } from 'react';
 
+// TypeScript interfaces for proper typing
+interface PantryItem {
+  id: string;
+  name: string;
+  category: string;
+  currentCount: number;
+  minCount: number;
+  unit: string;
+  lastUpdated: string;
+  notes?: string;
+}
+
+interface GroceryItem {
+  id: string;
+  name: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  priority: 'High' | 'Medium' | 'Low';
+  notes?: string;
+  addedDate: string;
+  completed: boolean;
+}
+
+interface ShoppingListItem {
+  id: string;
+  name: string;
+  source: 'pantry' | 'grocery';
+  currentCount?: number;
+  minCount?: number;
+  needed?: number;
+  quantity?: number;
+  unit: string;
+  priority?: 'High' | 'Medium' | 'Low';
+}
+
 const styles = {
   container: {
     minHeight: '100vh',
@@ -328,9 +364,9 @@ const styles = {
 };
 function App() {
   const [showAddModal, setShowAddModal] = useState(false);
-  const [pantryItems, setPantryItems] = useState([]);
-  const [groceryItems, setGroceryItems] = useState([]);
-  const [shoppingList, setShoppingList] = useState([]);
+  const [pantryItems, setPantryItems] = useState<PantryItem[]>([]);
+  const [groceryItems, setGroceryItems] = useState<GroceryItem[]>([]);
+  const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
 
   // Fetch data on component mount
   useEffect(() => {

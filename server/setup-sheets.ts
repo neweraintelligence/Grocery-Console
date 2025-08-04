@@ -48,7 +48,7 @@ async function setupGoogleSheet() {
       spreadsheetId: SHEET_ID,
       range: 'Pantry!A1:G1',
       valueInputOption: 'USER_ENTERED',
-      resource: {
+      requestBody: {
         values: [pantryHeaders]
       }
     });
@@ -57,7 +57,7 @@ async function setupGoogleSheet() {
       spreadsheetId: SHEET_ID,
       range: 'Grocery List!A1:H1',
       valueInputOption: 'USER_ENTERED',
-      resource: {
+      requestBody: {
         values: [groceryHeaders]
       }
     });
@@ -65,7 +65,7 @@ async function setupGoogleSheet() {
     // Format the header row
     await sheets.spreadsheets.batchUpdate({
       spreadsheetId: SHEET_ID,
-      resource: {
+      requestBody: {
         requests: [
           {
             repeatCell: {

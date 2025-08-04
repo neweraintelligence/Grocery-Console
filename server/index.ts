@@ -242,7 +242,7 @@ app.get('/api/shopping-list', async (req, res) => {
         unit: row[4] || '',
         needed: Math.max(0, (parseInt(row[3]) || 0) - (parseInt(row[2]) || 0))
       }))
-      .filter(item => item.currentCount <= item.minCount);
+      .filter((item: any) => item.currentCount <= item.minCount);
 
     res.json(lowItems);
   } catch (error) {
