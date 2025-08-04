@@ -1548,12 +1548,19 @@ function App() {
               />
             </div>
             
-            <div style={{display: 'flex', gap: '1rem', marginTop: '2rem', width: '100%'}}>
+            <div style={{
+              display: 'flex', 
+              gap: '1rem', 
+              marginTop: '2rem', 
+              width: '100%',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
                 style={{
-                  flex: 1,
+                  flex: '1 1 0',
                   padding: '1rem',
                   borderRadius: '0.75rem',
                   border: '2px solid rgba(255,215,0,0.4)',
@@ -1561,7 +1568,10 @@ function App() {
                   color: '#ffd700',
                   cursor: 'pointer',
                   fontWeight: 'bold',
-                  maxWidth: '50%'
+                  minWidth: '0',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
                 }}
               >
                 ❌ Cancel
@@ -1569,7 +1579,7 @@ function App() {
               <button
                 type="submit"
                 style={{
-                  flex: 1,
+                  flex: '1 1 0',
                   padding: '1rem',
                   borderRadius: '0.75rem',
                   border: 'none',
@@ -1578,7 +1588,10 @@ function App() {
                   fontWeight: 'bold',
                   cursor: 'pointer',
                   boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
-                  maxWidth: '50%'
+                  minWidth: '0',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
                 }}
               >
                 ✅ Add to List
@@ -1846,12 +1859,19 @@ function App() {
               </div>
             </div>
             
-            <div style={{display: 'flex', gap: '1rem', marginTop: '1.5rem', width: '100%'}}>
+            <div style={{
+              display: 'flex', 
+              gap: '1rem', 
+              marginTop: '1.5rem', 
+              width: '100%',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
                 style={{
-                  flex: 1,
+                  flex: '1 1 0',
                   padding: '1rem',
                   borderRadius: '0.75rem',
                   border: '2px solid rgba(59, 130, 246, 0.4)',
@@ -1859,7 +1879,10 @@ function App() {
                   color: '#bfdbfe',
                   cursor: 'pointer',
                   fontWeight: 'bold',
-                  maxWidth: '50%'
+                  minWidth: '0',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
                 }}
               >
                 ❌ Cancel
@@ -1867,7 +1890,7 @@ function App() {
               <button
                 type="submit"
                 style={{
-                  flex: 1,
+                  flex: '1 1 0',
                   padding: '1rem',
                   borderRadius: '0.75rem',
                   border: 'none',
@@ -1876,7 +1899,10 @@ function App() {
                   fontWeight: 'bold',
                   cursor: 'pointer',
                   boxShadow: '0 4px 8px rgba(30, 58, 138, 0.3)',
-                  maxWidth: '50%'
+                  minWidth: '0',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
                 }}
               >
                 ✅ Add to Pantry
