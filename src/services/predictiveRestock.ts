@@ -108,8 +108,8 @@ export class PredictiveRestockService {
   }
 
   private calculateConsumptionPattern(itemId: string, data: any): ConsumptionPattern | null {
-    const stockChanges = data.stockChanges.sort((a, b) => a.date.getTime() - b.date.getTime());
-    const purchases = data.purchases.sort((a, b) => a.date.getTime() - b.date.getTime());
+    const stockChanges = data.stockChanges.sort((a: any, b: any) => a.date.getTime() - b.date.getTime());
+    const purchases = data.purchases.sort((a: any, b: any) => a.date.getTime() - b.date.getTime());
     
     if (stockChanges.length < 3) return null; // Not enough data
 
@@ -117,13 +117,13 @@ export class PredictiveRestockService {
     const consumptionEvents = stockChanges.filter(change => change.change < 0);
     if (consumptionEvents.length === 0) return null;
 
-    const totalConsumption = consumptionEvents.reduce((sum, event) => sum + Math.abs(event.change), 0);
+    const totalConsumption = consumptionEvents.reduce((sum: number, event: any) => sum + Math.abs(event.change), 0);
     const timeSpanDays = (stockChanges[stockChanges.length - 1].date.getTime() - stockChanges[0].date.getTime()) / (1000 * 60 * 60 * 24);
     const dailyConsumptionRate = totalConsumption / Math.max(timeSpanDays, 1);
 
     // Calculate weekly pattern
     const weeklyPattern = new Array(7).fill(0);
-    consumptionEvents.forEach(event => {
+    consumptionEvents.forEach((event: any) => {
       const dayOfWeek = event.date.getDay();
       weeklyPattern[dayOfWeek] += Math.abs(event.change);
     });
@@ -136,11 +136,11 @@ export class PredictiveRestockService {
 
     // Calculate average restock quantity
     const averageRestockQuantity = purchases.length > 0 
-      ? purchases.reduce((sum, purchase) => sum + purchase.quantity, 0) / purchases.length
+      ? purchases.reduce((sum: number, purchase: any) => sum + purchase.quantity, 0) / purchases.length
       : 5; // default
 
     // Create price history
-    const priceHistory: PricePoint[] = purchases.map(purchase => ({
+    const priceHistory: PricePoint[] = purchases.map((purchase: any) => ({
       date: purchase.date,
       price: purchase.price,
       store: purchase.store,

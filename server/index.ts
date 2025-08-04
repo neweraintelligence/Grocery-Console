@@ -836,7 +836,7 @@ app.get('/api/predictive-restock', async (req, res) => {
     const pantryHistoryData = pantryHistoryResponse.data.values || [];
 
     // Simple predictive algorithm (could be enhanced with the predictive service)
-    const predictions = pantryItems.map(item => {
+    const predictions = pantryItems.map((item: any) => {
       const isLowStock = item.currentCount <= item.minCount;
       const isCritical = item.currentCount === 0;
       
@@ -871,7 +871,7 @@ app.get('/api/predictive-restock', async (req, res) => {
           'Preventive restocking recommended'
         ]
       };
-    }).filter(prediction => prediction.urgency !== 'low' || prediction.currentStock <= prediction.recommendedQuantity * 0.5);
+    }).filter((prediction: any) => prediction.urgency !== 'low' || prediction.currentStock <= prediction.recommendedQuantity * 0.5);
 
     res.json(predictions);
   } catch (error) {
