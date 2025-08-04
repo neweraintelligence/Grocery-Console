@@ -312,11 +312,22 @@ app.get('/api/shopping-list', async (req, res) => {
     }
 
     const rows = response.data.values || [];
+    
     // Filter for items with names AND where "On List" column (F) is TRUE
     const shoppingItems = rows
       .filter((row: any[]) => {
         const hasName = row[0] && row[0].trim();
-        const onList = row[5] && (row[5].toString().toUpperCase() === 'TRUE' || row[5] === true);
+        const onListValue = row[5]; // Column F (index 5)
+        
+        // Check for TRUE, true, 1, "1", or any checkbox-like value
+        const onList = onListValue && (
+          onListValue.toString().toUpperCase() === 'TRUE' || 
+          onListValue === true || 
+          onListValue === 1 ||
+          onListValue === '1' ||
+          onListValue.toString().toLowerCase() === 'yes'
+        );
+        
         return hasName && onList;
       })
       .map((row: any[], index: number) => ({
