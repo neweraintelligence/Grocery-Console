@@ -15,11 +15,7 @@ app.use(helmet());
 app.use(compression());
 app.use(morgan('combined'));
 app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL || 'http://localhost:5178',
-    'http://localhost:5183',
-    'https://grocery-dashboard.onrender.com'
-  ],
+  origin: process.env.FRONTEND_URL || 'http://localhost:5178',
   credentials: true
 }));
 app.use(express.json());

@@ -1,0 +1,64 @@
+services:
+  # Backend API Service
+  - type: web
+    name: grocery-dashboard-api
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: node server/index.cjs
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: grocery-dashboard-frontend
+          property: url
+      - key: GOOGLE_SHEET_ID
+        sync: false  # Set this manually in Render dashboard
+      - key: GOOGLE_SERVICE_ACCOUNT_KEY
+        sync: false  # Set this manually in Render dashboard (JSON as string)
+    domains:
+      - grocery-api.onrender.com
+
+  # Frontend Web Service  
+  - type: web
+    name: grocery-dashboard-frontend
+    runtime: static
+    region: oregon
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    pullRequestPreviewsEnabled: false
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: grocery-dashboard-api
+          property: url
+    domains:
+      - grocery-dashboard.onrender.com
+
+# Optional: Database service for future expansion
+# - type: pserv
+#   name: grocery-database
+#   runtime: postgresql
+#   region: oregon
+#   plan: free
+#   databaseName: grocery_db
+#   databaseUser: grocery_user

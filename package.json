@@ -10,7 +10,8 @@
     "setup:sheets": "tsx server/setup-sheets.ts",
     "build": "tsc -b && vite build",
     "build:server": "tsc server/index.ts --outDir dist",
-    "start": "node dist/index.js",
+    "start": "node server/index.cjs",
+    "start:dev": "node dist/index.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },
