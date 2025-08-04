@@ -908,7 +908,6 @@ function App() {
     'Pantry – Pasta',
     'Pantry – Rice & Grains',
     'Pantry – Baking & Misc. Dry Goods',
-    'Canned Goods',
     'Fridge'
   ];
 
@@ -2640,7 +2639,6 @@ function App() {
                      category === 'Pantry – Pasta' ? '🍝 Pasta' :
                      category === 'Pantry – Rice & Grains' ? '🌾 Rice & Grains' :
                      category === 'Pantry – Baking & Misc. Dry Goods' ? '🧁 Baking & Misc' :
-                     category === 'Canned Goods' ? '🥫 Canned Goods' :
                      category === 'Fridge' ? '❄️ Fridge' : category}
                   </label>
                 ))}
@@ -2663,7 +2661,6 @@ function App() {
                              pantryCategoryFilter.includes('Pantry – Pasta') ? 'Pasta' :
                              pantryCategoryFilter.includes('Pantry – Rice & Grains') ? 'Rice & Grains' :
                              pantryCategoryFilter.includes('Pantry – Baking & Misc. Dry Goods') ? 'Baking & Misc' :
-                             pantryCategoryFilter.includes('Canned Goods') ? 'Canned Goods' :
                              pantryCategoryFilter.includes('Fridge') ? 'Fridge' : 'selected categories'}`
                         }
                       </p>
