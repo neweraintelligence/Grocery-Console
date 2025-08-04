@@ -2783,7 +2783,7 @@ function App() {
                   gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
                   gap: '1.5rem'
                 }}>
-                  {recipes.map((recipe, index) => (
+                  {recipes.map((recipe) => (
                     <div key={recipe.id} style={{
                       background: 'linear-gradient(145deg, rgba(168,85,247,0.1), rgba(139,92,246,0.05))',
                       borderRadius: '1rem',
