@@ -390,8 +390,8 @@ app.get('/api/shopping-list', async (req, res) => {
           }
         };
       })
-      .filter(item => item.hasName && item.onList)
-      .map(item => item.data);
+      .filter((item: any) => item.hasName && item.onList)
+      .map((item: any) => item.data);
 
     res.json(shoppingItems);
   } catch (error) {
