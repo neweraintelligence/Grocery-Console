@@ -965,7 +965,7 @@ function App() {
           <div style={styles.logoSection}>
             <div style={styles.logoIcon}>🍳</div>
             <div>
-              <h1 style={styles.title}>Laurie's Legendary Larder</h1>
+              <h1 style={styles.title}>Laurie's Legendary Kitchen</h1>
               <p style={styles.subtitle}>Where snacks meet statistics and chaos meets organization! 🎉</p>
             </div>
           </div>
