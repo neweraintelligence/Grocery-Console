@@ -277,12 +277,15 @@ const styles = {
     fontSize: '0.75rem'
   },
   statusBadge: {
-    padding: '0.75rem 1.5rem',
+    padding: '0.75rem 1rem',
     borderRadius: '0.75rem',
     color: 'white',
-    fontSize: '0.875rem',
+    fontSize: '0.75rem',
     fontWeight: 'bold',
-    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'
+    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+    minWidth: '90px',
+    textAlign: 'center' as const,
+    whiteSpace: 'nowrap' as const
   },
   statusLow: {
     background: 'linear-gradient(to right, #eab308, #f97316)'
@@ -968,9 +971,12 @@ function App() {
                   
                   const getStatusText = () => {
                     if (item.source === 'pantry') {
-                      return item.currentCount === 0 ? 'Out of Stock' : 'Low Stock';
+                      return item.currentCount === 0 ? 'Out' : 'Low';
                     }
-                    return `${item.priority} Priority`;
+                    const priority = item.priority?.toString() || 'Medium';
+                    if (priority === 'High') return 'High';
+                    if (priority === 'Low') return 'Low';
+                    return 'Medium';
                   };
                   
                   const getItemIcon = () => {
@@ -1007,7 +1013,13 @@ function App() {
                               <p style={styles.stockUnit}>{item.unit}</p>
                             </div>
                           </div>
-                          <div style={{...styles.statusBadge, ...getStatusStyle()}}>
+                          <div style={{
+                            ...styles.statusBadge, 
+                            ...getStatusStyle(),
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}>
                             {getStatusText()}
                           </div>
                         </div>
@@ -1222,6 +1234,15 @@ function App() {
         [style*="inventoryItem"]:hover {
           background-color: rgba(255,255,255,0.1) !important;
           transform: scale(1.02);
+        }
+        
+        /* Ensure consistent status badge styling */
+        div[style*="statusBadge"] {
+          white-space: nowrap !important;
+          overflow: hidden !important;
+          text-overflow: ellipsis !important;
+          min-width: 90px !important;
+          max-width: 120px !important;
         }
         
         @media (min-width: 1280px) {
