@@ -129,7 +129,7 @@ app.get('/api/groceries', async (req, res) => {
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Grocery List!A2:H', // Skip header row
+      range: 'Grocery List!A2:I', // Skip header row, include all columns
     });
 
     const rows = response.data.values || [];
@@ -138,11 +138,12 @@ app.get('/api/groceries', async (req, res) => {
       name: row[0] || '',
       category: row[1] || '',
       quantity: parseInt(row[2]) || 1,
-      unit: row[3] || '',
-      priority: row[4] || 'Medium',
-      notes: row[5] || '',
-      addedDate: row[6] || '',
-      completed: row[7] === 'TRUE' || row[7] === true
+      minCount: parseInt(row[3]) || 1,
+      unit: row[4] || '',
+      onList: row[5] === 'TRUE' || row[5] === true,
+      notes: row[6] || '',
+      addedDate: row[7] || '',
+      completed: row[8] === 'TRUE' || row[8] === true
     }));
 
     res.json(groceries);
@@ -161,7 +162,8 @@ app.post('/api/pantry', async (req, res) => {
 
     const { name, category, currentCount, minCount, unit, notes } = req.body;
 
-    // Add to Grocery List sheet with full structure: Name, Category, Current Count, Min Count, Unit, On List (TRUE), Notes
+    // Add to Grocery List sheet with full structure: Name, Category, Current Count, Min Count, Unit, On List (TRUE), Notes, Added Date, Completed
+    const lastUpdated = new Date().toISOString().split('T')[0];
     const values = [[
       name, 
       category || '', 
@@ -169,12 +171,14 @@ app.post('/api/pantry', async (req, res) => {
       minCount || 1, 
       unit || 'units', 
       'TRUE', // Set On List to TRUE so it shows up on shopping list
-      notes || ''
+      notes || '', // Notes column (will be used for UOM)
+      lastUpdated, // Added Date
+      'FALSE' // Completed
     ]];
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Grocery List!A:G',
+      range: 'Grocery List!A:I',
       valueInputOption: 'USER_ENTERED',
       resource: { values }
     });
@@ -196,11 +200,21 @@ app.post('/api/groceries', async (req, res) => {
     const { name, category, currentCount, minCount, unit, notes } = req.body;
     const lastUpdated = new Date().toISOString().split('T')[0];
 
-    const values = [[name, category, currentCount, minCount, unit, lastUpdated, notes || '']];
+    const values = [[
+      name, 
+      category || '', 
+      currentCount || 0, 
+      minCount || 1, 
+      unit || 'units', 
+      'TRUE', // Set On List to TRUE so it shows up on shopping list
+      notes || '', // Notes column (will be used for UOM)
+      lastUpdated, // Added Date
+      'FALSE' // Completed
+    ]];
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Grocery List!A:G',
+      range: 'Grocery List!A:I',
       valueInputOption: 'USER_ENTERED',
       resource: { values }
     });
@@ -407,7 +421,7 @@ app.get('/api/shopping-list', async (req, res) => {
             category: row[1] || 'General',
             source: 'grocery' as const,
             quantity: parseInt(row[2]) || 1,
-            unit: row[6] || '', // Column G is Notes (now used for UOM)
+            unit: row[6] || '', // Column G is Notes (used for UOM)
             priority: 'Medium',
             needed: parseInt(row[2]) || 1
           }
