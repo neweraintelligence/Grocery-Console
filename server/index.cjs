@@ -205,15 +205,14 @@ app.post('/api/groceries', async (req, res) => {
     const lastUpdated = new Date().toISOString().split('T')[0];
 
     const values = [[
-      name, 
-      category || '', 
-      currentCount || 0, 
-      minCount || 1, 
-      unit || 'units', 
-      'TRUE', // Set On List to TRUE so it shows up on shopping list
-      notes || '', // Notes column (will be used for UOM)
-      lastUpdated, // Added Date
-      'FALSE' // Completed
+      name, // Column A: Name
+      category || '', // Column B: Category
+      currentCount || 0, // Column C: Quantity
+      'Medium', // Column D: Priority (default to Medium)
+      unit || 'units', // Column E: Notes (contains units)
+      lastUpdated, // Column F: Added Date
+      'FALSE', // Column G: Completed
+      'TRUE' // Column H: On List (set to TRUE so it shows up on shopping list)
     ]];
 
     await sheets.spreadsheets.values.append({

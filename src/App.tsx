@@ -1262,11 +1262,11 @@ function App() {
               name: item.name,
               category: item.category || 'Misc',
               currentCount: item.quantity,
-              minCount: 1,
-              unit: item.unit || 'units',
-              notes: item.unit || 'units', // Keep unit in Notes column (E)
-              onList: false, // Column H - mark as not on list
-              completed: false // Column G - mark as not completed
+              priority: 'Medium', // Column D: Priority
+              notes: item.unit || 'units', // Column E: Notes (contains units)
+              addedDate: new Date().toISOString().split('T')[0], // Column F: Added Date
+              completed: false, // Column G: Completed
+              onList: false // Column H: On List - mark as not on list
             })
           });
         }
