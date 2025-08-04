@@ -555,8 +555,12 @@ function App() {
       if (response.ok) {
         console.log('Successfully updated min count');
         // Refresh data after successful update
-        fetchPantryItems();
-        fetchShoppingList();
+        await fetchPantryItems();
+        await fetchShoppingList();
+        // Force a small delay to ensure UI updates
+        setTimeout(() => {
+          fetchPantryItems();
+        }, 100);
       } else {
         const errorText = await response.text();
         console.error('Failed to update item min count:', response.status, errorText);
@@ -1333,7 +1337,7 @@ function App() {
                 }}
               >
                 <img src="/grocery icon 1.png" alt="Add Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
-                🎯 Add Treasure!
+                Add Treasure!
               </button>
             </div>
             
@@ -1397,7 +1401,7 @@ function App() {
                     <div key={item.id || index} style={styles.inventoryItem}>
                       <div style={styles.itemContent}>
                         <div style={styles.itemLeft}>
-                          <div style={{...styles.itemIcon, background: getPriorityColor()}}>
+                          <div style={{...styles.itemIcon, background: 'transparent'}}>
                             {getItemIcon()}
                           </div>
                           <div style={styles.itemDetails}>
@@ -1415,16 +1419,19 @@ function App() {
                                 onClick={() => updateShoppingListQuantity(item.id, Math.max(1, (item.quantity || item.needed || 1) - 1))}
                                 style={{
                                   ...(isMobile ? styles.mobileButton : {
-                                    width: '2rem',
-                                    height: '2rem',
+                                    width: '2.2rem',
+                                    height: '2.2rem',
                                     borderRadius: '50%',
                                     border: 'none',
                                     color: 'white',
                                     cursor: 'pointer',
                                     fontSize: '1rem',
-                                    fontWeight: 'bold'
+                                    fontWeight: 'bold',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
                                   }),
-                                  background: 'linear-gradient(to right, #ef4444, #dc2626)'
+                                  background: 'linear-gradient(to right, #f87171, #ef4444)'
                                 }}
                               >
                                 -
@@ -1437,16 +1444,19 @@ function App() {
                                 onClick={() => updateShoppingListQuantity(item.id, (item.quantity || item.needed || 1) + 1)}
                                 style={{
                                   ...(isMobile ? styles.mobileButton : {
-                                    width: '2rem',
-                                    height: '2rem',
+                                    width: '2.2rem',
+                                    height: '2.2rem',
                                     borderRadius: '50%',
                                     border: 'none',
                                     color: 'white',
                                     cursor: 'pointer',
                                     fontSize: '1rem',
-                                    fontWeight: 'bold'
+                                    fontWeight: 'bold',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
                                   }),
-                                  background: 'linear-gradient(to right, #10b981, #059669)'
+                                  background: 'linear-gradient(to right, #4ade80, #10b981)'
                                 }}
                               >
                                 +
@@ -1496,7 +1506,7 @@ function App() {
                 }}
               >
                 <img src="/grocery icon 2.png" alt="Add Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
-                🏺 Top Up Stash!
+                Top Up Stash!
               </button>
             </div>
             
@@ -1566,7 +1576,7 @@ function App() {
                     <div key={item.id || index} style={styles.inventoryItem}>
                       <div style={styles.itemContent}>
                         <div style={styles.itemLeft}>
-                          <div style={{...styles.itemIcon, background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)'}}>
+                          <div style={{...styles.itemIcon, background: 'transparent'}}>
                             {getItemIcon()}
                           </div>
                           <div style={styles.itemDetails}>
@@ -1584,16 +1594,19 @@ function App() {
                                 onClick={() => updateItemQuantity(item.id, Math.max(0, item.currentCount - 1), false)}
                                 style={{
                                   ...(isMobile ? styles.mobileButton : {
-                                    width: '2rem',
-                                    height: '2rem',
+                                    width: '2.2rem',
+                                    height: '2.2rem',
                                     borderRadius: '50%',
                                     border: 'none',
                                     color: 'white',
                                     cursor: 'pointer',
                                     fontSize: '1rem',
-                                    fontWeight: 'bold'
+                                    fontWeight: 'bold',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
                                   }),
-                                  background: 'linear-gradient(to right, #ef4444, #dc2626)'
+                                  background: 'linear-gradient(to right, #f87171, #ef4444)'
                                 }}
                               >
                                 -
@@ -1606,16 +1619,19 @@ function App() {
                                 onClick={() => updateItemQuantity(item.id, item.currentCount + 1, true)}
                                 style={{
                                   ...(isMobile ? styles.mobileButton : {
-                                    width: '2rem',
-                                    height: '2rem',
+                                    width: '2.2rem',
+                                    height: '2.2rem',
                                     borderRadius: '50%',
                                     border: 'none',
                                     color: 'white',
                                     cursor: 'pointer',
                                     fontSize: '1rem',
-                                    fontWeight: 'bold'
+                                    fontWeight: 'bold',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
                                   }),
-                                  background: 'linear-gradient(to right, #10b981, #059669)'
+                                  background: 'linear-gradient(to right, #4ade80, #10b981)'
                                 }}
                               >
                                 +
