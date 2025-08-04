@@ -363,9 +363,12 @@ const styles = {
 };
 function App() {
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [pantryItems, setPantryItems] = useState<PantryItem[]>([]);
   const [, setGroceryItems] = useState<GroceryItem[]>([]);
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
+  const [detectedItems, setDetectedItems] = useState<any[]>([]);
+  const [analyzingPhoto, setAnalyzingPhoto] = useState(false);
 
   // Fetch data on component mount
   useEffect(() => {
@@ -441,6 +444,81 @@ function App() {
       }
     } catch (error) {
       console.error('Error updating item quantity:', error);
+    }
+  };
+
+  const updateItemMinCount = async (itemId: string, newMinCount: number) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ minCount: newMinCount }),
+      });
+      
+      if (response.ok) {
+        // Refresh data after successful update
+        fetchPantryItems();
+        fetchShoppingList();
+      } else {
+        console.error('Failed to update item min count');
+      }
+    } catch (error) {
+      console.error('Error updating item min count:', error);
+    }
+  };
+
+  const analyzePhoto = async (file: File) => {
+    setAnalyzingPhoto(true);
+    try {
+      const formData = new FormData();
+      formData.append('photo', file);
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/analyze-photo`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setDetectedItems(data.detectedItems);
+        setShowPhotoModal(true);
+      } else {
+        console.error('Failed to analyze photo');
+        alert('Failed to analyze photo. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error analyzing photo:', error);
+      alert('Error analyzing photo. Please try again.');
+    } finally {
+      setAnalyzingPhoto(false);
+    }
+  };
+
+  const addDetectedItems = async (items: any[]) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/add-detected-items`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ items }),
+      });
+
+      if (response.ok) {
+        setShowPhotoModal(false);
+        setDetectedItems([]);
+        fetchPantryItems();
+        fetchShoppingList();
+        alert(`Successfully added ${items.length} items to your pantry!`);
+      } else {
+        console.error('Failed to add detected items');
+        alert('Failed to add items. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error adding detected items:', error);
+      alert('Error adding items. Please try again.');
     }
   };
 
@@ -673,6 +751,128 @@ function App() {
     );
   };
 
+  const PhotoAnalyzerModal = () => {
+    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) {
+        analyzePhoto(file);
+      }
+    };
+
+    if (!showPhotoModal) return null;
+
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000
+      }}>
+        <div style={{
+          backgroundColor: 'rgba(0,0,0,0.9)',
+          backdropFilter: 'blur(20px)',
+          borderRadius: '1.5rem',
+          border: '1px solid rgba(255,255,255,0.1)',
+          padding: '2rem',
+          width: '90%',
+          maxWidth: '600px',
+          maxHeight: '80vh',
+          overflow: 'auto',
+          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)'
+        }}>
+          <h2 style={{color: 'white', marginBottom: '1.5rem', fontFamily: "'Fredoka', system-ui, sans-serif"}}>
+            📸 Photo Analysis Results
+          </h2>
+          
+          {detectedItems.length > 0 ? (
+            <>
+              <p style={{color: 'rgba(255,255,255,0.7)', marginBottom: '1.5rem'}}>
+                We detected {detectedItems.length} items in your photo. Review and add them to your pantry:
+              </p>
+              
+              <div style={{display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem'}}>
+                {detectedItems.map((item, index) => (
+                  <div key={index} style={{
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                    borderRadius: '0.75rem',
+                    padding: '1rem',
+                    border: '1px solid rgba(255,255,255,0.1)'
+                  }}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                      <div>
+                        <h4 style={{color: 'white', margin: '0 0 0.5rem 0', fontSize: '1.1rem'}}>{item.name}</h4>
+                        <p style={{color: 'rgba(255,255,255,0.6)', margin: 0, fontSize: '0.875rem'}}>
+                          {item.category} • {item.estimatedCount} {item.unit} • {Math.round(item.confidence * 100)}% confidence
+                        </p>
+                      </div>
+                      <div style={{
+                        padding: '0.5rem 1rem',
+                        borderRadius: '0.5rem',
+                        background: `linear-gradient(to right, ${
+                          item.confidence > 0.8 ? '#10b981, #059669' : 
+                          item.confidence > 0.6 ? '#eab308, #f97316' : 
+                          '#ef4444, #ec4899'
+                        })`,
+                        color: 'white',
+                        fontSize: '0.75rem',
+                        fontWeight: 'bold'
+                      }}>
+                        {Math.round(item.confidence * 100)}%
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div style={{display: 'flex', gap: '1rem'}}>
+                <button
+                  onClick={() => {
+                    setShowPhotoModal(false);
+                    setDetectedItems([]);
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: '1rem',
+                    borderRadius: '0.75rem',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                    color: 'white',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => addDetectedItems(detectedItems)}
+                  style={{
+                    flex: 1,
+                    padding: '1rem',
+                    borderRadius: '0.75rem',
+                    border: 'none',
+                    background: 'linear-gradient(to right, #10b981, #059669)',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Add All Items
+                </button>
+              </div>
+            </>
+          ) : (
+            <p style={{color: 'rgba(255,255,255,0.7)'}}>No items detected in the photo.</p>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div style={styles.container}>
       {/* Animated background orbs */}
@@ -692,6 +892,29 @@ function App() {
             </div>
           </div>
                       <div style={styles.headerActions}>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    analyzePhoto(file);
+                  }
+                }}
+                style={{ display: 'none' }}
+                id="photo-upload"
+              />
+              <label
+                htmlFor="photo-upload"
+                style={{
+                  ...styles.quickAddBtn,
+                  background: analyzingPhoto ? 'linear-gradient(to right, #6b7280, #4b5563)' : 'linear-gradient(to right, #6366f1, #8b5cf6)',
+                  cursor: analyzingPhoto ? 'not-allowed' : 'pointer',
+                  marginRight: '1rem'
+                }}
+              >
+                {analyzingPhoto ? '📸 Analyzing...' : '📸 Scan Photo'}
+              </label>
               <button 
                 style={styles.quickAddBtn}
                 onClick={() => setShowAddModal(true)}
@@ -706,143 +929,28 @@ function App() {
       <main style={styles.main}>
         <div style={{...styles.grid, gridTemplateColumns: window.innerWidth >= 1280 ? '3fr 2fr' : 'minmax(0, 1fr)'}}>
           
-          {/* Main Inventory Section */}
+          {/* Main Shopping List Section */}
           <div style={styles.card}>
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
-                <div style={styles.cardIcon}>🥫</div>
+                <div style={styles.cardIcon}>📝</div>
                 <div>
-                  <h2 style={styles.cardTitleText}>Pantry Inventory</h2>
-                  <p style={styles.cardSubtitle}>Track everything you have at home</p>
+                  <h2 style={styles.cardTitleText}>Shopping List</h2>
+                  <p style={styles.cardSubtitle}>Items you need to buy</p>
                 </div>
               </div>
               <button style={styles.addBtn}>+ Add Item</button>
             </div>
             
-                          <div style={styles.inventoryList}>
-                {pantryItems.length === 0 ? (
-                  <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
-                    <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem'}}>
-                      🛒 No pantry items yet. Click "Quick Add" to get started!
-                    </p>
-                  </div>
-                ) : (
-                  pantryItems.map((item, index) => {
-                    const getStatusStyle = () => {
-                      if (item.currentCount === 0) return styles.statusOut;
-                      if (item.currentCount <= item.minCount) return styles.statusLow;
-                      return styles.statusGood;
-                    };
-                    
-                    const getStatusText = () => {
-                      if (item.currentCount === 0) return 'Out of Stock';
-                      if (item.currentCount <= item.minCount) return 'Running Low';
-                      return 'Well Stocked';
-                    };
-                    
-                    const getItemIcon = () => {
-                      const category = item.category?.toLowerCase() || '';
-                      if (category.includes('dairy')) return '🥛';
-                      if (category.includes('meat')) return '🍖';
-                      if (category.includes('produce')) return '🥬';
-                      if (category.includes('bakery')) return '🍞';
-                      if (category.includes('pantry')) return '🥫';
-                      return '🛒';
-                    };
-                    
-                    return (
-                      <div key={item.id || index} style={styles.inventoryItem}>
-                        <div style={styles.itemContent}>
-                          <div style={styles.itemLeft}>
-                            <div style={{...styles.itemIcon, background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)'}}>
-                              {getItemIcon()}
-                            </div>
-                            <div style={styles.itemDetails}>
-                              <h3 style={styles.itemName}>{item.name}</h3>
-                              <p style={styles.itemCategory}>
-                                {item.category} • Last updated {item.lastUpdated}
-                              </p>
-                            </div>
-                          </div>
-                          <div style={styles.itemRight}>
-                            <div style={styles.stockInfo}>
-                              <p style={styles.stockLabel}>Current Stock</p>
-                              <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                                <button
-                                  onClick={() => updateItemQuantity(item.id, Math.max(0, item.currentCount - 1), false)}
-                                  style={{
-                                    width: '2rem',
-                                    height: '2rem',
-                                    borderRadius: '50%',
-                                    border: 'none',
-                                    background: 'linear-gradient(to right, #ef4444, #dc2626)',
-                                    color: 'white',
-                                    cursor: 'pointer',
-                                    fontSize: '1rem',
-                                    fontWeight: 'bold'
-                                  }}
-                                >
-                                  -
-                                </button>
-                                <div style={{textAlign: 'center'}}>
-                                  <p style={styles.stockValue}>{item.currentCount}</p>
-                                  <p style={styles.stockUnit}>{item.unit}</p>
-                                </div>
-                                <button
-                                  onClick={() => updateItemQuantity(item.id, item.currentCount + 1, true)}
-                                  style={{
-                                    width: '2rem',
-                                    height: '2rem',
-                                    borderRadius: '50%',
-                                    border: 'none',
-                                    background: 'linear-gradient(to right, #10b981, #059669)',
-                                    color: 'white',
-                                    cursor: 'pointer',
-                                    fontSize: '1rem',
-                                    fontWeight: 'bold'
-                                  }}
-                                >
-                                  +
-                                </button>
-                              </div>
-                            </div>
-                            <div style={styles.stockInfo}>
-                              <p style={styles.stockLabel}>Min Required</p>
-                              <p style={styles.stockValue}>{item.minCount}</p>
-                              <p style={styles.stockUnit}>{item.unit}</p>
-                            </div>
-                            <div style={{...styles.statusBadge, ...getStatusStyle()}}>
-                              {getStatusText()}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-          </div>
-
-          {/* Sidebar */}
-          <div style={styles.sidebar}>
-            {/* Shopping List */}
-            <div style={styles.sidebarCard}>
-              <div style={styles.sidebarHeader}>
-                <div style={{...styles.sidebarIcon, background: 'linear-gradient(135deg, #10b981, #059669)'}}>📝</div>
-                <div>
-                  <h3 style={styles.sidebarTitle}>Shopping List</h3>
-                  <p style={styles.sidebarSubtitle}>Items you need to buy</p>
-                </div>
-              </div>
-              
+            <div style={styles.inventoryList}>
               {shoppingList.length === 0 ? (
-                <div style={{...styles.listItem, textAlign: 'center', padding: '2rem'}}>
-                  <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1rem'}}>
+                <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
+                  <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem'}}>
                     ✅ All stocked up! No items needed.
                   </p>
                 </div>
               ) : (
-                shoppingList.slice(0, 5).map((item, index) => {
+                shoppingList.map((item, index) => {
                   const getPriorityColor = () => {
                     if (item.source === 'pantry') {
                       if (item.currentCount === 0) return 'linear-gradient(to right, #ef4444, #ec4899)';
@@ -854,28 +962,201 @@ function App() {
                     return 'linear-gradient(to right, #10b981, #059669)';
                   };
                   
+                  const getStatusStyle = () => {
+                    if (item.source === 'pantry') {
+                      if (item.currentCount === 0) return styles.statusOut;
+                      return styles.statusLow;
+                    }
+                    const priority = item.priority?.toLowerCase();
+                    if (priority === 'high') return styles.statusOut;
+                    if (priority === 'medium') return styles.statusLow;
+                    return styles.statusGood;
+                  };
+                  
+                  const getStatusText = () => {
+                    if (item.source === 'pantry') {
+                      return item.currentCount === 0 ? 'Out of Stock' : 'Low Stock';
+                    }
+                    return `${item.priority} Priority`;
+                  };
+                  
+                  const getItemIcon = () => {
+                    if (item.source === 'pantry') return '🥫';
+                    return '🛒';
+                  };
+                  
                   const getDescription = () => {
                     if (item.source === 'pantry') {
-                      return `Need ${item.needed} ${item.unit} (low stock)`;
+                      return `Need ${item.needed || 1} ${item.unit}`;
                     }
-                    return `${item.quantity} ${item.unit} - ${item.priority} priority`;
+                    return `${item.quantity || 1} ${item.unit}`;
+                  };
+                  
+                  return (
+                    <div key={item.id || index} style={styles.inventoryItem}>
+                      <div style={styles.itemContent}>
+                        <div style={styles.itemLeft}>
+                          <div style={{...styles.itemIcon, background: getPriorityColor()}}>
+                            {getItemIcon()}
+                          </div>
+                          <div style={styles.itemDetails}>
+                            <h3 style={styles.itemName}>{item.name}</h3>
+                            <p style={styles.itemCategory}>
+                              {getDescription()} • {item.source === 'pantry' ? 'From pantry stock' : 'Manual addition'}
+                            </p>
+                          </div>
+                        </div>
+                        <div style={styles.itemRight}>
+                          <div style={styles.stockInfo}>
+                            <p style={styles.stockLabel}>Quantity</p>
+                            <div style={{textAlign: 'center'}}>
+                              <p style={styles.stockValue}>{item.quantity || item.needed || 1}</p>
+                              <p style={styles.stockUnit}>{item.unit}</p>
+                            </div>
+                          </div>
+                          <div style={{...styles.statusBadge, ...getStatusStyle()}}>
+                            {getStatusText()}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div style={styles.sidebar}>
+            {/* Pantry Inventory */}
+            <div style={styles.sidebarCard}>
+              <div style={styles.sidebarHeader}>
+                <div style={{...styles.sidebarIcon, background: 'linear-gradient(135deg, #fb923c, #ec4899)'}}>🥫</div>
+                <div>
+                  <h3 style={styles.sidebarTitle}>Pantry Inventory</h3>
+                  <p style={styles.sidebarSubtitle}>Track everything you have at home</p>
+                </div>
+              </div>
+              
+              {pantryItems.length === 0 ? (
+                <div style={{...styles.listItem, textAlign: 'center', padding: '2rem'}}>
+                  <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1rem'}}>
+                    🛒 No pantry items yet. Click "Quick Add" to get started!
+                  </p>
+                </div>
+              ) : (
+                pantryItems.slice(0, 5).map((item, index) => {
+                  const getStatusStyle = () => {
+                    if (item.currentCount === 0) return styles.statusOut;
+                    if (item.currentCount <= item.minCount) return styles.statusLow;
+                    return styles.statusGood;
+                  };
+                  
+                  const getPriorityColor = () => {
+                    if (item.currentCount === 0) return 'linear-gradient(to right, #ef4444, #ec4899)';
+                    if (item.currentCount <= item.minCount) return 'linear-gradient(to right, #eab308, #f97316)';
+                    return 'linear-gradient(to right, #10b981, #059669)';
+                  };
+                  
+                  const getStatusText = () => {
+                    if (item.currentCount === 0) return 'Out';
+                    if (item.currentCount <= item.minCount) return 'Low';
+                    return 'Good';
                   };
                   
                   return (
                     <div key={item.id || index} style={styles.listItem}>
-                      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                        <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
-                          <div style={{
-                            width: '0.5rem', 
-                            height: '0.5rem', 
-                            borderRadius: '50%', 
-                            background: getPriorityColor()
-                          }}></div>
-                          <div>
-                            <p style={{color: 'white', fontWeight: '500', margin: 0}}>{item.name}</p>
-                            <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', margin: 0}}>
-                              {getDescription()}
-                            </p>
+                      <div style={{display: 'flex', flexDirection: 'column', gap: '0.75rem'}}>
+                        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                          <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
+                            <div style={{
+                              width: '0.5rem', 
+                              height: '0.5rem', 
+                              borderRadius: '50%', 
+                              background: getPriorityColor()
+                            }}></div>
+                            <div>
+                              <p style={{color: 'white', fontWeight: '500', margin: 0}}>{item.name}</p>
+                              <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', margin: 0}}>
+                                {item.currentCount} {item.unit}
+                              </p>
+                            </div>
+                          </div>
+                          <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+                            <button
+                              onClick={() => updateItemQuantity(item.id, Math.max(0, item.currentCount - 1), false)}
+                              style={{
+                                width: '1.5rem',
+                                height: '1.5rem',
+                                borderRadius: '50%',
+                                border: 'none',
+                                background: 'linear-gradient(to right, #ef4444, #dc2626)',
+                                color: 'white',
+                                cursor: 'pointer',
+                                fontSize: '0.75rem',
+                                fontWeight: 'bold'
+                              }}
+                            >
+                              -
+                            </button>
+                            <button
+                              onClick={() => updateItemQuantity(item.id, item.currentCount + 1, true)}
+                              style={{
+                                width: '1.5rem',
+                                height: '1.5rem',
+                                borderRadius: '50%',
+                                border: 'none',
+                                background: 'linear-gradient(to right, #10b981, #059669)',
+                                color: 'white',
+                                cursor: 'pointer',
+                                fontSize: '0.75rem',
+                                fontWeight: 'bold'
+                              }}
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                          <p style={{color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', margin: 0}}>
+                            Minimum needed:
+                          </p>
+                          <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+                            <button
+                              onClick={() => updateItemMinCount(item.id, Math.max(1, item.minCount - 1))}
+                              style={{
+                                width: '1.25rem',
+                                height: '1.25rem',
+                                borderRadius: '50%',
+                                border: 'none',
+                                background: 'linear-gradient(to right, #6366f1, #8b5cf6)',
+                                color: 'white',
+                                cursor: 'pointer',
+                                fontSize: '0.625rem',
+                                fontWeight: 'bold'
+                              }}
+                            >
+                              -
+                            </button>
+                            <span style={{color: 'white', fontSize: '0.875rem', minWidth: '2rem', textAlign: 'center'}}>
+                              {item.minCount}
+                            </span>
+                            <button
+                              onClick={() => updateItemMinCount(item.id, item.minCount + 1)}
+                              style={{
+                                width: '1.25rem',
+                                height: '1.25rem',
+                                borderRadius: '50%',
+                                border: 'none',
+                                background: 'linear-gradient(to right, #6366f1, #8b5cf6)',
+                                color: 'white',
+                                cursor: 'pointer',
+                                fontSize: '0.625rem',
+                                fontWeight: 'bold'
+                              }}
+                            >
+                              +
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -884,10 +1165,10 @@ function App() {
                 })
               )}
               
-              {shoppingList.length > 5 && (
+              {pantryItems.length > 5 && (
                 <div style={{...styles.listItem, textAlign: 'center', padding: '1rem'}}>
                   <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem'}}>
-                    ...and {shoppingList.length - 5} more items
+                    ...and {pantryItems.length - 5} more items
                   </p>
                 </div>
               )}
@@ -931,6 +1212,9 @@ function App() {
 
       {/* Add Item Modal */}
       <AddItemModal />
+
+      {/* Photo Analyzer Modal */}
+      <PhotoAnalyzerModal />
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
