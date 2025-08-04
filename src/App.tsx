@@ -31,7 +31,8 @@ interface ShoppingListItem {
   currentCount?: number;
   minCount?: number;
   needed?: number;
-  quantity?: number;
+  quantity: number;
+  category?: string;
   unit: string; // Now contains UOM from Notes column
   priority?: 'High' | 'Medium' | 'Low';
   notes?: string;
