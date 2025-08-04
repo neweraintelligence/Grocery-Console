@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 const styles = {
   container: {
@@ -326,8 +326,300 @@ const styles = {
     fontSize: '1.5rem'
   }
 };
-
 function App() {
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [pantryItems, setPantryItems] = useState([]);
+  const [groceryItems, setGroceryItems] = useState([]);
+  const [shoppingList, setShoppingList] = useState([]);
+
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchPantryItems();
+    fetchGroceryItems();
+    fetchShoppingList();
+  }, []);
+
+  const fetchPantryItems = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry`);
+      const data = await response.json();
+      setPantryItems(data);
+    } catch (error) {
+      console.error('Error fetching pantry items:', error);
+    }
+  };
+
+  const fetchGroceryItems = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/groceries`);
+      const data = await response.json();
+      setGroceryItems(data);
+    } catch (error) {
+      console.error('Error fetching grocery items:', error);
+    }
+  };
+
+  const fetchShoppingList = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/shopping-list`);
+      const data = await response.json();
+      setShoppingList(data);
+    } catch (error) {
+      console.error('Error fetching shopping list:', error);
+    }
+  };
+
+  const updateItemQuantity = async (itemId, newQuantity, isIncrease) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ currentCount: newQuantity }),
+      });
+      
+      if (response.ok) {
+        // Refresh data after successful update
+        fetchPantryItems();
+        fetchShoppingList();
+      } else {
+        console.error('Failed to update item quantity');
+      }
+    } catch (error) {
+      console.error('Error updating item quantity:', error);
+    }
+  };
+
+  const AddItemModal = () => {
+    const [formData, setFormData] = useState({
+      name: '',
+      category: '',
+      currentCount: 0,
+      minCount: 1,
+      packSize: 1,
+      unit: '',
+      notes: ''
+    });
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+        
+        if (response.ok) {
+          setShowAddModal(false);
+          setFormData({
+            name: '',
+            category: '',
+            currentCount: 0,
+            minCount: 1,
+            packSize: 1,
+            unit: '',
+            notes: ''
+          });
+          fetchPantryItems();
+          fetchShoppingList();
+        }
+      } catch (error) {
+        console.error('Error adding item:', error);
+      }
+    };
+
+    if (!showAddModal) return null;
+
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000
+      }}>
+        <div style={{
+          backgroundColor: 'rgba(0,0,0,0.9)',
+          backdropFilter: 'blur(20px)',
+          borderRadius: '1.5rem',
+          border: '1px solid rgba(255,255,255,0.1)',
+          padding: '2rem',
+          width: '90%',
+          maxWidth: '500px',
+          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)'
+        }}>
+          <h2 style={{color: 'white', marginBottom: '1.5rem', fontFamily: "'Fredoka', system-ui, sans-serif"}}>
+            🍳 Add New Item
+          </h2>
+          
+          <form onSubmit={handleSubmit}>
+            <div style={{display: 'grid', gap: '1rem'}}>
+              <input
+                type="text"
+                placeholder="Item Name (e.g., Greek Yogurt)"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                required
+                style={{
+                  padding: '1rem',
+                  borderRadius: '0.75rem',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  backgroundColor: 'rgba(255,255,255,0.1)',
+                  color: 'white',
+                  fontSize: '1rem'
+                }}
+              />
+              
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
+                <input
+                  type="text"
+                  placeholder="Category"
+                  value={formData.category}
+                  onChange={(e) => setFormData({...formData, category: e.target.value})}
+                  style={{
+                    padding: '1rem',
+                    borderRadius: '0.75rem',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                    color: 'white'
+                  }}
+                />
+                <input
+                  type="text"
+                  placeholder="Unit (cups, bottles)"
+                  value={formData.unit}
+                  onChange={(e) => setFormData({...formData, unit: e.target.value})}
+                  style={{
+                    padding: '1rem',
+                    borderRadius: '0.75rem',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                    color: 'white'
+                  }}
+                />
+              </div>
+              
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem'}}>
+                <div>
+                  <label style={{color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block'}}>
+                    Current Count
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.currentCount}
+                    onChange={(e) => setFormData({...formData, currentCount: parseInt(e.target.value) || 0})}
+                    style={{
+                      padding: '1rem',
+                      borderRadius: '0.75rem',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      backgroundColor: 'rgba(255,255,255,0.1)',
+                      color: 'white',
+                      width: '100%'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block'}}>
+                    Min Count
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.minCount}
+                    onChange={(e) => setFormData({...formData, minCount: parseInt(e.target.value) || 1})}
+                    style={{
+                      padding: '1rem',
+                      borderRadius: '0.75rem',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      backgroundColor: 'rgba(255,255,255,0.1)',
+                      color: 'white',
+                      width: '100%'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block'}}>
+                    Pack Size
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.packSize}
+                    onChange={(e) => setFormData({...formData, packSize: parseInt(e.target.value) || 1})}
+                    style={{
+                      padding: '1rem',
+                      borderRadius: '0.75rem',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      backgroundColor: 'rgba(255,255,255,0.1)',
+                      color: 'white',
+                      width: '100%'
+                    }}
+                  />
+                </div>
+              </div>
+              
+              <textarea
+                placeholder="Notes (optional)"
+                value={formData.notes}
+                onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                rows={3}
+                style={{
+                  padding: '1rem',
+                  borderRadius: '0.75rem',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  backgroundColor: 'rgba(255,255,255,0.1)',
+                  color: 'white',
+                  resize: 'none',
+                  fontFamily: 'inherit'
+                }}
+              />
+            </div>
+            
+            <div style={{display: 'flex', gap: '1rem', marginTop: '2rem'}}>
+              <button
+                type="button"
+                onClick={() => setShowAddModal(false)}
+                style={{
+                  flex: 1,
+                  padding: '1rem',
+                  borderRadius: '0.75rem',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  backgroundColor: 'rgba(255,255,255,0.1)',
+                  color: 'white',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                style={{
+                  flex: 1,
+                  padding: '1rem',
+                  borderRadius: '0.75rem',
+                  border: 'none',
+                  background: 'linear-gradient(to right, #10b981, #059669)',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  cursor: 'pointer'
+                }}
+              >
+                Add Item
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div style={styles.container}>
       {/* Animated background orbs */}
@@ -346,9 +638,14 @@ function App() {
               <p style={styles.subtitle}>Orange you glad it's grocery time? 🍊</p>
             </div>
           </div>
-          <div style={styles.headerActions}>
-            <button style={styles.quickAddBtn}>+ Quick Add</button>
-          </div>
+                      <div style={styles.headerActions}>
+              <button 
+                style={styles.quickAddBtn}
+                onClick={() => setShowAddModal(true)}
+              >
+                + Quick Add
+              </button>
+            </div>
         </div>
       </header>
 
@@ -369,82 +666,108 @@ function App() {
               <button style={styles.addBtn}>+ Add Item</button>
             </div>
             
-            <div style={styles.inventoryList}>
-              <div style={styles.inventoryItem}>
-                <div style={styles.itemContent}>
-                  <div style={styles.itemLeft}>
-                    <div style={{...styles.itemIcon, background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)'}}>🥛</div>
-                    <div style={styles.itemDetails}>
-                      <h3 style={styles.itemName}>Organic Milk</h3>
-                      <p style={styles.itemCategory}>Dairy • Added 2 days ago</p>
-                    </div>
+                          <div style={styles.inventoryList}>
+                {pantryItems.length === 0 ? (
+                  <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
+                    <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem'}}>
+                      🛒 No pantry items yet. Click "Quick Add" to get started!
+                    </p>
                   </div>
-                  <div style={styles.itemRight}>
-                    <div style={styles.stockInfo}>
-                      <p style={styles.stockLabel}>Current Stock</p>
-                      <p style={styles.stockValue}>1</p>
-                      <p style={styles.stockUnit}>cartons</p>
-                    </div>
-                    <div style={styles.stockInfo}>
-                      <p style={styles.stockLabel}>Min Required</p>
-                      <p style={styles.stockValue}>2</p>
-                      <p style={styles.stockUnit}>cartons</p>
-                    </div>
-                    <div style={{...styles.statusBadge, ...styles.statusLow}}>Running Low</div>
-                  </div>
-                </div>
+                ) : (
+                  pantryItems.map((item, index) => {
+                    const getStatusStyle = () => {
+                      if (item.currentCount === 0) return styles.statusOut;
+                      if (item.currentCount <= item.minCount) return styles.statusLow;
+                      return styles.statusGood;
+                    };
+                    
+                    const getStatusText = () => {
+                      if (item.currentCount === 0) return 'Out of Stock';
+                      if (item.currentCount <= item.minCount) return 'Running Low';
+                      return 'Well Stocked';
+                    };
+                    
+                    const getItemIcon = () => {
+                      const category = item.category?.toLowerCase() || '';
+                      if (category.includes('dairy')) return '🥛';
+                      if (category.includes('meat')) return '🍖';
+                      if (category.includes('produce')) return '🥬';
+                      if (category.includes('bakery')) return '🍞';
+                      if (category.includes('pantry')) return '🥫';
+                      return '🛒';
+                    };
+                    
+                    return (
+                      <div key={item.id || index} style={styles.inventoryItem}>
+                        <div style={styles.itemContent}>
+                          <div style={styles.itemLeft}>
+                            <div style={{...styles.itemIcon, background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)'}}>
+                              {getItemIcon()}
+                            </div>
+                            <div style={styles.itemDetails}>
+                              <h3 style={styles.itemName}>{item.name}</h3>
+                              <p style={styles.itemCategory}>
+                                {item.category} • Last updated {item.lastUpdated}
+                              </p>
+                            </div>
+                          </div>
+                          <div style={styles.itemRight}>
+                            <div style={styles.stockInfo}>
+                              <p style={styles.stockLabel}>Current Stock</p>
+                              <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+                                <button
+                                  onClick={() => updateItemQuantity(item.id, Math.max(0, item.currentCount - 1), false)}
+                                  style={{
+                                    width: '2rem',
+                                    height: '2rem',
+                                    borderRadius: '50%',
+                                    border: 'none',
+                                    background: 'linear-gradient(to right, #ef4444, #dc2626)',
+                                    color: 'white',
+                                    cursor: 'pointer',
+                                    fontSize: '1rem',
+                                    fontWeight: 'bold'
+                                  }}
+                                >
+                                  -
+                                </button>
+                                <div style={{textAlign: 'center'}}>
+                                  <p style={styles.stockValue}>{item.currentCount}</p>
+                                  <p style={styles.stockUnit}>{item.unit}</p>
+                                </div>
+                                <button
+                                  onClick={() => updateItemQuantity(item.id, item.currentCount + 1, true)}
+                                  style={{
+                                    width: '2rem',
+                                    height: '2rem',
+                                    borderRadius: '50%',
+                                    border: 'none',
+                                    background: 'linear-gradient(to right, #10b981, #059669)',
+                                    color: 'white',
+                                    cursor: 'pointer',
+                                    fontSize: '1rem',
+                                    fontWeight: 'bold'
+                                  }}
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                            <div style={styles.stockInfo}>
+                              <p style={styles.stockLabel}>Min Required</p>
+                              <p style={styles.stockValue}>{item.minCount}</p>
+                              <p style={styles.stockUnit}>{item.unit}</p>
+                            </div>
+                            <div style={{...styles.statusBadge, ...getStatusStyle()}}>
+                              {getStatusText()}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
-
-              <div style={styles.inventoryItem}>
-                <div style={styles.itemContent}>
-                  <div style={styles.itemLeft}>
-                    <div style={{...styles.itemIcon, background: 'linear-gradient(135deg, #f59e0b, #f97316)'}}>🍞</div>
-                    <div style={styles.itemDetails}>
-                      <h3 style={styles.itemName}>Sourdough Bread</h3>
-                      <p style={styles.itemCategory}>Bakery • Last used yesterday</p>
-                    </div>
-                  </div>
-                  <div style={styles.itemRight}>
-                    <div style={styles.stockInfo}>
-                      <p style={styles.stockLabel}>Current Stock</p>
-                      <p style={styles.stockValue}>0</p>
-                      <p style={styles.stockUnit}>loaves</p>
-                    </div>
-                    <div style={styles.stockInfo}>
-                      <p style={styles.stockLabel}>Min Required</p>
-                      <p style={styles.stockValue}>1</p>
-                      <p style={styles.stockUnit}>loaves</p>
-                    </div>
-                    <div style={{...styles.statusBadge, ...styles.statusOut}}>Out of Stock</div>
-                  </div>
-                </div>
-              </div>
-
-              <div style={styles.inventoryItem}>
-                <div style={styles.itemContent}>
-                  <div style={styles.itemLeft}>
-                    <div style={{...styles.itemIcon, background: 'linear-gradient(135deg, #10b981, #059669)'}}>🍌</div>
-                    <div style={styles.itemDetails}>
-                      <h3 style={styles.itemName}>Organic Bananas</h3>
-                      <p style={styles.itemCategory}>Produce • Fresh & ripe</p>
-                    </div>
-                  </div>
-                  <div style={styles.itemRight}>
-                    <div style={styles.stockInfo}>
-                      <p style={styles.stockLabel}>Current Stock</p>
-                      <p style={styles.stockValue}>3</p>
-                      <p style={styles.stockUnit}>bunches</p>
-                    </div>
-                    <div style={styles.stockInfo}>
-                      <p style={styles.stockLabel}>Min Required</p>
-                      <p style={styles.stockValue}>2</p>
-                      <p style={styles.stockUnit}>bunches</p>
-                    </div>
-                    <div style={{...styles.statusBadge, ...styles.statusGood}}>Well Stocked</div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Sidebar */}
@@ -459,29 +782,62 @@ function App() {
                 </div>
               </div>
               
-              <div style={styles.listItem}>
-                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                  <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
-                    <div style={{width: '0.5rem', height: '0.5rem', borderRadius: '50%', background: 'linear-gradient(to right, #eab308, #f97316)'}}></div>
-                    <div>
-                      <p style={{color: 'white', fontWeight: '500', margin: 0}}>Organic Milk</p>
-                      <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', margin: 0}}>Need 1 more carton</p>
-                    </div>
-                  </div>
+              {shoppingList.length === 0 ? (
+                <div style={{...styles.listItem, textAlign: 'center', padding: '2rem'}}>
+                  <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1rem'}}>
+                    ✅ All stocked up! No items needed.
+                  </p>
                 </div>
-              </div>
+              ) : (
+                shoppingList.slice(0, 5).map((item, index) => {
+                  const getPriorityColor = () => {
+                    if (item.source === 'pantry') {
+                      if (item.currentCount === 0) return 'linear-gradient(to right, #ef4444, #ec4899)';
+                      return 'linear-gradient(to right, #eab308, #f97316)';
+                    }
+                    const priority = item.priority?.toLowerCase();
+                    if (priority === 'high') return 'linear-gradient(to right, #ef4444, #ec4899)';
+                    if (priority === 'medium') return 'linear-gradient(to right, #eab308, #f97316)';
+                    return 'linear-gradient(to right, #10b981, #059669)';
+                  };
+                  
+                  const getDescription = () => {
+                    if (item.source === 'pantry') {
+                      return `Need ${item.needed} ${item.unit} (low stock)`;
+                    }
+                    return `${item.quantity} ${item.unit} - ${item.priority} priority`;
+                  };
+                  
+                  return (
+                    <div key={item.id || index} style={styles.listItem}>
+                      <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                        <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
+                          <div style={{
+                            width: '0.5rem', 
+                            height: '0.5rem', 
+                            borderRadius: '50%', 
+                            background: getPriorityColor()
+                          }}></div>
+                          <div>
+                            <p style={{color: 'white', fontWeight: '500', margin: 0}}>{item.name}</p>
+                            <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', margin: 0}}>
+                              {getDescription()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
               
-              <div style={styles.listItem}>
-                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                  <div style={{display: 'flex', alignItems: 'center', gap: '0.75rem'}}>
-                    <div style={{width: '0.5rem', height: '0.5rem', borderRadius: '50%', background: 'linear-gradient(to right, #ef4444, #ec4899)'}}></div>
-                    <div>
-                      <p style={{color: 'white', fontWeight: '500', margin: 0}}>Sourdough Bread</p>
-                      <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', margin: 0}}>Need 1 fresh loaf</p>
-                    </div>
-                  </div>
+              {shoppingList.length > 5 && (
+                <div style={{...styles.listItem, textAlign: 'center', padding: '1rem'}}>
+                  <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem'}}>
+                    ...and {shoppingList.length - 5} more items
+                  </p>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Quick Stats */}
@@ -493,28 +849,35 @@ function App() {
                 </div>
               </div>
               
-              <div style={styles.statsGrid}>
-                <div style={styles.statRow}>
-                  <span style={styles.statLabel}>Total Items</span>
-                  <span style={{...styles.statValue, color: 'white'}}>12</span>
+                              <div style={styles.statsGrid}>
+                  <div style={styles.statRow}>
+                    <span style={styles.statLabel}>Total Items</span>
+                    <span style={{...styles.statValue, color: 'white'}}>{pantryItems.length}</span>
+                  </div>
+                  <div style={styles.statRow}>
+                    <span style={styles.statLabel}>Running Low</span>
+                    <span style={{...styles.statValue, color: '#fbbf24'}}>
+                      {pantryItems.filter(item => item.currentCount <= item.minCount).length}
+                    </span>
+                  </div>
+                  <div style={styles.statRow}>
+                    <span style={styles.statLabel}>Categories</span>
+                    <span style={{...styles.statValue, color: 'white'}}>
+                      {new Set(pantryItems.map(item => item.category)).size}
+                    </span>
+                  </div>
+                  <div style={styles.statRow}>
+                    <span style={styles.statLabel}>Need to Buy</span>
+                    <span style={{...styles.statValue, color: '#34d399'}}>{shoppingList.length}</span>
+                  </div>
                 </div>
-                <div style={styles.statRow}>
-                  <span style={styles.statLabel}>Running Low</span>
-                  <span style={{...styles.statValue, color: '#fbbf24'}}>2</span>
-                </div>
-                <div style={styles.statRow}>
-                  <span style={styles.statLabel}>Categories</span>
-                  <span style={{...styles.statValue, color: 'white'}}>5</span>
-                </div>
-                <div style={styles.statRow}>
-                  <span style={styles.statLabel}>Recipes Available</span>
-                  <span style={{...styles.statValue, color: '#34d399'}}>8</span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       </main>
+
+      {/* Add Item Modal */}
+      <AddItemModal />
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');

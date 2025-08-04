@@ -175,6 +175,54 @@ app.post('/api/groceries', async (req, res) => {
   }
 });
 
+// Update pantry item quantity
+app.put('/api/pantry/:id', async (req, res) => {
+  try {
+    if (!sheets || !process.env.GOOGLE_SHEET_ID) {
+      return res.status(500).json({ error: 'Google Sheets not configured' });
+    }
+
+    const rowId = req.params.id;
+    const { currentCount } = req.body;
+    const lastUpdated = new Date().toISOString().split('T')[0];
+
+    // First get the existing row data
+    const getResponse = await sheets.spreadsheets.values.get({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID,
+      range: `Pantry!A${rowId}:G${rowId}`,
+    });
+
+    if (!getResponse.data.values || getResponse.data.values.length === 0) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+
+    const existingRow = getResponse.data.values[0];
+    
+    // Update only the current count and last updated date
+    const updatedRow = [
+      existingRow[0], // name
+      existingRow[1], // category  
+      currentCount,   // updated current count
+      existingRow[3], // minCount
+      existingRow[4], // unit
+      lastUpdated,    // updated lastUpdated
+      existingRow[6] || '' // notes
+    ];
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID,
+      range: `Pantry!A${rowId}:G${rowId}`,
+      valueInputOption: 'USER_ENTERED',
+      resource: { values: [updatedRow] }
+    });
+
+    res.json({ message: 'Item quantity updated successfully' });
+  } catch (error) {
+    console.error('Error updating item quantity:', error);
+    res.status(500).json({ error: 'Failed to update item quantity' });
+  }
+});
+
 // Get shopping list (combines low pantry items + grocery list)
 app.get('/api/shopping-list', async (req, res) => {
   try {
