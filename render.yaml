@@ -22,7 +22,6 @@ services:
   - type: web
     name: grocery-dashboard-frontend
     runtime: static
-    plan: free
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
     pullRequestPreviewsEnabled: false
