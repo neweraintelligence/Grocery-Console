@@ -39,7 +39,11 @@ interface ShoppingListItem {
 const styles = {
   container: {
     minHeight: '100vh',
-    background: 'linear-gradient(135deg, #1e293b 0%, #7c3aed 50%, #1e293b 100%)',
+    backgroundImage: 'linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url("/kitchen scene 1.png")',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    backgroundAttachment: 'fixed',
     fontFamily: "'Inter', system-ui, sans-serif",
     position: 'relative' as const,
     overflow: 'hidden'
@@ -1271,9 +1275,7 @@ function App() {
         <div style={styles.headerContent}>
           <div style={styles.logoSection}>
             <div style={styles.logoIcon}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L15.09 8.26L22 9L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9L8.91 8.26L12 2Z" fill="white"/>
-              </svg>
+              <img src="/kitchen icon 1.png" alt="Kitchen Icon" style={{width: '32px', height: '32px', objectFit: 'contain'}} />
             </div>
             <div>
               <h1 style={styles.title}>Laurie's Legendary Kitchen</h1>
@@ -1347,9 +1349,7 @@ function App() {
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
                 <div style={styles.cardIcon}>
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M9 11H15M9 15H15M3 7V17A2 2 0 0 0 5 19H19A2 2 0 0 0 21 17V7A2 2 0 0 0 19 5H5A2 2 0 0 0 3 7Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+                  <img src="/kitchen icon 2.png" alt="Kitchen Icon" style={{width: '36px', height: '36px', objectFit: 'contain'}} />
                 </div>
                 <div>
                   <h2 style={styles.cardTitleText}>Laurie's Loot List</h2>
@@ -1373,9 +1373,7 @@ function App() {
             <div style={styles.inventoryList}>
               {shoppingList.length === 0 ? (
                 <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{margin: '0 auto 1rem', opacity: 0.6}}>
-                    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+                  <img src="/kitchen icon 2.png" alt="Kitchen Icon" style={{width: '64px', height: '64px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.6}} />
                   <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem'}}>
                     🎉 Laurie's all set! The snack gods are pleased! ✨
                   </p>
@@ -1521,9 +1519,7 @@ function App() {
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
                 <div style={styles.cardIcon}>
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M19 7H16V6A4 4 0 0 0 8 6V7H5A1 1 0 0 0 4 8V19A3 3 0 0 0 7 22H17A3 3 0 0 0 20 19V8A1 1 0 0 0 19 7ZM10 6A2 2 0 0 1 14 6V7H10V6Z" fill="white"/>
-                  </svg>
+                  <img src="/kitchen icon 1.png" alt="Kitchen Icon" style={{width: '36px', height: '36px', objectFit: 'contain'}} />
                 </div>
                 <div>
                   <h2 style={styles.cardTitleText}>Laurie's Secret Stash</h2>
@@ -1550,9 +1546,7 @@ function App() {
             <div style={styles.inventoryList}>
               {pantryItems.length === 0 ? (
                 <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{margin: '0 auto 1rem', opacity: 0.6}}>
-                    <path d="M19 7H16V6A4 4 0 0 0 8 6V7H5A1 1 0 0 0 4 8V19A3 3 0 0 0 7 22H17A3 3 0 0 0 20 19V8A1 1 0 0 0 19 7ZM10 6A2 2 0 0 1 14 6V7H10V6Z" fill="rgba(255,255,255,0.6)"/>
-                  </svg>
+                  <img src="/kitchen icon 1.png" alt="Kitchen Icon" style={{width: '64px', height: '64px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.6}} />
                   <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem'}}>
                     🕵️‍♀️ Laurie's stash is suspiciously empty... Time for a "Snack Attack"!
                   </p>
