@@ -18,7 +18,6 @@ interface RestockPrediction {
   recommendedQuantity: number;
   confidence: number;
   urgency: 'low' | 'medium' | 'high' | 'critical';
-  estimatedCost: number;
   bestStore: string;
   reasoning: string[];
 }
@@ -76,7 +75,6 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
         quantity: prediction.recommendedQuantity,
         unit: 'units', // Could be enhanced to use actual units
         urgency: prediction.urgency,
-        estimatedCost: prediction.estimatedCost,
         bestStore: prediction.bestStore,
         reasoning: prediction.reasoning,
         predictedRunOutDate: prediction.predictedRunOutDate
@@ -275,14 +273,7 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
                 High Priority
               </div>
             </div>
-            <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#6bcf7f' }}>
-                ${predictions.reduce((sum, p) => sum + p.estimatedCost, 0).toFixed(2)}
-              </div>
-              <div style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.8)' }}>
-                Estimated Cost
-              </div>
-            </div>
+            
           </div>
         </div>
 
@@ -368,17 +359,14 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
                   }}>
                     {prediction.urgency.toUpperCase()}
                   </div>
-                  <div style={{
-                    textAlign: 'right',
-                    color: 'white'
-                  }}>
-                    <div style={{ fontWeight: 'bold' }}>
-                      ${prediction.estimatedCost.toFixed(2)}
-                    </div>
-                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>
-                      {prediction.bestStore}
-                    </div>
-                  </div>
+                                     <div style={{
+                     textAlign: 'right',
+                     color: 'white'
+                   }}>
+                     <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>
+                       {prediction.bestStore}
+                     </div>
+                   </div>
                 </div>
               </div>
             ))

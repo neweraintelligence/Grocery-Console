@@ -30,7 +30,6 @@ interface RestockPrediction {
   recommendedQuantity: number;
   confidence: number;
   urgency: 'low' | 'medium' | 'high' | 'critical';
-  estimatedCost: number;
   bestStore: string;
   reasoning: string[];
 }
@@ -213,7 +212,6 @@ export class PredictiveRestockService {
           recommendedQuantity: Math.max(item.minCount * 2, 5),
           confidence: 0.5,
           urgency: urgency as any,
-          estimatedCost: 15, // Default estimate
           bestStore: 'Grocery Store',
           reasoning
         };
@@ -253,11 +251,7 @@ export class PredictiveRestockService {
     const weeksOfSupply = 2; // Target 2 weeks of supply
     const recommendedQuantity = Math.ceil(adjustedConsumptionRate * 7 * weeksOfSupply);
 
-    // Estimate cost
-    const averagePrice = pattern.priceHistory.length > 0 
-      ? pattern.priceHistory.reduce((sum, price) => sum + price.price, 0) / pattern.priceHistory.length
-      : 10; // Default price
-    const estimatedCost = recommendedQuantity * averagePrice;
+
 
     // Find best store (lowest recent price)
     const recentPrices = pattern.priceHistory.filter(price => 
@@ -288,7 +282,6 @@ export class PredictiveRestockService {
       recommendedQuantity,
       confidence: pattern.reliability,
       urgency,
-      estimatedCost,
       bestStore,
       reasoning
     };

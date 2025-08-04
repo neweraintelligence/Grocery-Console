@@ -8,7 +8,6 @@ interface WeeklyListItem {
   quantity: number;
   unit: string;
   urgency: 'low' | 'medium' | 'high' | 'critical';
-  estimatedCost: number;
   bestStore: string;
   reasoning: string[];
   predictedRunOutDate?: Date;
@@ -152,14 +151,12 @@ export class PDFGeneratorService {
     const totalItems = items.length;
     const criticalItems = items.filter(item => item.urgency === 'critical').length;
     const highPriorityItems = items.filter(item => item.urgency === 'high').length;
-    const totalEstimatedCost = items.reduce((sum, item) => sum + item.estimatedCost, 0);
 
     const summaryText = [
       `Total Items: ${totalItems}`,
       `Critical Items: ${criticalItems}`,
-      `High Priority: ${highPriorityItems}`,
-      opts.includePricing ? `Estimated Cost: $${totalEstimatedCost.toFixed(2)}` : ''
-    ].filter(Boolean);
+      `High Priority: ${highPriorityItems}`
+    ];
 
     summaryText.forEach((text, index) => {
       pdf.text(text, margin + 5, yPosition + 18 + (index * 4));
@@ -251,7 +248,6 @@ export class PDFGeneratorService {
         // Item details
         const urgencyEmoji = this.getUrgencyEmoji(item.urgency);
         const quantityText = `${item.quantity} ${item.unit}`;
-        const costText = opts.includePricing ? ` • $${item.estimatedCost.toFixed(2)}` : '';
         const storeText = opts.includeStoreInfo ? ` • ${item.bestStore}` : '';
         
         pdf.setFont('helvetica', 'bold');
@@ -260,7 +256,7 @@ export class PDFGeneratorService {
         pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(9);
         pdf.setTextColor(100, 100, 100);
-        pdf.text(`${quantityText}${costText}${storeText}`, margin + 2, yPosition + 9);
+        pdf.text(`${quantityText}${storeText}`, margin + 2, yPosition + 9);
 
         // Add reasoning if requested
         if (opts.includeReasoningDetails && item.reasoning.length > 0) {
