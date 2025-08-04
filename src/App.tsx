@@ -1273,7 +1273,7 @@ function App() {
                         </div>
                         <div style={styles.itemRight}>
                           <div style={styles.stockInfo}>
-                            <p style={styles.stockLabel}>Current Stock</p>
+                            <p style={styles.stockLabel}>Stock: {item.currentCount}/{item.minCount} {item.unit}</p>
                             <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
                               <button
                                 onClick={() => updateItemQuantity(item.id, Math.max(0, item.currentCount - 1), false)}
@@ -1314,44 +1314,25 @@ function App() {
                             </div>
                           </div>
                           <div style={styles.stockInfo}>
-                            <p style={styles.stockLabel}>Min Required</p>
-                            <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-                              <button
-                                onClick={() => updateItemMinCount(item.id, Math.max(1, item.minCount - 1))}
-                                style={{
-                                  width: '1.5rem',
-                                  height: '1.5rem',
-                                  borderRadius: '50%',
-                                  border: 'none',
-                                  background: 'linear-gradient(to right, #6366f1, #8b5cf6)',
-                                  color: 'white',
-                                  cursor: 'pointer',
-                                  fontSize: '0.75rem',
-                                  fontWeight: 'bold'
-                                }}
-                              >
-                                -
-                              </button>
-                              <div style={{textAlign: 'center'}}>
-                                <p style={styles.stockValue}>{item.minCount}</p>
-                                <p style={styles.stockUnit}>{item.unit}</p>
-                              </div>
-                              <button
-                                onClick={() => updateItemMinCount(item.id, item.minCount + 1)}
-                                style={{
-                                  width: '1.5rem',
-                                  height: '1.5rem',
-                                  borderRadius: '50%',
-                                  border: 'none',
-                                  background: 'linear-gradient(to right, #6366f1, #8b5cf6)',
-                                  color: 'white',
-                                  cursor: 'pointer',
-                                  fontSize: '0.75rem',
-                                  fontWeight: 'bold'
-                                }}
-                              >
-                                +
-                              </button>
+                            <p style={styles.stockLabel}>Min Needed</p>
+                            <div 
+                              style={{
+                                textAlign: 'center',
+                                cursor: 'pointer',
+                                padding: '0.5rem',
+                                borderRadius: '0.5rem',
+                                border: '1px solid rgba(255,255,255,0.2)',
+                                background: 'rgba(255,255,255,0.1)'
+                              }}
+                              onClick={() => {
+                                const newMin = prompt(`Set minimum needed for ${item.name}:`, item.minCount.toString());
+                                if (newMin && !isNaN(parseInt(newMin))) {
+                                  updateItemMinCount(item.id, parseInt(newMin));
+                                }
+                              }}
+                            >
+                              <p style={styles.stockValue}>{item.minCount}</p>
+                              <p style={styles.stockUnit}>click to edit</p>
                             </div>
                           </div>
                           <div style={{...styles.statusBadge, ...getStatusStyle()}}>
