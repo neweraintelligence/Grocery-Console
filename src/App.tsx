@@ -53,6 +53,18 @@ interface Recipe {
   missingIngredients: string[];
 }
 
+interface RecipeTemplate {
+  title: string;
+  description: string;
+  cookTime: string;
+  servings: number;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  cuisine: string;
+  mealType: 'breakfast' | 'lunch' | 'dinner' | 'dessert';
+  requiredIngredients: string[];
+  baseIngredients: string[];
+}
+
 const styles = {
   container: {
     minHeight: '100vh',
@@ -966,7 +978,7 @@ function App() {
       }
 
       // Generate unique recipe templates with more variety each time
-      const recipeVariations = [
+      const recipeVariations: RecipeTemplate[][] = [
         // Coconut-based recipes
         [
           {
@@ -974,9 +986,9 @@ function App() {
             description: "A creamy and comforting dessert made with coconut milk",
             cookTime: "25 minutes",
             servings: 4,
-            difficulty: "Easy" as const,
+            difficulty: "Easy",
             cuisine: "Asian",
-            mealType: "dessert" as const,
+            mealType: "dessert",
             requiredIngredients: ["coconut milk"],
             baseIngredients: ["coconut milk", "rice", "sugar"]
           },
@@ -985,9 +997,9 @@ function App() {
             description: "Creamy breakfast oatmeal with coconut and tropical flavors",
             cookTime: "15 minutes",
             servings: 2,
-            difficulty: "Easy" as const,
+            difficulty: "Easy",
             cuisine: "Tropical",
-            mealType: "breakfast" as const,
+            mealType: "breakfast",
             requiredIngredients: ["coconut milk"],
             baseIngredients: ["coconut milk", "oats", "honey", "vanilla"]
           },
@@ -996,9 +1008,9 @@ function App() {
             description: "Refreshing smoothie bowl with coconut base",
             cookTime: "10 minutes",
             servings: 1,
-            difficulty: "Easy" as const,
+            difficulty: "Easy",
             cuisine: "Modern",
-            mealType: "breakfast" as const,
+            mealType: "breakfast",
             requiredIngredients: ["coconut milk"],
             baseIngredients: ["coconut milk", "frozen fruit", "granola"]
           }
@@ -1009,9 +1021,9 @@ function App() {
             description: "A simple coconut curry base that can be enhanced with vegetables",
             cookTime: "20 minutes",
             servings: 3,
-            difficulty: "Easy" as const,
+            difficulty: "Easy",
             cuisine: "Thai",
-            mealType: "dinner" as const,
+            mealType: "dinner",
             requiredIngredients: ["coconut milk"],
             baseIngredients: ["coconut milk", "curry powder", "onion"]
           },
@@ -1020,9 +1032,9 @@ function App() {
             description: "Warming soup with coconut milk and aromatic spices",
             cookTime: "30 minutes",
             servings: 4,
-            difficulty: "Medium" as const,
+            difficulty: "Medium",
             cuisine: "Thai",
-            mealType: "dinner" as const,
+            mealType: "dinner",
             requiredIngredients: ["coconut milk"],
             baseIngredients: ["coconut milk", "vegetables", "broth", "spices"]
           },
@@ -1031,9 +1043,9 @@ function App() {
             description: "Hearty lentil dish with coconut milk and warm spices",
             cookTime: "35 minutes",
             servings: 4,
-            difficulty: "Medium" as const,
+            difficulty: "Medium",
             cuisine: "Indian",
-            mealType: "dinner" as const,
+            mealType: "dinner",
             requiredIngredients: ["coconut milk"],
             baseIngredients: ["coconut milk", "lentils", "spices", "onion"]
           }
@@ -1044,9 +1056,9 @@ function App() {
             description: "A healthy breakfast pudding made with coconut milk",
             cookTime: "10 minutes prep + 4 hours chill",
             servings: 2,
-            difficulty: "Easy" as const,
+            difficulty: "Easy",
             cuisine: "Modern",
-            mealType: "breakfast" as const,
+            mealType: "breakfast",
             requiredIngredients: ["coconut milk"],
             baseIngredients: ["coconut milk", "chia seeds", "honey"]
           },
@@ -1055,9 +1067,9 @@ function App() {
             description: "No-bake energy balls with coconut and nuts",
             cookTime: "15 minutes",
             servings: 12,
-            difficulty: "Easy" as const,
+            difficulty: "Easy",
             cuisine: "Modern",
-            mealType: "dessert" as const,
+            mealType: "dessert",
             requiredIngredients: ["coconut milk"],
             baseIngredients: ["coconut", "dates", "nuts", "vanilla"]
           }
@@ -1069,9 +1081,9 @@ function App() {
             description: "A healthy and colorful quinoa bowl with Mediterranean flavors",
             cookTime: "25 minutes",
             servings: 3,
-            difficulty: "Easy" as const,
+            difficulty: "Easy",
             cuisine: "Mediterranean",
-            mealType: "lunch" as const,
+            mealType: "lunch",
             requiredIngredients: ["quinoa", "olive oil"],
             baseIngredients: ["quinoa", "olive oil", "vegetables", "herbs"]
           },
@@ -1080,9 +1092,9 @@ function App() {
             description: "Bell peppers stuffed with quinoa and vegetables",
             cookTime: "45 minutes",
             servings: 4,
-            difficulty: "Medium" as const,
+            difficulty: "Medium",
             cuisine: "Mediterranean",
-            mealType: "dinner" as const,
+            mealType: "dinner",
             requiredIngredients: ["quinoa"],
             baseIngredients: ["quinoa", "bell peppers", "vegetables", "herbs"]
           },
@@ -1091,9 +1103,9 @@ function App() {
             description: "Fresh Middle Eastern salad with quinoa instead of bulgur",
             cookTime: "20 minutes",
             servings: 4,
-            difficulty: "Easy" as const,
+            difficulty: "Easy",
             cuisine: "Middle Eastern",
-            mealType: "lunch" as const,
+            mealType: "lunch",
             requiredIngredients: ["quinoa"],
             baseIngredients: ["quinoa", "parsley", "tomatoes", "lemon"]
           }
@@ -1104,9 +1116,9 @@ function App() {
             description: "A fragrant chicken dish with Mediterranean herbs",
             cookTime: "40 minutes",
             servings: 4,
-            difficulty: "Medium" as const,
+            difficulty: "Medium",
             cuisine: "Mediterranean",
-            mealType: "dinner" as const,
+            mealType: "dinner",
             requiredIngredients: ["chicken", "olive oil", "herbs"],
             baseIngredients: ["chicken", "olive oil", "garlic", "herbs"]
           },
@@ -1115,9 +1127,9 @@ function App() {
             description: "Juicy chicken with bright lemon and garlic flavors",
             cookTime: "35 minutes",
             servings: 4,
-            difficulty: "Easy" as const,
+            difficulty: "Easy",
             cuisine: "Mediterranean",
-            mealType: "dinner" as const,
+            mealType: "dinner",
             requiredIngredients: ["chicken", "olive oil"],
             baseIngredients: ["chicken", "olive oil", "lemon", "garlic"]
           }
@@ -1128,9 +1140,9 @@ function App() {
             description: "A hearty pasta dish with vegetables and herbs",
             cookTime: "30 minutes", 
             servings: 4,
-            difficulty: "Medium" as const,
+            difficulty: "Medium",
             cuisine: "Italian",
-            mealType: "dinner" as const,
+            mealType: "dinner",
             requiredIngredients: ["pasta", "olive oil"],
             baseIngredients: ["pasta", "tomatoes", "onion", "olive oil"]
           },
@@ -1139,9 +1151,9 @@ function App() {
             description: "Rich and creamy pasta with garlic and herbs",
             cookTime: "25 minutes",
             servings: 4,
-            difficulty: "Easy" as const,
+            difficulty: "Easy",
             cuisine: "Italian",
-            mealType: "dinner" as const,
+            mealType: "dinner",
             requiredIngredients: ["pasta", "olive oil"],
             baseIngredients: ["pasta", "garlic", "cream", "herbs"]
           },
@@ -1150,9 +1162,9 @@ function App() {
             description: "Light pasta with fresh seasonal vegetables",
             cookTime: "20 minutes",
             servings: 4,
-            difficulty: "Easy" as const,
+            difficulty: "Easy",
             cuisine: "Italian",
-            mealType: "lunch" as const,
+            mealType: "lunch",
             requiredIngredients: ["pasta", "olive oil"],
             baseIngredients: ["pasta", "vegetables", "olive oil", "herbs"]
           }
@@ -1160,16 +1172,16 @@ function App() {
       ];
 
       // Randomly select from recipe variations to ensure uniqueness each time
-      const allRecipeTemplates = recipeVariations.flatMap(group => {
+      const allRecipeTemplates: RecipeTemplate[] = recipeVariations.flatMap((group: RecipeTemplate[]) => {
         // Randomly select 1-2 recipes from each group
         const shuffled = group.sort(() => Math.random() - 0.5);
         return shuffled.slice(0, Math.floor(Math.random() * 2) + 1);
       });
 
       // Filter recipes to only those we can actually make
-      const viableRecipes = allRecipeTemplates.filter(template => {
-        return template.requiredIngredients.every(required => 
-          pantryNames.some(pantryItem => 
+      const viableRecipes = allRecipeTemplates.filter((template: RecipeTemplate) => {
+        return template.requiredIngredients.every((required: string) => 
+          pantryNames.some((pantryItem: string) => 
             pantryItem.includes(required.toLowerCase()) || 
             required.toLowerCase().includes(pantryItem)
           )
@@ -1184,17 +1196,17 @@ function App() {
       }
 
       // Generate recipes from viable options (up to 6, but could be fewer)
-      const mockRecipes: Recipe[] = viableRecipes.slice(0, 6).map((template, i) => {
+      const mockRecipes: Recipe[] = viableRecipes.slice(0, 6).map((template: RecipeTemplate, i: number) => {
         // Find available ingredients from pantry
-        const available = pantryNames.filter(name => 
-          template.baseIngredients.some(base => 
+        const available = pantryNames.filter((name: string) => 
+          template.baseIngredients.some((base: string) => 
             name.includes(base.toLowerCase()) || base.toLowerCase().includes(name)
           )
         );
         
         // Generate missing ingredients
-        const missing = template.baseIngredients.filter(base => 
-          !pantryNames.some(name => 
+        const missing = template.baseIngredients.filter((base: string) => 
+          !pantryNames.some((name: string) => 
             name.includes(base.toLowerCase()) || base.toLowerCase().includes(name)
           )
         );
