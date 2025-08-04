@@ -731,14 +731,14 @@ function App() {
             textAlign: 'center',
             textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
           }}>
-            Add Shopping List Item
+            🎯 Add New Treasure to Hunt!
           </h2>
           
           <form onSubmit={handleSubmit}>
             <div style={{display: 'grid', gap: '1.5rem'}}>
               <input
                 type="text"
-                placeholder="Item name (e.g., Organic Bananas)"
+                placeholder="🏆 What treasure are we hunting? (e.g., Golden Bananas)"
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                 required
@@ -858,7 +858,7 @@ function App() {
                   fontWeight: 'bold'
                 }}
               >
-                Cancel
+                🚪 Abandon Quest
               </button>
               <button
                 type="submit"
@@ -874,7 +874,7 @@ function App() {
                   boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
                 }}
               >
-                Add Item
+                🗺️ Start the Hunt!
               </button>
             </div>
           </form>
@@ -977,14 +977,14 @@ function App() {
             textAlign: 'center',
             textShadow: '2px 2px 4px rgba(0,0,0,0.4)'
           }}>
-            Add Pantry Item
+            ✨ Stock the Royal Pantry! ✨
           </h2>
           
           <form onSubmit={handleSubmit}>
             <div style={{display: 'grid', gap: '1.5rem'}}>
               <input
                 type="text"
-                placeholder="Item name (e.g., Extra Virgin Olive Oil)"
+                placeholder="🎭 What magical ingredient shall we add? (e.g., Enchanted Olive Oil)"
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                 required
@@ -1118,7 +1118,7 @@ function App() {
                   fontWeight: 'bold'
                 }}
               >
-                Cancel
+                🚪 Close Vault
               </button>
               <button
                 type="submit"
@@ -1134,7 +1134,7 @@ function App() {
                   boxShadow: '0 4px 8px rgba(30, 58, 138, 0.3)'
                 }}
               >
-                Add Item
+                👑 Add to Kingdom!
               </button>
             </div>
           </form>
@@ -1276,52 +1276,10 @@ function App() {
               </svg>
             </div>
             <div>
-              <h1 style={styles.title}>Kitchen Inventory Pro</h1>
-              <p style={styles.subtitle}>Smart pantry management system</p>
+              <h1 style={styles.title}>Laurie's Legendary Kitchen</h1>
+              <p style={styles.subtitle}>Where culinary magic meets smart organization! ✨</p>
             </div>
           </div>
-                      <div style={styles.headerActions}>
-              {/* Temporarily disabled photo upload */}
-              {false && (
-                <>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        analyzePhoto(file);
-                      }
-                    }}
-                    style={{ display: 'none' }}
-                    id="photo-upload"
-                  />
-                  <label
-                    htmlFor="photo-upload"
-                    style={{
-                      ...styles.quickAddBtn,
-                      background: analyzingPhoto ? 'linear-gradient(to right, #6b7280, #4b5563)' : 'linear-gradient(to right, #6366f1, #8b5cf6)',
-                      cursor: analyzingPhoto ? 'not-allowed' : 'pointer',
-                      marginRight: '1rem'
-                    }}
-                  >
-                    {analyzingPhoto ? '🔍 Magic Happening...' : '📸 Fridge Detective'}
-                  </label>
-                </>
-              )}
-              <button 
-                style={styles.quickAddBtn}
-                onClick={() => {
-                  setModalType('loot');
-                  setShowAddModal(true);
-                }}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: '8px'}}>
-                  <path d="M12 5V19M5 12H19" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
-                Add Item
-              </button>
-            </div>
         </div>
       </header>
 
@@ -1367,7 +1325,7 @@ function App() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: '8px'}}>
               <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.3 15.7 4.6 16.5 5.1 16.5H17M17 13V17A2 2 0 0 1 15 19H9A2 2 0 0 1 7 17V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            Shopping List
+            Laurie's Loot List
           </button>
           <button 
             style={{
@@ -1379,7 +1337,7 @@ function App() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: '8px'}}>
               <path d="M19 7H16V6A4 4 0 0 0 8 6V7H5A1 1 0 0 0 4 8V19A3 3 0 0 0 7 22H17A3 3 0 0 0 20 19V8A1 1 0 0 0 19 7ZM10 6A2 2 0 0 1 14 6V7H10V6Z" fill="currentColor"/>
             </svg>
-            Pantry Inventory
+            Laurie's Secret Stash
           </button>
         </div>
 
@@ -1394,8 +1352,8 @@ function App() {
                   </svg>
                 </div>
                 <div>
-                  <h2 style={styles.cardTitleText}>Shopping List</h2>
-                  <p style={styles.cardSubtitle}>Items to purchase on your next shopping trip</p>
+                  <h2 style={styles.cardTitleText}>Laurie's Loot List</h2>
+                  <p style={styles.cardSubtitle}>Adventures awaiting in the grocery jungle! 🛒✨</p>
                 </div>
               </div>
               <button 
@@ -1408,7 +1366,7 @@ function App() {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: '6px'}}>
                   <path d="M12 5V19M5 12H19" stroke="white" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
-                Add Item
+                🎯 Add Treasure!
               </button>
             </div>
             
@@ -1419,7 +1377,7 @@ function App() {
                     <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem'}}>
-                    All set! No items in your shopping list.
+                    🎉 Laurie's all set! The snack gods are pleased! ✨
                   </p>
                 </div>
               ) : (
@@ -1568,8 +1526,8 @@ function App() {
                   </svg>
                 </div>
                 <div>
-                  <h2 style={styles.cardTitleText}>Pantry Inventory</h2>
-                  <p style={styles.cardSubtitle}>Current stock levels and inventory management</p>
+                  <h2 style={styles.cardTitleText}>Laurie's Secret Stash</h2>
+                  <p style={styles.cardSubtitle}>The mysterious depths of the kitchen kingdom! 👑</p>
                 </div>
               </div>
               <button 
@@ -1585,7 +1543,7 @@ function App() {
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: '6px'}}>
                   <path d="M12 5V19M5 12H19" stroke="white" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
-                Add Stock
+                🏺 Top Up Stash!
               </button>
             </div>
             
@@ -1596,7 +1554,7 @@ function App() {
                     <path d="M19 7H16V6A4 4 0 0 0 8 6V7H5A1 1 0 0 0 4 8V19A3 3 0 0 0 7 22H17A3 3 0 0 0 20 19V8A1 1 0 0 0 19 7ZM10 6A2 2 0 0 1 14 6V7H10V6Z" fill="rgba(255,255,255,0.6)"/>
                   </svg>
                   <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem'}}>
-                    Your pantry inventory is empty. Start by adding some items.
+                    🕵️‍♀️ Laurie's stash is suspiciously empty... Time for a "Snack Attack"!
                   </p>
                 </div>
               ) : (
