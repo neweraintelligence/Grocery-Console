@@ -8,6 +8,7 @@
     "dev:client": "vite",
     "dev:server": "nodemon --exec tsx server/index.ts",
     "setup:sheets": "tsx server/setup-sheets.ts",
+    "clear:sheets": "tsx server/clear-sheets.ts",
     "build": "tsc -b && vite build",
     "build:server": "tsc server/index.ts --outDir dist",
     "start": "node server/index.cjs",
