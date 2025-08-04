@@ -965,76 +965,206 @@ function App() {
         return;
       }
 
-      const allRecipeTemplates = [
+      // Generate unique recipe templates with more variety each time
+      const recipeVariations = [
         // Coconut-based recipes
-        {
-          title: "Coconut Rice Pudding",
-          description: "A creamy and comforting dessert made with coconut milk",
-          cookTime: "25 minutes",
-          servings: 4,
-          difficulty: "Easy" as const,
-          cuisine: "Asian",
-          mealType: "dessert" as const,
-          requiredIngredients: ["coconut milk"],
-          baseIngredients: ["coconut milk", "rice", "sugar"]
-        },
-        {
-          title: "Thai Coconut Curry Base",
-          description: "A simple coconut curry base that can be enhanced with vegetables",
-          cookTime: "20 minutes",
-          servings: 3,
-          difficulty: "Easy" as const,
-          cuisine: "Thai",
-          mealType: "dinner" as const,
-          requiredIngredients: ["coconut milk"],
-          baseIngredients: ["coconut milk", "curry powder", "onion"]
-        },
-        {
-          title: "Coconut Chia Pudding",
-          description: "A healthy breakfast pudding made with coconut milk",
-          cookTime: "10 minutes prep + 4 hours chill",
-          servings: 2,
-          difficulty: "Easy" as const,
-          cuisine: "Modern",
-          mealType: "breakfast" as const,
-          requiredIngredients: ["coconut milk"],
-          baseIngredients: ["coconut milk", "chia seeds", "honey"]
-        },
-        // Multi-ingredient recipes (need multiple pantry items)
-        {
-          title: "Mediterranean Quinoa Bowl",
-          description: "A healthy and colorful quinoa bowl with Mediterranean flavors",
-          cookTime: "25 minutes",
-          servings: 3,
-          difficulty: "Easy" as const,
-          cuisine: "Mediterranean",
-          mealType: "lunch" as const,
-          requiredIngredients: ["quinoa", "olive oil"],
-          baseIngredients: ["quinoa", "olive oil", "vegetables", "herbs"]
-        },
-        {
-          title: "Herb Crusted Chicken",
-          description: "A fragrant chicken dish with Mediterranean herbs",
-          cookTime: "40 minutes",
-          servings: 4,
-          difficulty: "Medium" as const,
-          cuisine: "Mediterranean",
-          mealType: "dinner" as const,
-          requiredIngredients: ["chicken", "olive oil", "herbs"],
-          baseIngredients: ["chicken", "olive oil", "garlic", "herbs"]
-        },
-        {
-          title: "Rustic Vegetable Pasta",
-          description: "A hearty pasta dish with vegetables and herbs",
-          cookTime: "30 minutes", 
-          servings: 4,
-          difficulty: "Medium" as const,
-          cuisine: "Italian",
-          mealType: "dinner" as const,
-          requiredIngredients: ["pasta", "olive oil"],
-          baseIngredients: ["pasta", "tomatoes", "onion", "olive oil"]
-        }
+        [
+          {
+            title: "Coconut Rice Pudding",
+            description: "A creamy and comforting dessert made with coconut milk",
+            cookTime: "25 minutes",
+            servings: 4,
+            difficulty: "Easy" as const,
+            cuisine: "Asian",
+            mealType: "dessert" as const,
+            requiredIngredients: ["coconut milk"],
+            baseIngredients: ["coconut milk", "rice", "sugar"]
+          },
+          {
+            title: "Tropical Coconut Oatmeal",
+            description: "Creamy breakfast oatmeal with coconut and tropical flavors",
+            cookTime: "15 minutes",
+            servings: 2,
+            difficulty: "Easy" as const,
+            cuisine: "Tropical",
+            mealType: "breakfast" as const,
+            requiredIngredients: ["coconut milk"],
+            baseIngredients: ["coconut milk", "oats", "honey", "vanilla"]
+          },
+          {
+            title: "Coconut Smoothie Bowl",
+            description: "Refreshing smoothie bowl with coconut base",
+            cookTime: "10 minutes",
+            servings: 1,
+            difficulty: "Easy" as const,
+            cuisine: "Modern",
+            mealType: "breakfast" as const,
+            requiredIngredients: ["coconut milk"],
+            baseIngredients: ["coconut milk", "frozen fruit", "granola"]
+          }
+        ],
+        [
+          {
+            title: "Thai Coconut Curry Base",
+            description: "A simple coconut curry base that can be enhanced with vegetables",
+            cookTime: "20 minutes",
+            servings: 3,
+            difficulty: "Easy" as const,
+            cuisine: "Thai",
+            mealType: "dinner" as const,
+            requiredIngredients: ["coconut milk"],
+            baseIngredients: ["coconut milk", "curry powder", "onion"]
+          },
+          {
+            title: "Coconut Curry Soup",
+            description: "Warming soup with coconut milk and aromatic spices",
+            cookTime: "30 minutes",
+            servings: 4,
+            difficulty: "Medium" as const,
+            cuisine: "Thai",
+            mealType: "dinner" as const,
+            requiredIngredients: ["coconut milk"],
+            baseIngredients: ["coconut milk", "vegetables", "broth", "spices"]
+          },
+          {
+            title: "Spiced Coconut Lentils",
+            description: "Hearty lentil dish with coconut milk and warm spices",
+            cookTime: "35 minutes",
+            servings: 4,
+            difficulty: "Medium" as const,
+            cuisine: "Indian",
+            mealType: "dinner" as const,
+            requiredIngredients: ["coconut milk"],
+            baseIngredients: ["coconut milk", "lentils", "spices", "onion"]
+          }
+        ],
+        [
+          {
+            title: "Coconut Chia Pudding",
+            description: "A healthy breakfast pudding made with coconut milk",
+            cookTime: "10 minutes prep + 4 hours chill",
+            servings: 2,
+            difficulty: "Easy" as const,
+            cuisine: "Modern",
+            mealType: "breakfast" as const,
+            requiredIngredients: ["coconut milk"],
+            baseIngredients: ["coconut milk", "chia seeds", "honey"]
+          },
+          {
+            title: "Coconut Energy Balls",
+            description: "No-bake energy balls with coconut and nuts",
+            cookTime: "15 minutes",
+            servings: 12,
+            difficulty: "Easy" as const,
+            cuisine: "Modern",
+            mealType: "dessert" as const,
+            requiredIngredients: ["coconut milk"],
+            baseIngredients: ["coconut", "dates", "nuts", "vanilla"]
+          }
+        ],
+        // Multi-ingredient recipes
+        [
+          {
+            title: "Mediterranean Quinoa Bowl",
+            description: "A healthy and colorful quinoa bowl with Mediterranean flavors",
+            cookTime: "25 minutes",
+            servings: 3,
+            difficulty: "Easy" as const,
+            cuisine: "Mediterranean",
+            mealType: "lunch" as const,
+            requiredIngredients: ["quinoa", "olive oil"],
+            baseIngredients: ["quinoa", "olive oil", "vegetables", "herbs"]
+          },
+          {
+            title: "Quinoa Stuffed Peppers",
+            description: "Bell peppers stuffed with quinoa and vegetables",
+            cookTime: "45 minutes",
+            servings: 4,
+            difficulty: "Medium" as const,
+            cuisine: "Mediterranean",
+            mealType: "dinner" as const,
+            requiredIngredients: ["quinoa"],
+            baseIngredients: ["quinoa", "bell peppers", "vegetables", "herbs"]
+          },
+          {
+            title: "Quinoa Tabbouleh",
+            description: "Fresh Middle Eastern salad with quinoa instead of bulgur",
+            cookTime: "20 minutes",
+            servings: 4,
+            difficulty: "Easy" as const,
+            cuisine: "Middle Eastern",
+            mealType: "lunch" as const,
+            requiredIngredients: ["quinoa"],
+            baseIngredients: ["quinoa", "parsley", "tomatoes", "lemon"]
+          }
+        ],
+        [
+          {
+            title: "Herb Crusted Chicken",
+            description: "A fragrant chicken dish with Mediterranean herbs",
+            cookTime: "40 minutes",
+            servings: 4,
+            difficulty: "Medium" as const,
+            cuisine: "Mediterranean",
+            mealType: "dinner" as const,
+            requiredIngredients: ["chicken", "olive oil", "herbs"],
+            baseIngredients: ["chicken", "olive oil", "garlic", "herbs"]
+          },
+          {
+            title: "Lemon Garlic Chicken",
+            description: "Juicy chicken with bright lemon and garlic flavors",
+            cookTime: "35 minutes",
+            servings: 4,
+            difficulty: "Easy" as const,
+            cuisine: "Mediterranean",
+            mealType: "dinner" as const,
+            requiredIngredients: ["chicken", "olive oil"],
+            baseIngredients: ["chicken", "olive oil", "lemon", "garlic"]
+          }
+        ],
+        [
+          {
+            title: "Rustic Vegetable Pasta",
+            description: "A hearty pasta dish with vegetables and herbs",
+            cookTime: "30 minutes", 
+            servings: 4,
+            difficulty: "Medium" as const,
+            cuisine: "Italian",
+            mealType: "dinner" as const,
+            requiredIngredients: ["pasta", "olive oil"],
+            baseIngredients: ["pasta", "tomatoes", "onion", "olive oil"]
+          },
+          {
+            title: "Creamy Garlic Pasta",
+            description: "Rich and creamy pasta with garlic and herbs",
+            cookTime: "25 minutes",
+            servings: 4,
+            difficulty: "Easy" as const,
+            cuisine: "Italian",
+            mealType: "dinner" as const,
+            requiredIngredients: ["pasta", "olive oil"],
+            baseIngredients: ["pasta", "garlic", "cream", "herbs"]
+          },
+          {
+            title: "Pasta Primavera",
+            description: "Light pasta with fresh seasonal vegetables",
+            cookTime: "20 minutes",
+            servings: 4,
+            difficulty: "Easy" as const,
+            cuisine: "Italian",
+            mealType: "lunch" as const,
+            requiredIngredients: ["pasta", "olive oil"],
+            baseIngredients: ["pasta", "vegetables", "olive oil", "herbs"]
+          }
+        ]
       ];
+
+      // Randomly select from recipe variations to ensure uniqueness each time
+      const allRecipeTemplates = recipeVariations.flatMap(group => {
+        // Randomly select 1-2 recipes from each group
+        const shuffled = group.sort(() => Math.random() - 0.5);
+        return shuffled.slice(0, Math.floor(Math.random() * 2) + 1);
+      });
 
       // Filter recipes to only those we can actually make
       const viableRecipes = allRecipeTemplates.filter(template => {
@@ -1235,6 +1365,32 @@ function App() {
           boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
           position: 'relative'
         }}>
+          {/* Close X button */}
+          <button
+            onClick={() => setShowAddModal(false)}
+            style={{
+              position: 'absolute',
+              top: '1rem',
+              right: '1rem',
+              background: 'rgba(255,255,255,0.2)',
+              border: 'none',
+              color: '#ffd700',
+              width: '2.5rem',
+              height: '2.5rem',
+              borderRadius: '50%',
+              cursor: 'pointer',
+              fontSize: '1.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+              zIndex: 10
+            }}
+            onMouseEnter={(e) => (e.target as HTMLButtonElement).style.background = 'rgba(255,255,255,0.3)'}
+            onMouseLeave={(e) => (e.target as HTMLButtonElement).style.background = 'rgba(255,255,255,0.2)'}
+          >
+            ×
+          </button>
           <div style={{
             position: 'absolute',
             top: '-10px',
@@ -1379,7 +1535,7 @@ function App() {
               />
             </div>
             
-            <div style={{display: 'flex', gap: '1rem', marginTop: '2rem'}}>
+            <div style={{display: 'flex', gap: '1rem', marginTop: '2rem', width: '100%'}}>
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
@@ -1391,7 +1547,8 @@ function App() {
                   backgroundColor: 'rgba(139,69,19,0.8)',
                   color: '#ffd700',
                   cursor: 'pointer',
-                  fontWeight: 'bold'
+                  fontWeight: 'bold',
+                  maxWidth: '50%'
                 }}
               >
                 ❌ Cancel
@@ -1407,7 +1564,8 @@ function App() {
                   color: '#8b4513',
                   fontWeight: 'bold',
                   cursor: 'pointer',
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+                  maxWidth: '50%'
                 }}
               >
                 ✅ Add to List
@@ -1653,7 +1811,7 @@ function App() {
               />
             </div>
             
-            <div style={{display: 'flex', gap: '1rem', marginTop: '1.5rem'}}>
+            <div style={{display: 'flex', gap: '1rem', marginTop: '1.5rem', width: '100%'}}>
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
@@ -1665,7 +1823,8 @@ function App() {
                   backgroundColor: 'rgba(30, 58, 138, 0.6)',
                   color: '#bfdbfe',
                   cursor: 'pointer',
-                  fontWeight: 'bold'
+                  fontWeight: 'bold',
+                  maxWidth: '50%'
                 }}
               >
                 ❌ Cancel
@@ -1681,7 +1840,8 @@ function App() {
                   color: 'white',
                   fontWeight: 'bold',
                   cursor: 'pointer',
-                  boxShadow: '0 4px 8px rgba(30, 58, 138, 0.3)'
+                  boxShadow: '0 4px 8px rgba(30, 58, 138, 0.3)',
+                  maxWidth: '50%'
                 }}
               >
                 ✅ Add to Pantry
@@ -2362,7 +2522,10 @@ function App() {
                 : {}
               )
             }}
-            onClick={() => setActiveTab('recipes')}
+            onClick={() => {
+              setActiveTab('recipes');
+              generateRecipes();
+            }}
             onMouseEnter={() => setHoveredTab('recipes')}
             onMouseLeave={() => setHoveredTab(null)}
           >
@@ -2377,11 +2540,11 @@ function App() {
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
                 <div style={styles.cardIcon}>
-                  <img src="/grocery icon 1.png" alt="Grocery Icon" style={{width: '40px', height: '40px', objectFit: 'contain'}} />
+                  <img src="/grocery icon 1.png" alt="Grocery Icon" style={{width: '60px', height: '60px', objectFit: 'contain'}} />
                 </div>
                 <div>
                   <h2 style={styles.cardTitleText}>Laurie's Loot List</h2>
-                  <p style={styles.cardSubtitle}>Adventures awaiting in the grocery jungle! 🛒✨</p>
+                  <p style={{...styles.cardSubtitle, marginTop: '0.25rem'}}>Adventures awaiting in the grocery jungle! 🛒✨</p>
                 </div>
               </div>
               <div style={styles.buttonGroup}>
@@ -2561,11 +2724,11 @@ function App() {
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
                 <div style={styles.cardIcon}>
-                  <img src="/grocery icon 2.png" alt="Grocery Icon" style={{width: '40px', height: '40px', objectFit: 'contain'}} />
+                  <img src="/grocery icon 2.png" alt="Grocery Icon" style={{width: '60px', height: '60px', objectFit: 'contain'}} />
                 </div>
                 <div>
                   <h2 style={styles.cardTitleText}>Laurie's Secret Stash</h2>
-                  <p style={styles.cardSubtitle}>The mysterious depths of the kitchen kingdom! 👑</p>
+                  <p style={{...styles.cardSubtitle, marginTop: '0.25rem'}}>The mysterious depths of the kitchen kingdom! 👑</p>
                 </div>
               </div>
               <button 
@@ -2948,11 +3111,11 @@ function App() {
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
                 <div style={styles.cardIcon}>
-                  <img src="/kitchen icon 2.png" alt="Recipe Icon" style={{width: '40px', height: '40px', objectFit: 'contain'}} />
+                  <img src="/kitchen icon 2.png" alt="Recipe Icon" style={{width: '60px', height: '60px', objectFit: 'contain'}} />
                 </div>
                 <div>
                   <h2 style={styles.cardTitleText}>Recipe Inspiration</h2>
-                  <p style={styles.cardSubtitle}>Delicious ideas based on your pantry ingredients! 👨‍🍳✨</p>
+                  <p style={{...styles.cardSubtitle, marginTop: '0.25rem'}}>Delicious ideas based on your pantry ingredients! 👨‍🍳✨</p>
                 </div>
               </div>
               <button 
