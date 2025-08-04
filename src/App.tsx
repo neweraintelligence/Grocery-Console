@@ -377,30 +377,48 @@ function App() {
   const fetchPantryItems = async () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry`);
-      const data = await response.json();
-      setPantryItems(data);
+      if (response.ok) {
+        const data = await response.json();
+        setPantryItems(Array.isArray(data) ? data : []);
+      } else {
+        console.error('Failed to fetch pantry items:', response.status);
+        setPantryItems([]);
+      }
     } catch (error) {
       console.error('Error fetching pantry items:', error);
+      setPantryItems([]);
     }
   };
 
   const fetchGroceryItems = async () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/groceries`);
-      const data = await response.json();
-      setGroceryItems(data);
+      if (response.ok) {
+        const data = await response.json();
+        setGroceryItems(Array.isArray(data) ? data : []);
+      } else {
+        console.error('Failed to fetch grocery items:', response.status);
+        setGroceryItems([]);
+      }
     } catch (error) {
       console.error('Error fetching grocery items:', error);
+      setGroceryItems([]);
     }
   };
 
   const fetchShoppingList = async () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/shopping-list`);
-      const data = await response.json();
-      setShoppingList(data);
+      if (response.ok) {
+        const data = await response.json();
+        setShoppingList(Array.isArray(data) ? data : []);
+      } else {
+        console.error('Failed to fetch shopping list:', response.status);
+        setShoppingList([]);
+      }
     } catch (error) {
       console.error('Error fetching shopping list:', error);
+      setShoppingList([]);
     }
   };
 
