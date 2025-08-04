@@ -17,7 +17,13 @@ app.use(helmet());
 app.use(compression());
 app.use(morgan('combined'));
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5178',
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174', 
+    'http://localhost:5175',
+    'http://localhost:5178',
+    process.env.FRONTEND_URL
+  ].filter(Boolean),
   credentials: true
 }));
 app.use(express.json());
@@ -77,22 +83,33 @@ app.get('/api/pantry', async (req, res) => {
       return res.status(500).json({ error: 'Google Sheets not configured' });
     }
 
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Pantry!A2:H', // Skip header row
-    });
+    // Try to read from "Pantry" sheet specifically for pantry items
+    let response;
+    try {
+      response = await sheets.spreadsheets.values.get({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'Pantry!A2:Z', // Skip header row, get all columns
+      });
+    } catch (error) {
+      // If no Pantry sheet exists, return empty array since grocery list items are not pantry items
+      console.log('No Pantry sheet found, returning empty pantry');
+      res.json([]);
+      return;
+    }
 
     const rows = response.data.values || [];
-    const pantryItems: GroceryItem[] = rows.map((row: any[], index: number) => ({
-      id: (index + 2).toString(), // Row number as ID
-      name: row[0] || '',
-      category: row[1] || '',
-      currentCount: parseInt(row[2]) || 0,
-      minCount: parseInt(row[3]) || 0,
-      unit: row[4] || '',
-      lastUpdated: row[5] || '',
-      notes: row[6] || ''
-    }));
+    const pantryItems: GroceryItem[] = rows
+      .filter((row: any[]) => row[0] && row[0].trim()) // Only include rows with names
+      .map((row: any[], index: number) => ({
+        id: (index + 2).toString(), // Row number as ID
+        name: row[0] || '',
+        category: row[1] || '',
+        currentCount: parseInt(row[2]) || 0,
+        minCount: parseInt(row[3]) || 1,
+        unit: row[4] || 'units',
+        lastUpdated: row[5] || new Date().toLocaleDateString(),
+        notes: row[6] || ''
+      }));
 
     res.json(pantryItems);
   } catch (error) {
@@ -133,6 +150,32 @@ app.get('/api/groceries', async (req, res) => {
   }
 });
 
+// Add new pantry item
+app.post('/api/pantry', async (req, res) => {
+  try {
+    if (!sheets || !process.env.GOOGLE_SHEET_ID) {
+      return res.status(500).json({ error: 'Google Sheets not configured' });
+    }
+
+    const { name, category, currentCount, minCount, unit, notes } = req.body;
+
+    // Add to Grocery List sheet with the structure: Name, Category, Quantity, Priority
+    const values = [[name, category || '', currentCount || 0, 'Medium']];
+
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID,
+      range: 'Grocery List!A:D',
+      valueInputOption: 'USER_ENTERED',
+      resource: { values }
+    });
+
+    res.json({ message: 'Pantry item added successfully' });
+  } catch (error) {
+    console.error('Error adding pantry item:', error);
+    res.status(500).json({ error: 'Failed to add pantry item' });
+  }
+});
+
 // Add new grocery item
 app.post('/api/groceries', async (req, res) => {
   try {
@@ -147,7 +190,7 @@ app.post('/api/groceries', async (req, res) => {
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Groceries!A:G',
+      range: 'Grocery List!A:G',
       valueInputOption: 'USER_ENTERED',
       resource: { values }
     });
@@ -156,6 +199,33 @@ app.post('/api/groceries', async (req, res) => {
   } catch (error) {
     console.error('Error adding grocery:', error);
     res.status(500).json({ error: 'Failed to add grocery item' });
+  }
+});
+
+// Update pantry item
+app.put('/api/pantry/:id', async (req, res) => {
+  try {
+    if (!sheets || !process.env.GOOGLE_SHEET_ID) {
+      return res.status(500).json({ error: 'Google Sheets not configured' });
+    }
+
+    const rowId = req.params.id;
+    const { currentCount } = req.body;
+
+    // Update only the quantity (column C) in the Grocery List sheet
+    const values = [[currentCount || 0]];
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID,
+      range: `Grocery List!C${rowId}:C${rowId}`,
+      valueInputOption: 'USER_ENTERED',
+      resource: { values }
+    });
+
+    res.json({ message: 'Pantry item updated successfully' });
+  } catch (error) {
+    console.error('Error updating pantry item:', error);
+    res.status(500).json({ error: 'Failed to update pantry item' });
   }
 });
 
@@ -174,7 +244,7 @@ app.put('/api/groceries/:id', async (req, res) => {
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: `Groceries!A${rowId}:G${rowId}`,
+      range: `Grocery List!A${rowId}:G${rowId}`,
       valueInputOption: 'USER_ENTERED',
       resource: { values }
     });
@@ -226,25 +296,41 @@ app.get('/api/shopping-list', async (req, res) => {
       return res.status(500).json({ error: 'Google Sheets not configured' });
     }
 
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Groceries!A2:H',
-    });
+    // Try to read from "Grocery List" sheet
+    let response;
+    try {
+      response = await sheets.spreadsheets.values.get({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'Grocery List!A2:Z',
+      });
+    } catch (error) {
+      // Fallback to Groceries sheet
+      response = await sheets.spreadsheets.values.get({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'Groceries!A2:Z',
+      });
+    }
 
     const rows = response.data.values || [];
-    const lowItems = rows
+    // Filter for items with names AND where "On List" column (F) is TRUE
+    const shoppingItems = rows
+      .filter((row: any[]) => {
+        const hasName = row[0] && row[0].trim();
+        const onList = row[5] && (row[5].toString().toUpperCase() === 'TRUE' || row[5] === true);
+        return hasName && onList;
+      })
       .map((row: any[], index: number) => ({
         id: (index + 2).toString(),
         name: row[0] || '',
-        category: row[1] || '',
-        currentCount: parseInt(row[2]) || 0,
-        minCount: parseInt(row[3]) || 0,
-        unit: row[4] || '',
-        needed: Math.max(0, (parseInt(row[3]) || 0) - (parseInt(row[2]) || 0))
-      }))
-      .filter((item: any) => item.currentCount <= item.minCount);
+        category: row[1] || 'General',
+        source: 'grocery' as const,
+        quantity: parseInt(row[2]) || 1,
+        unit: row[4] || 'units', // Column E is Unit
+        priority: 'Medium',
+        needed: parseInt(row[2]) || 1
+      }));
 
-    res.json(lowItems);
+    res.json(shoppingItems);
   } catch (error) {
     console.error('Error fetching shopping list:', error);
     res.status(500).json({ error: 'Failed to fetch shopping list' });
