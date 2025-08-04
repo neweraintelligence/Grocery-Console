@@ -259,6 +259,22 @@ const styles = {
     alignItems: 'center',
     gap: '2rem'
   },
+  itemRightMobile: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'flex-end',
+    gap: '1rem'
+  },
+  mobileButton: {
+    width: '2.5rem',
+    height: '2.5rem',
+    borderRadius: '50%',
+    border: 'none',
+    color: 'white',
+    cursor: 'pointer',
+    fontSize: '1.2rem',
+    fontWeight: 'bold'
+  },
   stockInfo: {
     textAlign: 'center' as const
   },
@@ -426,18 +442,30 @@ const styles = {
 function App() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [modalType, setModalType] = useState<'loot' | 'pantry'>('loot');
   const [pantryItems, setPantryItems] = useState<PantryItem[]>([]);
   const [, setGroceryItems] = useState<GroceryItem[]>([]);
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
   const [detectedItems, setDetectedItems] = useState<any[]>([]);
   const [analyzingPhoto, setAnalyzingPhoto] = useState(false);
   const [activeTab, setActiveTab] = useState<'shopping' | 'pantry'>('shopping');
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   // Fetch data on component mount
   useEffect(() => {
     fetchPantryItems();
     fetchGroceryItems();
     fetchShoppingList();
+  }, []);
+
+  // Track window size for mobile responsiveness
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const fetchPantryItems = async () => {
@@ -512,6 +540,7 @@ function App() {
 
   const updateItemMinCount = async (itemId: string, newMinCount: number) => {
     try {
+      console.log('Updating min count for item:', itemId, 'to:', newMinCount);
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
         method: 'PUT',
         headers: {
@@ -521,14 +550,18 @@ function App() {
       });
       
       if (response.ok) {
+        console.log('Successfully updated min count');
         // Refresh data after successful update
         fetchPantryItems();
         fetchShoppingList();
       } else {
-        console.error('Failed to update item min count');
+        const errorText = await response.text();
+        console.error('Failed to update item min count:', response.status, errorText);
+        alert(`Failed to update minimum count. Server responded with: ${response.status}`);
       }
     } catch (error) {
       console.error('Error updating item min count:', error);
+      alert('Error updating minimum count. Please check your connection and try again.');
     }
   };
 
@@ -607,7 +640,250 @@ function App() {
     }
   };
 
-  const AddItemModal = () => {
+  const LootListModal = () => {
+    const [formData, setFormData] = useState({
+      name: '',
+      category: '',
+      quantity: 1,
+      priority: 'Medium' as 'High' | 'Medium' | 'Low',
+      unit: '',
+      notes: ''
+    });
+
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/groceries`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({...formData, addedDate: new Date().toISOString(), completed: false}),
+        });
+        
+        if (response.ok) {
+          setShowAddModal(false);
+          setFormData({
+            name: '',
+            category: '',
+            quantity: 1,
+            priority: 'Medium',
+            unit: '',
+            notes: ''
+          });
+          fetchGroceryItems();
+          fetchShoppingList();
+        }
+      } catch (error) {
+        console.error('Error adding item:', error);
+      }
+    };
+
+    if (!showAddModal || modalType !== 'loot') return null;
+
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000
+      }}>
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(139,69,19,0.95) 0%, rgba(184,134,11,0.95) 25%, rgba(217,119,6,0.95) 75%, rgba(120,53,15,0.95) 100%)',
+          backdropFilter: 'blur(20px)',
+          borderRadius: '2rem',
+          border: '3px solid rgba(255,215,0,0.6)',
+          padding: '2.5rem',
+          width: '90%',
+          maxWidth: '550px',
+          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
+          position: 'relative'
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: '-10px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: 'linear-gradient(45deg, #ffd700, #ffed4e)',
+            padding: '0.5rem 1.5rem',
+            borderRadius: '1rem',
+            border: '2px solid rgba(255,215,0,0.8)',
+            fontSize: '1.1rem',
+            fontWeight: 'bold',
+            color: '#8b4513',
+            boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
+          }}>
+            SHOPPING LIST
+          </div>
+          
+          <h2 style={{
+            color: '#ffd700', 
+            marginBottom: '2rem', 
+            marginTop: '1rem',
+            fontFamily: "'Fredoka', system-ui, sans-serif",
+            fontSize: '1.8rem',
+            textAlign: 'center',
+            textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+          }}>
+            Add Shopping List Item
+          </h2>
+          
+          <form onSubmit={handleSubmit}>
+            <div style={{display: 'grid', gap: '1.5rem'}}>
+              <input
+                type="text"
+                placeholder="Item name (e.g., Organic Bananas)"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                required
+                style={{
+                  padding: '1.2rem',
+                  borderRadius: '1rem',
+                  border: '2px solid rgba(255,215,0,0.4)',
+                  backgroundColor: 'rgba(139,69,19,0.8)',
+                  color: '#ffd700',
+                  fontSize: '1rem',
+                  fontWeight: '500',
+                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)'
+                }}
+              />
+              
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
+                <input
+                  type="text"
+                  placeholder="🗂️ Category"
+                  value={formData.category}
+                  onChange={(e) => setFormData({...formData, category: e.target.value})}
+                  style={{
+                    padding: '1rem',
+                    borderRadius: '0.75rem',
+                    border: '2px solid rgba(255,215,0,0.4)',
+                    backgroundColor: 'rgba(139,69,19,0.8)',
+                    color: '#ffd700'
+                  }}
+                />
+                <input
+                  type="text"
+                  placeholder="📦 Unit (pieces, bags)"
+                  value={formData.unit}
+                  onChange={(e) => setFormData({...formData, unit: e.target.value})}
+                  style={{
+                    padding: '1rem',
+                    borderRadius: '0.75rem',
+                    border: '2px solid rgba(255,215,0,0.4)',
+                    backgroundColor: 'rgba(139,69,19,0.8)',
+                    color: '#ffd700'
+                  }}
+                />
+              </div>
+              
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
+                <div>
+                  <label style={{color: '#ffd700', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold'}}>
+                    ⚖️ Quantity
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.quantity}
+                    onChange={(e) => setFormData({...formData, quantity: parseInt(e.target.value) || 1})}
+                    style={{
+                      padding: '1rem',
+                      borderRadius: '0.75rem',
+                      border: '2px solid rgba(255,215,0,0.4)',
+                      backgroundColor: 'rgba(139,69,19,0.8)',
+                      color: '#ffd700',
+                      width: '100%'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{color: '#ffd700', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold'}}>
+                    🚨 Priority Level
+                  </label>
+                  <select
+                    value={formData.priority}
+                    onChange={(e) => setFormData({...formData, priority: e.target.value as 'High' | 'Medium' | 'Low'})}
+                    style={{
+                      padding: '1rem',
+                      borderRadius: '0.75rem',
+                      border: '2px solid rgba(255,215,0,0.4)',
+                      backgroundColor: 'rgba(139,69,19,0.8)',
+                      color: '#ffd700',
+                      width: '100%',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <option value="High">🔥 High Priority</option>
+                    <option value="Medium">⚡ Medium Priority</option>
+                    <option value="Low">🌟 Low Priority</option>
+                  </select>
+                </div>
+              </div>
+              
+              <textarea
+                placeholder="📜 Quest notes... (any special instructions for this treasure hunt?)"
+                value={formData.notes}
+                onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                rows={3}
+                style={{
+                  padding: '1rem',
+                  borderRadius: '0.75rem',
+                  border: '2px solid rgba(255,215,0,0.4)',
+                  backgroundColor: 'rgba(139,69,19,0.8)',
+                  color: '#ffd700',
+                  resize: 'none',
+                  fontFamily: 'inherit'
+                }}
+              />
+            </div>
+            
+            <div style={{display: 'flex', gap: '1rem', marginTop: '2rem'}}>
+              <button
+                type="button"
+                onClick={() => setShowAddModal(false)}
+                style={{
+                  flex: 1,
+                  padding: '1rem',
+                  borderRadius: '0.75rem',
+                  border: '2px solid rgba(255,215,0,0.4)',
+                  backgroundColor: 'rgba(139,69,19,0.8)',
+                  color: '#ffd700',
+                  cursor: 'pointer',
+                  fontWeight: 'bold'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                style={{
+                  flex: 1,
+                  padding: '1rem',
+                  borderRadius: '0.75rem',
+                  border: 'none',
+                  background: 'linear-gradient(to right, #ffd700, #ffed4e)',
+                  color: '#8b4513',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
+                }}
+              >
+                Add Item
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  const PantryModal = () => {
     const [formData, setFormData] = useState({
       name: '',
       category: '',
@@ -648,7 +924,7 @@ function App() {
       }
     };
 
-    if (!showAddModal) return null;
+    if (!showAddModal || modalType !== 'pantry') return null;
 
     return (
       <div style={{
@@ -657,77 +933,106 @@ function App() {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.7)',
+        backgroundColor: 'rgba(0,0,0,0.85)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1000
       }}>
         <div style={{
-          backgroundColor: 'rgba(0,0,0,0.9)',
-          backdropFilter: 'blur(20px)',
-          borderRadius: '1.5rem',
-          border: '1px solid rgba(255,255,255,0.1)',
-          padding: '2rem',
+          background: 'linear-gradient(145deg, #1e3a8a 0%, #1e40af 25%, #2563eb 50%, #1d4ed8 75%, #1e3a8a 100%)',
+          backdropFilter: 'blur(25px)',
+          borderRadius: '2rem',
+          border: '2px solid rgba(59, 130, 246, 0.4)',
+          padding: '2.5rem',
           width: '90%',
-          maxWidth: '500px',
-          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)'
+          maxWidth: '600px',
+          boxShadow: '0 25px 50px -12px rgba(30, 58, 138, 0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
+          position: 'relative'
         }}>
-          <h2 style={{color: 'white', marginBottom: '1.5rem', fontFamily: "'Fredoka', system-ui, sans-serif"}}>
-            🎪 Laurie's Item Circus!
+          <div style={{
+            position: 'absolute',
+            top: '-15px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: 'linear-gradient(45deg, #60a5fa, #3b82f6)',
+            padding: '0.7rem 2rem',
+            borderRadius: '1.5rem',
+            border: '2px solid rgba(59, 130, 246, 0.6)',
+            fontSize: '1.1rem',
+            fontWeight: 'bold',
+            color: 'white',
+            boxShadow: '0 8px 16px rgba(30, 58, 138, 0.3)',
+            textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
+          }}>
+            PANTRY INVENTORY
+          </div>
+          
+          <h2 style={{
+            color: '#bfdbfe', 
+            marginBottom: '2rem', 
+            marginTop: '1.5rem',
+            fontFamily: "'Fredoka', system-ui, sans-serif",
+            fontSize: '1.9rem',
+            textAlign: 'center',
+            textShadow: '2px 2px 4px rgba(0,0,0,0.4)'
+          }}>
+            Add Pantry Item
           </h2>
           
           <form onSubmit={handleSubmit}>
-            <div style={{display: 'grid', gap: '1rem'}}>
+            <div style={{display: 'grid', gap: '1.5rem'}}>
               <input
                 type="text"
-                placeholder="What delicious thing caught your eye? (e.g., Magical Greek Yogurt)"
+                placeholder="Item name (e.g., Extra Virgin Olive Oil)"
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                 required
                 style={{
-                  padding: '1rem',
-                  borderRadius: '0.75rem',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  backgroundColor: 'rgba(255,255,255,0.1)',
-                  color: 'white',
-                  fontSize: '1rem'
+                  padding: '1.2rem',
+                  borderRadius: '1rem',
+                  border: '2px solid rgba(59, 130, 246, 0.4)',
+                  backgroundColor: 'rgba(30, 58, 138, 0.6)',
+                  color: '#bfdbfe',
+                  fontSize: '1rem',
+                  fontWeight: '500',
+                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)'
                 }}
               />
               
               <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
                 <input
                   type="text"
-                  placeholder="Category"
+                  placeholder="🎪 Category"
                   value={formData.category}
                   onChange={(e) => setFormData({...formData, category: e.target.value})}
                   style={{
                     padding: '1rem',
                     borderRadius: '0.75rem',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                    color: 'white'
+                    border: '2px solid rgba(59, 130, 246, 0.4)',
+                    backgroundColor: 'rgba(30, 58, 138, 0.6)',
+                    color: '#bfdbfe'
                   }}
                 />
                 <input
                   type="text"
-                  placeholder="Unit (cups, bottles)"
+                  placeholder="📦 Unit (jars, bottles, cups)"
                   value={formData.unit}
                   onChange={(e) => setFormData({...formData, unit: e.target.value})}
                   style={{
                     padding: '1rem',
                     borderRadius: '0.75rem',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                    color: 'white'
+                    border: '2px solid rgba(59, 130, 246, 0.4)',
+                    backgroundColor: 'rgba(30, 58, 138, 0.6)',
+                    color: '#bfdbfe'
                   }}
                 />
               </div>
               
               <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem'}}>
                 <div>
-                  <label style={{color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block'}}>
-                    Current Count
+                  <label style={{color: '#bfdbfe', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold'}}>
+                    🎯 Current Stock
                   </label>
                   <input
                     type="number"
@@ -736,16 +1041,16 @@ function App() {
                     style={{
                       padding: '1rem',
                       borderRadius: '0.75rem',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      backgroundColor: 'rgba(255,255,255,0.1)',
-                      color: 'white',
+                      border: '2px solid rgba(59, 130, 246, 0.4)',
+                      backgroundColor: 'rgba(30, 58, 138, 0.6)',
+                      color: '#bfdbfe',
                       width: '100%'
                     }}
                   />
                 </div>
                 <div>
-                  <label style={{color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block'}}>
-                    Min Count
+                  <label style={{color: '#bfdbfe', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold'}}>
+                    ⚠️ Min Needed
                   </label>
                   <input
                     type="number"
@@ -754,16 +1059,16 @@ function App() {
                     style={{
                       padding: '1rem',
                       borderRadius: '0.75rem',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      backgroundColor: 'rgba(255,255,255,0.1)',
-                      color: 'white',
+                      border: '2px solid rgba(59, 130, 246, 0.4)',
+                      backgroundColor: 'rgba(30, 58, 138, 0.6)',
+                      color: '#bfdbfe',
                       width: '100%'
                     }}
                   />
                 </div>
                 <div>
-                  <label style={{color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block'}}>
-                    Pack Size
+                  <label style={{color: '#bfdbfe', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold'}}>
+                    📦 Pack Size
                   </label>
                   <input
                     type="number"
@@ -772,9 +1077,9 @@ function App() {
                     style={{
                       padding: '1rem',
                       borderRadius: '0.75rem',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      backgroundColor: 'rgba(255,255,255,0.1)',
-                      color: 'white',
+                      border: '2px solid rgba(59, 130, 246, 0.4)',
+                      backgroundColor: 'rgba(30, 58, 138, 0.6)',
+                      color: '#bfdbfe',
                       width: '100%'
                     }}
                   />
@@ -782,16 +1087,16 @@ function App() {
               </div>
               
               <textarea
-                placeholder="Notes (optional)"
+                placeholder="📋 Royal decree notes... (special storage instructions or cooking tips)"
                 value={formData.notes}
                 onChange={(e) => setFormData({...formData, notes: e.target.value})}
                 rows={3}
                 style={{
                   padding: '1rem',
                   borderRadius: '0.75rem',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  backgroundColor: 'rgba(255,255,255,0.1)',
-                  color: 'white',
+                  border: '2px solid rgba(59, 130, 246, 0.4)',
+                  backgroundColor: 'rgba(30, 58, 138, 0.6)',
+                  color: '#bfdbfe',
                   resize: 'none',
                   fontFamily: 'inherit'
                 }}
@@ -806,10 +1111,11 @@ function App() {
                   flex: 1,
                   padding: '1rem',
                   borderRadius: '0.75rem',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  backgroundColor: 'rgba(255,255,255,0.1)',
-                  color: 'white',
-                  cursor: 'pointer'
+                  border: '2px solid rgba(59, 130, 246, 0.4)',
+                  backgroundColor: 'rgba(30, 58, 138, 0.6)',
+                  color: '#bfdbfe',
+                  cursor: 'pointer',
+                  fontWeight: 'bold'
                 }}
               >
                 Cancel
@@ -821,10 +1127,11 @@ function App() {
                   padding: '1rem',
                   borderRadius: '0.75rem',
                   border: 'none',
-                  background: 'linear-gradient(to right, #10b981, #059669)',
+                  background: 'linear-gradient(to right, #3b82f6, #60a5fa)',
                   color: 'white',
                   fontWeight: 'bold',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 8px rgba(30, 58, 138, 0.3)'
                 }}
               >
                 Add Item
@@ -963,10 +1270,14 @@ function App() {
       <header style={styles.header}>
         <div style={styles.headerContent}>
           <div style={styles.logoSection}>
-            <div style={styles.logoIcon}>🍳</div>
+            <div style={styles.logoIcon}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L15.09 8.26L22 9L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9L8.91 8.26L12 2Z" fill="white"/>
+              </svg>
+            </div>
             <div>
-              <h1 style={styles.title}>Laurie's Legendary Kitchen</h1>
-              <p style={styles.subtitle}>Keep track of your kitchen adventures! 🍕</p>
+              <h1 style={styles.title}>Kitchen Inventory Pro</h1>
+              <p style={styles.subtitle}>Smart pantry management system</p>
             </div>
           </div>
                       <div style={styles.headerActions}>
@@ -1000,9 +1311,15 @@ function App() {
               )}
               <button 
                 style={styles.quickAddBtn}
-                onClick={() => setShowAddModal(true)}
+                onClick={() => {
+                  setModalType('loot');
+                  setShowAddModal(true);
+                }}
               >
-                ➕ Snack Attack!
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: '8px'}}>
+                  <path d="M12 5V19M5 12H19" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+                Add Item
               </button>
             </div>
         </div>
@@ -1023,10 +1340,10 @@ function App() {
               <div style={styles.quickStatLabel}>Running Low</div>
             </div>
             <div style={styles.quickStatCard}>
-              <div style={styles.quickStatValue}>
-                {new Set(pantryItems.map(item => item.category)).size}
+              <div style={{...styles.quickStatValue, color: '#ef4444'}}>
+                {pantryItems.filter(item => item.currentCount < item.minCount).length}
               </div>
-              <div style={styles.quickStatLabel}>Categories</div>
+              <div style={styles.quickStatLabel}>Items below minimum</div>
             </div>
             <div style={styles.quickStatCard}>
               <div style={{...styles.quickStatValue, color: '#34d399'}}>{shoppingList.length}</div>
@@ -1047,7 +1364,10 @@ function App() {
             }}
             onClick={() => setActiveTab('shopping')}
           >
-            🛒 Laurie's Loot List
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: '8px'}}>
+              <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.3 15.7 4.6 16.5 5.1 16.5H17M17 13V17A2 2 0 0 1 15 19H9A2 2 0 0 1 7 17V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Shopping List
           </button>
           <button 
             style={{
@@ -1056,7 +1376,10 @@ function App() {
             }}
             onClick={() => setActiveTab('pantry')}
           >
-            🏺 Laurie's Secret Stash
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: '8px'}}>
+              <path d="M19 7H16V6A4 4 0 0 0 8 6V7H5A1 1 0 0 0 4 8V19A3 3 0 0 0 7 22H17A3 3 0 0 0 20 19V8A1 1 0 0 0 19 7ZM10 6A2 2 0 0 1 14 6V7H10V6Z" fill="currentColor"/>
+            </svg>
+            Pantry Inventory
           </button>
         </div>
 
@@ -1065,25 +1388,38 @@ function App() {
           <div style={styles.card}>
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
-                <div style={styles.cardIcon}>📝</div>
+                <div style={styles.cardIcon}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 11H15M9 15H15M3 7V17A2 2 0 0 0 5 19H19A2 2 0 0 0 21 17V7A2 2 0 0 0 19 5H5A2 2 0 0 0 3 7Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
                 <div>
-                  <h2 style={styles.cardTitleText}>Laurie's Loot List</h2>
-                  <p style={styles.cardSubtitle}>Adventures awaiting in the grocery jungle! 🛒✨</p>
+                  <h2 style={styles.cardTitleText}>Shopping List</h2>
+                  <p style={styles.cardSubtitle}>Items to purchase on your next shopping trip</p>
                 </div>
               </div>
               <button 
                 style={styles.addBtn}
-                onClick={() => setShowAddModal(true)}
+                onClick={() => {
+                  setModalType('loot');
+                  setShowAddModal(true);
+                }}
               >
-                🎯 Add Treasure!
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: '6px'}}>
+                  <path d="M12 5V19M5 12H19" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+                Add Item
               </button>
             </div>
             
             <div style={styles.inventoryList}>
               {shoppingList.length === 0 ? (
                 <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{margin: '0 auto 1rem', opacity: 0.6}}>
+                    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                   <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem'}}>
-                    🎉 Laurie's all set! The snack gods are pleased! ✨
+                    All set! No items in your shopping list.
                   </p>
                 </div>
               ) : (
@@ -1121,8 +1457,18 @@ function App() {
                   };
                   
                   const getItemIcon = () => {
-                    if (item.source === 'pantry') return '🥫';
-                    return '🛒';
+                    if (item.source === 'pantry') {
+                      return (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M19 7H16V6A4 4 0 0 0 8 6V7H5A1 1 0 0 0 4 8V19A3 3 0 0 0 7 22H17A3 3 0 0 0 20 19V8A1 1 0 0 0 19 7ZM10 6A2 2 0 0 1 14 6V7H10V6Z" fill="white"/>
+                        </svg>
+                      );
+                    }
+                    return (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.3 15.7 4.6 16.5 5.1 16.5H17M17 13V17A2 2 0 0 1 15 19H9A2 2 0 0 1 7 17V13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    );
                   };
                   
                   const getDescription = () => {
@@ -1146,22 +1492,24 @@ function App() {
                             </p>
                           </div>
                         </div>
-                        <div style={styles.itemRight}>
+                        <div style={isMobile ? styles.itemRightMobile : styles.itemRight}>
                           <div style={styles.stockInfo}>
                             <p style={styles.stockLabel}>Quantity</p>
                             <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
                               <button
                                 onClick={() => updateShoppingListQuantity(item.id, Math.max(1, (item.quantity || item.needed || 1) - 1))}
                                 style={{
-                                  width: '2rem',
-                                  height: '2rem',
-                                  borderRadius: '50%',
-                                  border: 'none',
-                                  background: 'linear-gradient(to right, #ef4444, #dc2626)',
-                                  color: 'white',
-                                  cursor: 'pointer',
-                                  fontSize: '1rem',
-                                  fontWeight: 'bold'
+                                  ...(isMobile ? styles.mobileButton : {
+                                    width: '2rem',
+                                    height: '2rem',
+                                    borderRadius: '50%',
+                                    border: 'none',
+                                    color: 'white',
+                                    cursor: 'pointer',
+                                    fontSize: '1rem',
+                                    fontWeight: 'bold'
+                                  }),
+                                  background: 'linear-gradient(to right, #ef4444, #dc2626)'
                                 }}
                               >
                                 -
@@ -1173,15 +1521,17 @@ function App() {
                               <button
                                 onClick={() => updateShoppingListQuantity(item.id, (item.quantity || item.needed || 1) + 1)}
                                 style={{
-                                  width: '2rem',
-                                  height: '2rem',
-                                  borderRadius: '50%',
-                                  border: 'none',
-                                  background: 'linear-gradient(to right, #10b981, #059669)',
-                                  color: 'white',
-                                  cursor: 'pointer',
-                                  fontSize: '1rem',
-                                  fontWeight: 'bold'
+                                  ...(isMobile ? styles.mobileButton : {
+                                    width: '2rem',
+                                    height: '2rem',
+                                    borderRadius: '50%',
+                                    border: 'none',
+                                    color: 'white',
+                                    cursor: 'pointer',
+                                    fontSize: '1rem',
+                                    fontWeight: 'bold'
+                                  }),
+                                  background: 'linear-gradient(to right, #10b981, #059669)'
                                 }}
                               >
                                 +
@@ -1212,25 +1562,41 @@ function App() {
           <div style={styles.card}>
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
-                <div style={styles.cardIcon}>🏺</div>
+                <div style={styles.cardIcon}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 7H16V6A4 4 0 0 0 8 6V7H5A1 1 0 0 0 4 8V19A3 3 0 0 0 7 22H17A3 3 0 0 0 20 19V8A1 1 0 0 0 19 7ZM10 6A2 2 0 0 1 14 6V7H10V6Z" fill="white"/>
+                  </svg>
+                </div>
                 <div>
-                  <h2 style={styles.cardTitleText}>Laurie's Secret Stash</h2>
-                  <p style={styles.cardSubtitle}>The mysterious depths of the kitchen kingdom! 👑</p>
+                  <h2 style={styles.cardTitleText}>Pantry Inventory</h2>
+                  <p style={styles.cardSubtitle}>Current stock levels and inventory management</p>
                 </div>
               </div>
               <button 
-                style={styles.addBtn}
-                onClick={() => setShowAddModal(true)}
+                style={{
+                  ...styles.addBtn,
+                  background: 'linear-gradient(to right, #6366f1, #8b5cf6)'
+                }}
+                onClick={() => {
+                  setModalType('pantry');
+                  setShowAddModal(true);
+                }}
               >
-                🎯 Add Treasure!
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: '6px'}}>
+                  <path d="M12 5V19M5 12H19" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+                Add Stock
               </button>
             </div>
             
             <div style={styles.inventoryList}>
               {pantryItems.length === 0 ? (
                 <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{margin: '0 auto 1rem', opacity: 0.6}}>
+                    <path d="M19 7H16V6A4 4 0 0 0 8 6V7H5A1 1 0 0 0 4 8V19A3 3 0 0 0 7 22H17A3 3 0 0 0 20 19V8A1 1 0 0 0 19 7ZM10 6A2 2 0 0 1 14 6V7H10V6Z" fill="rgba(255,255,255,0.6)"/>
+                  </svg>
                   <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem'}}>
-                    🕵️‍♀️ Laurie's stash is suspiciously empty... Time for a "Snack Attack"!
+                    Your pantry inventory is empty. Start by adding some items.
                   </p>
                 </div>
               ) : (
@@ -1249,12 +1615,52 @@ function App() {
                   
                   const getItemIcon = () => {
                     const category = item.category?.toLowerCase() || '';
-                    if (category.includes('dairy')) return '🥛';
-                    if (category.includes('meat')) return '🍖';
-                    if (category.includes('produce')) return '🥬';
-                    if (category.includes('bakery')) return '🍞';
-                    if (category.includes('pantry')) return '🥫';
-                    return '🛒';
+                    
+                    if (category.includes('dairy')) {
+                      return (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M5 12V7A7 7 0 0 1 19 7V12A7 7 0 0 1 5 12Z" stroke="white" strokeWidth="2"/>
+                          <path d="M12 7V17" stroke="white" strokeWidth="2"/>
+                        </svg>
+                      );
+                    }
+                    if (category.includes('meat')) {
+                      return (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M20.84 4.61A5.5 5.5 0 0 0 15.5 3H8.5A5.5 5.5 0 0 0 3.16 4.61A2 2 0 0 0 2 6.5V18A2 2 0 0 0 4 20H20A2 2 0 0 0 22 18V6.5A2 2 0 0 0 20.84 4.61Z" fill="white"/>
+                        </svg>
+                      );
+                    }
+                    if (category.includes('produce')) {
+                      return (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="white" strokeWidth="2"/>
+                          <path d="M8 12L11 15L16 9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      );
+                    }
+                    if (category.includes('bakery')) {
+                      return (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 2L13.09 8.26L19 9L14 14.27L15.18 21.02L12 17.77L8.82 21.02L10 14.27L5 9L10.91 8.26L12 2Z" fill="white"/>
+                        </svg>
+                      );
+                    }
+                    if (category.includes('pantry') || category.includes('canned')) {
+                      return (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <rect x="4" y="4" width="16" height="16" rx="2" stroke="white" strokeWidth="2"/>
+                          <path d="M8 8H16M8 12H16M8 16H12" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                        </svg>
+                      );
+                    }
+                    
+                    // Default icon
+                    return (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 7H16V6A4 4 0 0 0 8 6V7H5A1 1 0 0 0 4 8V19A3 3 0 0 0 7 22H17A3 3 0 0 0 20 19V8A1 1 0 0 0 19 7ZM10 6A2 2 0 0 1 14 6V7H10V6Z" fill="white"/>
+                      </svg>
+                    );
                   };
                   
                   return (
@@ -1271,22 +1677,24 @@ function App() {
                             </p>
                           </div>
                         </div>
-                        <div style={styles.itemRight}>
+                        <div style={isMobile ? styles.itemRightMobile : styles.itemRight}>
                           <div style={styles.stockInfo}>
                             <p style={styles.stockLabel}>Stock: {item.currentCount}/{item.minCount} {item.unit}</p>
                             <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
                               <button
                                 onClick={() => updateItemQuantity(item.id, Math.max(0, item.currentCount - 1), false)}
                                 style={{
-                                  width: '2rem',
-                                  height: '2rem',
-                                  borderRadius: '50%',
-                                  border: 'none',
-                                  background: 'linear-gradient(to right, #ef4444, #dc2626)',
-                                  color: 'white',
-                                  cursor: 'pointer',
-                                  fontSize: '1rem',
-                                  fontWeight: 'bold'
+                                  ...(isMobile ? styles.mobileButton : {
+                                    width: '2rem',
+                                    height: '2rem',
+                                    borderRadius: '50%',
+                                    border: 'none',
+                                    color: 'white',
+                                    cursor: 'pointer',
+                                    fontSize: '1rem',
+                                    fontWeight: 'bold'
+                                  }),
+                                  background: 'linear-gradient(to right, #ef4444, #dc2626)'
                                 }}
                               >
                                 -
@@ -1298,15 +1706,17 @@ function App() {
                               <button
                                 onClick={() => updateItemQuantity(item.id, item.currentCount + 1, true)}
                                 style={{
-                                  width: '2rem',
-                                  height: '2rem',
-                                  borderRadius: '50%',
-                                  border: 'none',
-                                  background: 'linear-gradient(to right, #10b981, #059669)',
-                                  color: 'white',
-                                  cursor: 'pointer',
-                                  fontSize: '1rem',
-                                  fontWeight: 'bold'
+                                  ...(isMobile ? styles.mobileButton : {
+                                    width: '2rem',
+                                    height: '2rem',
+                                    borderRadius: '50%',
+                                    border: 'none',
+                                    color: 'white',
+                                    cursor: 'pointer',
+                                    fontSize: '1rem',
+                                    fontWeight: 'bold'
+                                  }),
+                                  background: 'linear-gradient(to right, #10b981, #059669)'
                                 }}
                               >
                                 +
@@ -1326,8 +1736,13 @@ function App() {
                               }}
                               onClick={() => {
                                 const newMin = prompt(`Set minimum needed for ${item.name}:`, item.minCount.toString());
-                                if (newMin && !isNaN(parseInt(newMin))) {
-                                  updateItemMinCount(item.id, parseInt(newMin));
+                                if (newMin !== null) { // User didn't cancel
+                                  const newMinValue = parseInt(newMin);
+                                  if (!isNaN(newMinValue) && newMinValue >= 0) {
+                                    updateItemMinCount(item.id, newMinValue);
+                                  } else {
+                                    alert('Please enter a valid number (0 or greater)');
+                                  }
                                 }
                               }}
                             >
@@ -1349,8 +1764,9 @@ function App() {
         )}
       </main>
 
-      {/* Add Item Modal */}
-      <AddItemModal />
+      {/* Add Item Modals */}
+      <LootListModal />
+      <PantryModal />
 
       {/* Photo Analyzer Modal */}
       <PhotoAnalyzerModal />
