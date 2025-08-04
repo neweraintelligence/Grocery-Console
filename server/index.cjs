@@ -73,32 +73,73 @@ app.get('/api/pantry', async (req, res) => {
       return res.status(500).json({ error: 'Google Sheets not configured' });
     }
 
-    // Try to read from "Pantry" sheet specifically for pantry items
+    // Read from "Grocery List" sheet - pantry items are stored there too
     let response;
     try {
       response = await sheets.spreadsheets.values.get({
         spreadsheetId: process.env.GOOGLE_SHEET_ID,
-        range: 'Pantry!A2:Z', // Skip header row, get all columns
+        range: 'Grocery List!A2:Z', // Skip header row, get all columns
       });
     } catch (error) {
-      // If no Pantry sheet exists, return empty array since grocery list items are not pantry items
-      console.log('No Pantry sheet found, returning empty pantry');
+      console.log('No Grocery List sheet found, returning empty pantry');
       res.json([]);
       return;
     }
 
     const rows = response.data.values || [];
+    
+    // Get header row to find the "On List" column
+    let headerResponse;
+    try {
+      headerResponse = await sheets.spreadsheets.values.get({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'Grocery List!A1:Z1',
+      });
+    } catch (error) {
+      console.log('Could not get headers');
+      res.json([]);
+      return;
+    }
+    
+    const headers = headerResponse.data.values?.[0] || [];
+    let onListColumnIndex = -1;
+    for (let i = 0; i < headers.length; i++) {
+      const header = headers[i]?.toString().toLowerCase().trim();
+      if (header.includes('on list') || header.includes('onlist')) {
+        onListColumnIndex = i;
+        break;
+      }
+    }
+    
+    // Filter for pantry items (items NOT currently on shopping list)
     const pantryItems = rows
-      .filter((row) => row[0] && row[0].trim()) // Only include rows with names
+      .filter((row) => {
+        if (!row[0] || !row[0].trim()) return false; // Must have name
+        
+        // Check if item is NOT on shopping list (On List = FALSE)
+        let onListValue = null;
+        if (onListColumnIndex >= 0 && onListColumnIndex < row.length) {
+          onListValue = row[onListColumnIndex];
+        }
+        
+        const onList = onListValue && (
+          onListValue.toString().toUpperCase() === 'TRUE' || 
+          onListValue === true || 
+          onListValue === 1 ||
+          onListValue === '1'
+        );
+        
+        return !onList; // Return items that are NOT on the shopping list
+      })
       .map((row, index) => ({
-        id: (index + 2).toString(), // Row number as ID
+        id: (rows.indexOf(row) + 2).toString(), // Use actual row number as ID
         name: row[0] || '',
         category: row[1] || '',
         currentCount: parseInt(row[2]) || 0,
         minCount: parseInt(row[3]) || 1,
         unit: row[4] || 'units',
-        lastUpdated: row[5] || new Date().toLocaleDateString(),
-        notes: row[6] || ''
+        lastUpdated: row[7] || new Date().toLocaleDateString(), // Column H is Added Date
+        notes: row[6] || '' // Column G is Notes
       }));
 
     res.json(pantryItems);
