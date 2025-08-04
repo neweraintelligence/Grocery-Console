@@ -188,6 +188,10 @@ app.post('/api/pantry', async (req, res) => {
     }
 
     const { name, category, currentCount, minCount, unit, notes, expiryDate } = req.body;
+    
+    console.log('📦 Received pantry item data:', req.body);
+    console.log('📅 Expiry date received:', expiryDate);
+    console.log('📅 Expiry date type:', typeof expiryDate);
 
     // Add to Pantry sheet with full structure: Name, Category, Current Count, Min Count, Unit, Last Updated, Notes, Expiry Date
     const lastUpdated = new Date().toISOString().split('T')[0];
@@ -201,6 +205,9 @@ app.post('/api/pantry', async (req, res) => {
       notes || '', // Notes
       expiryDate || '' // Expiry Date
     ]];
+    
+    console.log('📝 Values being written to Google Sheets:', values);
+    console.log('📅 Expiry date in values array:', values[0][7]);
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,

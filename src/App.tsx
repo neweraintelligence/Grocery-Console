@@ -1976,6 +1976,8 @@ function App() {
         };
 
         console.log(`📦 Adding item to pantry:`, pantryData);
+        console.log(`📅 Expiry date being sent:`, pantryData.expiryDate);
+        console.log(`📅 Expiry date type:`, typeof pantryData.expiryDate);
         const pantryResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
