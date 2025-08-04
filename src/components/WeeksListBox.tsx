@@ -65,8 +65,22 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
         lastUpdated: new Date().toISOString()
       }));
       
-      const weeklyList = predictiveRestockService.getWeeklyRestockList(convertedItems);
-      setPredictions(weeklyList);
+      // Show all items instead of filtering by predictive restock
+      const allItems = convertedItems.map(item => ({
+        itemId: item.id,
+        itemName: item.name,
+        category: item.category,
+        currentStock: item.currentCount,
+        predictedRunOutDate: new Date(Date.now() + (7 * 24 * 60 * 60 * 1000)), // 1 week from now
+        recommendedRestockDate: new Date(Date.now() + (24 * 60 * 60 * 1000)), // Tomorrow
+        recommendedQuantity: item.currentCount,
+        confidence: 1.0,
+        urgency: 'medium' as const,
+        bestStore: 'Grocery Store',
+        reasoning: ['Added to weekly shopping list']
+      }));
+      
+      setPredictions(allItems);
     }
   }, [isVisible, pantryItems]);
 
