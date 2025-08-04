@@ -265,12 +265,12 @@ const styles = {
     gap: '1rem'
   },
   itemIcon: {
-    width: '3.5rem',
-    height: '3.5rem',
+    width: '2.5rem',
+    height: '2.5rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '1.5rem'
+    fontSize: '1.25rem'
   },
   itemDetails: {
     display: 'flex',
@@ -288,7 +288,8 @@ const styles = {
   itemRight: {
     display: 'flex',
     alignItems: 'center',
-    gap: '2rem'
+    gap: '1.5rem',
+    justifyContent: 'flex-end'
   },
   itemRightMobile: {
     display: 'flex',
@@ -2676,26 +2677,43 @@ function App() {
                           </div>
                         </div>
                         <div style={isMobile ? styles.itemRightMobile : styles.itemRight}>
-                          <div style={styles.stockInfo}>
-                            <p style={styles.stockLabel}>Stock: {item.currentCount}/{item.minCount} {item.unit}</p>
-                            <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+                          {/* Stock Controls */}
+                          <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            minWidth: '120px'
+                          }}>
+                            <p style={{
+                              ...styles.stockLabel,
+                              fontSize: '0.75rem',
+                              margin: 0,
+                              textAlign: 'center'
+                            }}>
+                              Stock: {item.currentCount}/{item.minCount}
+                            </p>
+                            <div style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.75rem'
+                            }}>
                               <button
                                 onClick={() => updateItemQuantity(item.id, Math.max(0, item.currentCount - 1), false)}
                                 style={{
-                                  ...(isMobile ? styles.mobileButton : {
-                                    width: '2.2rem',
-                                    height: '2.2rem',
-                                    borderRadius: '50%',
-                                    border: 'none',
-                                    color: 'white',
-                                    cursor: 'pointer',
-                                    fontSize: '1rem',
-                                    fontWeight: 'bold',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                  }),
-                                  background: 'linear-gradient(to right, rgba(239,68,68,0.4), rgba(220,38,38,0.5))'
+                                  width: '2rem',
+                                  height: '2rem',
+                                  borderRadius: '50%',
+                                  border: 'none',
+                                  color: 'white',
+                                  cursor: 'pointer',
+                                  fontSize: '0.875rem',
+                                  fontWeight: 'bold',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  background: 'linear-gradient(to right, rgba(239,68,68,0.4), rgba(220,38,38,0.5))',
+                                  transition: 'all 0.2s ease'
                                 }}
                               >
                                 -
@@ -2705,50 +2723,85 @@ function App() {
                                 flexDirection: 'column',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                minWidth: '3rem',
-                                height: '2.2rem',
-                                padding: '0.25rem 0'
+                                minWidth: '2.5rem',
+                                height: '2rem'
                               }}>
-                                <p style={{...styles.stockValue, margin: 0, lineHeight: '1', fontSize: '1.1rem'}}>{item.currentCount}</p>
-                                <p style={{...styles.stockUnit, margin: 0, lineHeight: '1', fontSize: '0.65rem'}}>{item.unit}</p>
+                                <p style={{
+                                  margin: 0,
+                                  lineHeight: '1',
+                                  fontSize: '1rem',
+                                  fontWeight: 'bold',
+                                  color: 'white'
+                                }}>
+                                  {item.currentCount}
+                                </p>
+                                <p style={{
+                                  margin: 0,
+                                  lineHeight: '1',
+                                  fontSize: '0.6rem',
+                                  color: 'rgba(255,255,255,0.7)'
+                                }}>
+                                  {item.unit}
+                                </p>
                               </div>
                               <button
                                 onClick={() => updateItemQuantity(item.id, item.currentCount + 1, true)}
                                 style={{
-                                  ...(isMobile ? styles.mobileButton : {
-                                    width: '2.2rem',
-                                    height: '2.2rem',
-                                    borderRadius: '50%',
-                                    border: 'none',
-                                    color: 'white',
-                                    cursor: 'pointer',
-                                    fontSize: '1rem',
-                                    fontWeight: 'bold',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                  }),
-                                  background: 'linear-gradient(to right, rgba(34,197,94,0.4), rgba(22,163,74,0.5))'
+                                  width: '2rem',
+                                  height: '2rem',
+                                  borderRadius: '50%',
+                                  border: 'none',
+                                  color: 'white',
+                                  cursor: 'pointer',
+                                  fontSize: '0.875rem',
+                                  fontWeight: 'bold',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  background: 'linear-gradient(to right, rgba(34,197,94,0.4), rgba(22,163,74,0.5))',
+                                  transition: 'all 0.2s ease'
                                 }}
                               >
                                 +
                               </button>
                             </div>
                           </div>
-                          <div style={styles.stockInfo}>
-                            <p style={styles.stockLabel}>Min Needed</p>
+
+                          {/* Min Needed - Compact */}
+                          <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            minWidth: '80px'
+                          }}>
+                            <p style={{
+                              ...styles.stockLabel,
+                              fontSize: '0.7rem',
+                              margin: 0,
+                              textAlign: 'center'
+                            }}>
+                              Min Needed
+                            </p>
                             <div 
                               style={{
                                 textAlign: 'center',
                                 cursor: 'pointer',
-                                padding: '0.5rem',
-                                borderRadius: '0.5rem',
+                                padding: '0.25rem 0.5rem',
+                                borderRadius: '0.375rem',
                                 border: '1px solid rgba(255,255,255,0.2)',
-                                background: 'rgba(255,255,255,0.1)'
+                                background: 'rgba(255,255,255,0.1)',
+                                minWidth: '2.5rem',
+                                height: '2rem',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                transition: 'all 0.2s ease'
                               }}
                               onClick={() => {
                                 const newMin = prompt(`Set minimum needed for ${item.name}:`, item.minCount.toString());
-                                if (newMin !== null) { // User didn't cancel
+                                if (newMin !== null) {
                                   const newMinValue = parseInt(newMin);
                                   if (!isNaN(newMinValue) && newMinValue >= 0) {
                                     updateItemMinCount(item.id, newMinValue);
@@ -2757,12 +2810,42 @@ function App() {
                                   }
                                 }
                               }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+                                e.currentTarget.style.border = '1px solid rgba(255,255,255,0.3)';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                                e.currentTarget.style.border = '1px solid rgba(255,255,255,0.2)';
+                              }}
                             >
-                              <p style={styles.stockValue}>{item.minCount}</p>
-                              <p style={styles.stockUnit}>click to edit</p>
+                              <p style={{
+                                margin: 0,
+                                lineHeight: '1',
+                                fontSize: '0.875rem',
+                                fontWeight: 'bold',
+                                color: 'white'
+                              }}>
+                                {item.minCount}
+                              </p>
+                              <p style={{
+                                margin: 0,
+                                lineHeight: '1',
+                                fontSize: '0.5rem',
+                                color: 'rgba(255,255,255,0.6)'
+                              }}>
+                                edit
+                              </p>
                             </div>
                           </div>
-                          <div style={{...styles.statusBadge, ...getStatusStyle()}}>
+
+                          {/* Status Badge */}
+                          <div style={{
+                            ...styles.statusBadge,
+                            ...getStatusStyle(),
+                            minWidth: '60px',
+                            textAlign: 'center'
+                          }}>
                             {getStatusText()}
                           </div>
                         </div>
