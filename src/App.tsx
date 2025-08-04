@@ -752,13 +752,6 @@ function App() {
   };
 
   const PhotoAnalyzerModal = () => {
-    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (file) {
-        analyzePhoto(file);
-      }
-    };
-
     if (!showPhotoModal) return null;
 
     return (
@@ -1046,22 +1039,10 @@ function App() {
                 </div>
               ) : (
                 pantryItems.slice(0, 5).map((item, index) => {
-                  const getStatusStyle = () => {
-                    if (item.currentCount === 0) return styles.statusOut;
-                    if (item.currentCount <= item.minCount) return styles.statusLow;
-                    return styles.statusGood;
-                  };
-                  
                   const getPriorityColor = () => {
                     if (item.currentCount === 0) return 'linear-gradient(to right, #ef4444, #ec4899)';
                     if (item.currentCount <= item.minCount) return 'linear-gradient(to right, #eab308, #f97316)';
                     return 'linear-gradient(to right, #10b981, #059669)';
-                  };
-                  
-                  const getStatusText = () => {
-                    if (item.currentCount === 0) return 'Out';
-                    if (item.currentCount <= item.minCount) return 'Low';
-                    return 'Good';
                   };
                   
                   return (
