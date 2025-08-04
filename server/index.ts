@@ -345,7 +345,7 @@ app.get('/api/shopping-list', async (req, res) => {
     
     // Filter for items with names AND where "On List" column is TRUE
     const shoppingItems = rows
-      .filter((row: any[]) => {
+      .map((row: any[], index: number) => {
         const hasName = row[0] && row[0].trim();
         
         // Check multiple possible positions for "On List" column
@@ -374,18 +374,24 @@ app.get('/api/shopping-list', async (req, res) => {
         
         console.log(`Item: ${row[0]}, OnList: ${onList}`);
         
-        return hasName && onList;
+        return {
+          hasName,
+          onList,
+          originalRowIndex: index + 2, // +2 because spreadsheet rows are 1-indexed and we skip header
+          data: {
+            id: (index + 2).toString(), // Use original row number as ID
+            name: row[0] || '',
+            category: row[1] || 'General',
+            source: 'grocery' as const,
+            quantity: parseInt(row[2]) || 1,
+            unit: row[4] || 'units', // Column E is Unit
+            priority: 'Medium',
+            needed: parseInt(row[2]) || 1
+          }
+        };
       })
-      .map((row: any[], index: number) => ({
-        id: (index + 2).toString(),
-        name: row[0] || '',
-        category: row[1] || 'General',
-        source: 'grocery' as const,
-        quantity: parseInt(row[2]) || 1,
-        unit: row[4] || 'units', // Column E is Unit
-        priority: 'Medium',
-        needed: parseInt(row[2]) || 1
-      }));
+      .filter(item => item.hasName && item.onList)
+      .map(item => item.data);
 
     res.json(shoppingItems);
   } catch (error) {
