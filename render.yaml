@@ -18,9 +18,10 @@ services:
       - key: GOOGLE_SERVICE_ACCOUNT_KEY
         sync: false  # Set this manually in Render dashboard (JSON as string)
 
-  # Frontend Web Service  
-  - type: static
+  # Frontend Static Site
+  - type: web
     name: grocery-dashboard-frontend
+    runtime: static
     plan: free
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
