@@ -1939,7 +1939,10 @@ function App() {
               <button 
                 style={{
                   ...styles.addBtn,
-                  background: 'linear-gradient(to right, rgba(99,102,241,0.7), rgba(139,92,246,0.7))'
+                  background: 'linear-gradient(to right, rgba(99,102,241,0.4), rgba(139,92,246,0.4))',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}
                 onClick={() => {
                   setModalType('pantry');
