@@ -772,6 +772,7 @@ function App() {
   const [reviewItems, setReviewItems] = useState<ShoppingListItem[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loadingRecipes, setLoadingRecipes] = useState(false);
+  const [pantryCategoryFilter, setPantryCategoryFilter] = useState<string>('all');
 
   // Fetch data on component mount
   useEffect(() => {
@@ -895,6 +896,23 @@ function App() {
       alert('Error updating minimum count. Please check your connection and try again.');
     }
   };
+
+  // Pantry category filter options
+  const pantryCategories = [
+    'all',
+    'Pantry – Staples',
+    'Pantry – Oils, Vinegars & Condiments', 
+    'Pantry – Cereals',
+    'Pantry – Pasta',
+    'Pantry – Rice & Grains',
+    'Pantry – Baking & Misc. Dry Goods',
+    'Fridge'
+  ];
+
+  // Filter pantry items by selected category
+  const filteredPantryItems = pantryCategoryFilter === 'all' 
+    ? pantryItems 
+    : pantryItems.filter(item => item.category === pantryCategoryFilter);
 
   const generateRecipes = async () => {
     setLoadingRecipes(true);
@@ -2475,19 +2493,82 @@ function App() {
               </button>
             </div>
             
+            {/* Pantry Category Sub-tabs */}
+            <div style={{
+              display: 'flex',
+              gap: '0.5rem',
+              padding: '0 1rem 1rem',
+              flexWrap: 'wrap',
+              borderBottom: '1px solid rgba(255,255,255,0.1)',
+              marginBottom: '1rem'
+            }}>
+              {pantryCategories.map((category) => (
+                <button
+                  key={category}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    borderRadius: '0.5rem',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    background: pantryCategoryFilter === category
+                      ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(59, 130, 246, 0.2))'
+                      : 'rgba(255,255,255,0.05)',
+                    color: pantryCategoryFilter === category ? 'white' : 'rgba(255,255,255,0.7)',
+                    fontSize: '0.75rem',
+                    fontWeight: pantryCategoryFilter === category ? 'bold' : 'normal',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: pantryCategoryFilter === category 
+                      ? '0 4px 8px rgba(16, 185, 129, 0.3)' 
+                      : 'none'
+                  }}
+                  onClick={() => setPantryCategoryFilter(category)}
+                  onMouseEnter={(e) => {
+                    if (pantryCategoryFilter !== category) {
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                      e.currentTarget.style.color = 'rgba(255,255,255,0.9)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (pantryCategoryFilter !== category) {
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                      e.currentTarget.style.color = 'rgba(255,255,255,0.7)';
+                    }
+                  }}
+                >
+                  {category === 'all' ? '📦 All Items' : 
+                   category === 'Pantry – Staples' ? '🥫 Staples' :
+                   category === 'Pantry – Oils, Vinegars & Condiments' ? '🫙 Oils & Condiments' :
+                   category === 'Pantry – Cereals' ? '🥣 Cereals' :
+                   category === 'Pantry – Pasta' ? '🍝 Pasta' :
+                   category === 'Pantry – Rice & Grains' ? '🌾 Rice & Grains' :
+                   category === 'Pantry – Baking & Misc. Dry Goods' ? '🧁 Baking & Misc' :
+                   category === 'Fridge' ? '❄️ Fridge' : category}
+                </button>
+              ))}
+            </div>
+            
             <div style={{display: 'flex', gap: '2rem', minHeight: '600px'}}>
               {/* Left Half - Inventory List */}
               <div style={{flex: '1', maxWidth: '50%'}}>
                 <div style={styles.inventoryList}>
-                  {pantryItems.length === 0 ? (
+                  {filteredPantryItems.length === 0 ? (
                     <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
                       <img src="/grocery icon 2.png" alt="Grocery Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
                       <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem'}}>
-                        🕵️‍♀️ Laurie's stash is suspiciously empty... Time for a "Snack Attack"!
+                        {pantryCategoryFilter === 'all' 
+                          ? "🕵️‍♀️ Laurie's stash is suspiciously empty... Time for a 'Snack Attack'!"
+                          : `📦 No items found in ${pantryCategoryFilter === 'Pantry – Staples' ? 'Staples' :
+                             pantryCategoryFilter === 'Pantry – Oils, Vinegars & Condiments' ? 'Oils & Condiments' :
+                             pantryCategoryFilter === 'Pantry – Cereals' ? 'Cereals' :
+                             pantryCategoryFilter === 'Pantry – Pasta' ? 'Pasta' :
+                             pantryCategoryFilter === 'Pantry – Rice & Grains' ? 'Rice & Grains' :
+                             pantryCategoryFilter === 'Pantry – Baking & Misc. Dry Goods' ? 'Baking & Misc' :
+                             pantryCategoryFilter === 'Fridge' ? 'Fridge' : pantryCategoryFilter}`
+                        }
                       </p>
                     </div>
                   ) : (
-                pantryItems.map((item, index) => {
+                filteredPantryItems.map((item, index) => {
                   const getStatusStyle = () => {
                     if (item.currentCount === 0) return styles.statusOut;
                     if (item.currentCount <= item.minCount) return styles.statusLow;
@@ -2655,7 +2736,7 @@ function App() {
               
               {/* Right Half - Analytics */}
               <div style={{flex: '1', maxWidth: '50%'}}>
-                <PantryAnalytics pantryItems={pantryItems} />
+                <PantryAnalytics pantryItems={filteredPantryItems} />
               </div>
             </div>
           </div>
