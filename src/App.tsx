@@ -780,14 +780,14 @@ function App() {
             textAlign: 'center',
             textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
           }}>
-            🎯 Add New Treasure to Hunt!
+            ✨ Add New Item to List
           </h2>
           
           <form onSubmit={handleSubmit}>
             <div style={{display: 'grid', gap: '1.5rem'}}>
               <input
                 type="text"
-                placeholder="🏆 What treasure are we hunting? (e.g., Golden Bananas)"
+                placeholder="What would you like to add? (e.g., Organic Bananas)"
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                 required
@@ -806,7 +806,7 @@ function App() {
               <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
                 <input
                   type="text"
-                  placeholder="🗂️ Category"
+                  placeholder="📂 Category"
                   value={formData.category}
                   onChange={(e) => setFormData({...formData, category: e.target.value})}
                   style={{
@@ -835,7 +835,7 @@ function App() {
               <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
                 <div>
                   <label style={{color: '#ffd700', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold'}}>
-                    ⚖️ Quantity
+                    📊 Quantity
                   </label>
                   <input
                     type="number"
@@ -853,7 +853,7 @@ function App() {
                 </div>
                 <div>
                   <label style={{color: '#ffd700', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold'}}>
-                    🚨 Priority Level
+                    📈 Priority Level
                   </label>
                   <select
                     value={formData.priority}
@@ -868,15 +868,15 @@ function App() {
                       cursor: 'pointer'
                     }}
                   >
-                    <option value="High">🔥 High Priority</option>
-                    <option value="Medium">⚡ Medium Priority</option>
-                    <option value="Low">🌟 Low Priority</option>
+                    <option value="High">🔴 High Priority</option>
+                    <option value="Medium">🟡 Medium Priority</option>
+                    <option value="Low">🟢 Low Priority</option>
                   </select>
                 </div>
               </div>
               
               <textarea
-                placeholder="📜 Quest notes... (any special instructions for this treasure hunt?)"
+                placeholder="📝 Notes... (any special instructions or preferences?)"
                 value={formData.notes}
                 onChange={(e) => setFormData({...formData, notes: e.target.value})}
                 rows={3}
@@ -907,7 +907,7 @@ function App() {
                   fontWeight: 'bold'
                 }}
               >
-                🚪 Abandon Quest
+                ❌ Cancel
               </button>
               <button
                 type="submit"
@@ -923,7 +923,7 @@ function App() {
                   boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
                 }}
               >
-                🗺️ Start the Hunt!
+                ✅ Add to List
               </button>
             </div>
           </form>
