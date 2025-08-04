@@ -428,10 +428,35 @@ const styles = {
     transition: 'all 0.3s ease',
     fontFamily: "'Fredoka', system-ui, sans-serif"
   },
-  activeTab: {
-    background: 'transparent',
+  tabShopping: {
+    background: 'rgba(251, 146, 60, 0.1)', // Orange tint for shopping
+    borderLeft: '3px solid #fb923c'
+  },
+  tabShoppingHover: {
+    background: 'rgba(251, 146, 60, 0.2)',
+    color: 'rgba(255,255,255,0.8)',
+    transform: 'translateY(-1px)'
+  },
+  tabShoppingActive: {
+    background: 'linear-gradient(135deg, rgba(251, 146, 60, 0.3), rgba(236, 72, 153, 0.2))',
     color: 'white',
-    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.2)'
+    boxShadow: '0 10px 15px -3px rgba(251, 146, 60, 0.3)',
+    borderLeft: '3px solid #fb923c'
+  },
+  tabPantry: {
+    background: 'rgba(16, 185, 129, 0.1)', // Forest green tint for pantry
+    borderLeft: '3px solid #10b981'
+  },
+  tabPantryHover: {
+    background: 'rgba(16, 185, 129, 0.2)',
+    color: 'rgba(255,255,255,0.8)',
+    transform: 'translateY(-1px)'
+  },
+  tabPantryActive: {
+    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(59, 130, 246, 0.2))',
+    color: 'white',
+    boxShadow: '0 10px 15px -3px rgba(16, 185, 129, 0.3)',
+    borderLeft: '3px solid #10b981'
   }
 };
 function App() {
@@ -447,6 +472,7 @@ function App() {
   const [detectedItems, setDetectedItems] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'shopping' | 'pantry'>('shopping');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [hoveredTab, setHoveredTab] = useState<'shopping' | 'pantry' | null>(null);
 
   // Fetch data on component mount
   useEffect(() => {
@@ -1312,9 +1338,17 @@ function App() {
           <button 
             style={{
               ...styles.tab,
-              ...(activeTab === 'shopping' ? styles.activeTab : {})
+              ...styles.tabShopping,
+              ...(activeTab === 'shopping' 
+                ? styles.tabShoppingActive 
+                : hoveredTab === 'shopping' 
+                ? styles.tabShoppingHover 
+                : {}
+              )
             }}
             onClick={() => setActiveTab('shopping')}
+            onMouseEnter={() => setHoveredTab('shopping')}
+            onMouseLeave={() => setHoveredTab(null)}
           >
             <img src="/grocery icon 1.png" alt="Grocery Icon" style={{width: '20px', height: '20px', objectFit: 'contain', marginRight: '8px'}} />
             Laurie's Loot List
@@ -1322,9 +1356,17 @@ function App() {
           <button 
             style={{
               ...styles.tab,
-              ...(activeTab === 'pantry' ? styles.activeTab : {})
+              ...styles.tabPantry,
+              ...(activeTab === 'pantry' 
+                ? styles.tabPantryActive 
+                : hoveredTab === 'pantry' 
+                ? styles.tabPantryHover 
+                : {}
+              )
             }}
             onClick={() => setActiveTab('pantry')}
+            onMouseEnter={() => setHoveredTab('pantry')}
+            onMouseLeave={() => setHoveredTab(null)}
           >
             <img src="/grocery icon 2.png" alt="Grocery Icon" style={{width: '20px', height: '20px', objectFit: 'contain', marginRight: '8px'}} />
             Laurie's Secret Stash
