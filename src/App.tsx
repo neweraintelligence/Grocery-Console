@@ -1676,6 +1676,36 @@ function App() {
               <p style={styles.subtitle}>Where culinary magic meets smart organization! ✨</p>
             </div>
           </div>
+          <div style={styles.headerActions}>
+            <button
+              style={{
+                padding: '0.75rem 1.25rem',
+                background: 'linear-gradient(to right, rgba(34,197,94,0.6), rgba(22,163,74,0.7))',
+                color: 'white',
+                borderRadius: '0.75rem',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+              onClick={() => window.open('https://docs.google.com/spreadsheets/d/1HtJ5n9WkxkQbtRlaMYxQ9xv_ZISN9lEqoGtgf-7bPO4/edit?gid=899749109#gid=899749109', '_blank')}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(0,0,0,0.2)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0px)';
+                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)';
+              }}
+            >
+              📊 View Spreadsheet
+            </button>
+          </div>
         </div>
       </header>
 
