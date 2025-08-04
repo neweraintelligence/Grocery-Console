@@ -1351,17 +1351,6 @@ function App() {
                 </div>
               ) : (
                 shoppingList.map((item, index) => {
-                  const getPriorityColor = () => {
-                    if (item.source === 'pantry') {
-                      if (item.currentCount === 0) return 'linear-gradient(to right, #ef4444, #ec4899)';
-                      return 'linear-gradient(to right, #eab308, #f97316)';
-                    }
-                    const priority = item.priority?.toLowerCase();
-                    if (priority === 'high') return 'linear-gradient(to right, #ef4444, #ec4899)';
-                    if (priority === 'medium') return 'linear-gradient(to right, #eab308, #f97316)';
-                    return 'linear-gradient(to right, #10b981, #059669)';
-                  };
-                  
                   const getStatusStyle = () => {
                     if (item.source === 'pantry') {
                       if (item.currentCount === 0) return styles.statusOut;
