@@ -27,7 +27,7 @@ interface GroceryItem {
 interface ShoppingListItem {
   id: string;
   name: string;
-  source: 'pantry' | 'grocery';
+  source: 'pantry' | 'grocery' | 'new';
   currentCount?: number;
   minCount?: number;
   needed?: number;
@@ -1200,7 +1200,7 @@ function App() {
     setReviewItems(prevItems => prevItems.filter(item => item.id !== itemId));
   };
 
-  // Function to add items to pantry and remove from shopping list
+  // Function to add a brand-new impulse item to the review list\n  const addImpulseItem = () => {\n    const name = prompt('Enter item name (Impulse Buy):');\n    if (!name || !name.trim()) return;\n    const qtyStr = prompt('Enter quantity:', '1');\n    const qty = qtyStr ? parseInt(qtyStr) : 1;\n    if (isNaN(qty) || qty <= 0) return;\n    const unit = prompt('Enter unit (e.g., pcs, packs):', 'units') || 'units';\n    const newItem = {\n      id: `new-${Date.now()}`,\n      name: name.trim(),\n      quantity: qty,\n      unit,\n      category: 'Misc',\n      source: 'new' as const\n    };\n    setReviewItems(prev => [...prev, newItem]);\n  };\n\n  // Function to add items to pantry and remove from shopping list
   const addItemsToPantry = async () => {
     try {
       // Filter out items with 0 quantity
@@ -1229,21 +1229,23 @@ function App() {
           body: JSON.stringify(pantryData)
         });
 
-        // Remove from shopping list by updating the row to set "On List" to FALSE
-        await fetch(`/api/groceries/${item.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: item.name,
-            category: item.category,
-            currentCount: item.quantity,
-            minCount: 1,
-            unit: item.unit || 'units',
-            notes: item.unit || 'units',
-            onList: false,
-            completed: false
-          })
-        });
+        // If this item originally came from the grocery list, mark it off that list
+        if (item.source === 'grocery') {
+          await fetch(`/api/groceries/${item.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: item.name,
+              category: item.category,
+              currentCount: item.quantity,
+              minCount: 1,
+              unit: item.unit || 'units',
+              notes: item.unit || 'units',
+              onList: false,
+              completed: false
+            })
+          });
+        }
       }
 
       // Refresh data
@@ -1347,7 +1349,7 @@ function App() {
             </button>
           </div>
 
-          {/* Items List */}
+          {/* Impulse add button */}\n          <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>\n            <button\n              onClick={addImpulseItem}\n              style={{\n                padding: '0.5rem 1rem',\n                background: 'linear-gradient(to right, rgba(251,146,60,0.6), rgba(236,72,153,0.6))',\n                color: 'white',\n                border: 'none',\n                borderRadius: '0.75rem',\n                fontWeight: 600,\n                cursor: 'pointer',\n                display: 'flex',\n                alignItems: 'center',\n                gap: '0.5rem',\n                transition: 'all 0.2s ease'\n              }}\n              onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-1px)')}\n              onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0px)')}\n            >\n              ➕ Item (Impulse Buy!)\n            </button>\n          </div>\n\n          {/* Items List */}
           <div style={{
             maxHeight: '50vh',
             overflowY: 'auto',
