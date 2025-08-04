@@ -1902,17 +1902,27 @@ function App() {
                                     alignItems: 'center',
                                     justifyContent: 'center'
                                   }),
-                                  background: 'linear-gradient(to right, rgba(239,68,68,0.6), rgba(220,38,38,0.7))'
+                                  background: 'linear-gradient(to right, rgba(239,68,68,0.4), rgba(220,38,38,0.5))'
                                 }}
                               >
                                 -
                               </button>
                               <div 
-                                style={{textAlign: 'center', cursor: 'pointer'}}
+                                style={{
+                                  textAlign: 'center', 
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  minWidth: '3rem',
+                                  height: '2.2rem',
+                                  padding: '0.25rem 0'
+                                }}
                                 onClick={() => openQuantityModal(item)}
                               >
-                                <p style={styles.stockValue}>{(item.quantity || item.needed || 1) + ' ' + (item.unit || '')}</p>
-                                <p style={styles.stockUnit}>click to edit</p>
+                                <p style={{...styles.stockValue, margin: 0, lineHeight: '1', fontSize: '1.1rem'}}>{(item.quantity || item.needed || 1) + ' ' + (item.unit || '')}</p>
+                                <p style={{...styles.stockUnit, margin: 0, lineHeight: '1', fontSize: '0.65rem'}}>click to edit</p>
                               </div>
                               <button
                                 onClick={() => openQuantityModal(item)}
@@ -1930,7 +1940,7 @@ function App() {
                                     alignItems: 'center',
                                     justifyContent: 'center'
                                   }),
-                                  background: 'linear-gradient(to right, rgba(34,197,94,0.6), rgba(22,163,74,0.7))'
+                                  background: 'linear-gradient(to right, rgba(34,197,94,0.4), rgba(22,163,74,0.5))'
                                 }}
                               >
                                 +
@@ -2083,7 +2093,7 @@ function App() {
                                     alignItems: 'center',
                                     justifyContent: 'center'
                                   }),
-                                  background: 'linear-gradient(to right, rgba(239,68,68,0.6), rgba(220,38,38,0.7))'
+                                  background: 'linear-gradient(to right, rgba(239,68,68,0.4), rgba(220,38,38,0.5))'
                                 }}
                               >
                                 -
@@ -2094,9 +2104,10 @@ function App() {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 minWidth: '3rem',
-                                height: '2.2rem'
+                                height: '2.2rem',
+                                padding: '0.25rem 0'
                               }}>
-                                <p style={{...styles.stockValue, margin: 0, lineHeight: '1'}}>{item.currentCount}</p>
+                                <p style={{...styles.stockValue, margin: 0, lineHeight: '1', fontSize: '1.1rem'}}>{item.currentCount}</p>
                                 <p style={{...styles.stockUnit, margin: 0, lineHeight: '1', fontSize: '0.65rem'}}>{item.unit}</p>
                               </div>
                               <button
@@ -2115,7 +2126,7 @@ function App() {
                                     alignItems: 'center',
                                     justifyContent: 'center'
                                   }),
-                                  background: 'linear-gradient(to right, rgba(34,197,94,0.6), rgba(22,163,74,0.7))'
+                                  background: 'linear-gradient(to right, rgba(34,197,94,0.4), rgba(22,163,74,0.5))'
                                 }}
                               >
                                 +
