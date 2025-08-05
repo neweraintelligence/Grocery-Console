@@ -949,7 +949,8 @@ function App() {
     'Dairy',
     'Meat',
     'Snacks',
-    'Beverages'
+    'Beverages',
+    'CHOCOLATE'
   ];
 
   // Filter pantry items by selected categories
@@ -2936,7 +2937,8 @@ function App() {
                      category === 'Dairy' ? '🥛 Dairy' :
                      category === 'Meat' ? '🥩 Meat' :
                      category === 'Snacks' ? '🍿 Snacks' :
-                     category === 'Beverages' ? '🥤 Beverages' : category}
+                     category === 'Beverages' ? '🥤 Beverages' :
+                     category === 'CHOCOLATE' ? '❤️ CHOCOLATE' : category}
                   </label>
                 ))}
               </div>
@@ -2964,7 +2966,8 @@ function App() {
                              pantryCategoryFilter.includes('Dairy') ? 'Dairy' :
                              pantryCategoryFilter.includes('Meat') ? 'Meat' :
                              pantryCategoryFilter.includes('Snacks') ? 'Snacks' :
-                             pantryCategoryFilter.includes('Beverages') ? 'Beverages' : 'selected categories'}`
+                             pantryCategoryFilter.includes('Beverages') ? 'Beverages' :
+                             pantryCategoryFilter.includes('CHOCOLATE') ? 'CHOCOLATE' : 'selected categories'}`
                         }
                       </p>
                     </div>
