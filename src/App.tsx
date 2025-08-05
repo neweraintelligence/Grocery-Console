@@ -257,10 +257,12 @@ const styles = {
     fontWeight: 'bold',
     color: 'white',
     fontFamily: "'Fredoka', system-ui, sans-serif",
+    margin: 0,
   },
   cardSubtitle: {
     color: 'rgba(255,255,255,0.6)',
     fontSize: '0.875rem',
+    margin: 0,
     marginTop: '0.05rem',
   },
   addBtn: {
@@ -821,6 +823,168 @@ function App() {
   const [loadingRecipes, setLoadingRecipes] = useState(false);
   const [pantryCategoryFilter, setPantryCategoryFilter] = useState<string[]>(['all']);
   const [showWeeksListBox, setShowWeeksListBox] = useState(false);
+  const [bulkMode, setBulkMode] = useState(false);
+  const [bulkText, setBulkText] = useState('');
+
+  // AI categorization function
+  const categorizeItem = (itemName: string): string => {
+    const name = itemName.toLowerCase();
+    
+    // Fresh produce
+    if (name.includes('apple') || name.includes('banana') || name.includes('orange') || 
+        name.includes('grape') || name.includes('berry') || name.includes('fruit') ||
+        name.includes('lettuce') || name.includes('spinach') || name.includes('carrot') ||
+        name.includes('tomato') || name.includes('cucumber') || name.includes('pepper') ||
+        name.includes('onion') || name.includes('potato') || name.includes('broccoli') ||
+        name.includes('celery') || name.includes('avocado') || name.includes('lime') ||
+        name.includes('lemon') || name.includes('garlic') || name.includes('ginger')) {
+      return 'Fresh Produce';
+    }
+    
+    // Dairy & Eggs
+    if (name.includes('milk') || name.includes('cheese') || name.includes('yogurt') ||
+        name.includes('butter') || name.includes('cream') || name.includes('egg') ||
+        name.includes('dairy')) {
+      return 'Dairy & Eggs';
+    }
+    
+    // Meat & Seafood
+    if (name.includes('chicken') || name.includes('beef') || name.includes('pork') ||
+        name.includes('fish') || name.includes('salmon') || name.includes('tuna') ||
+        name.includes('shrimp') || name.includes('meat') || name.includes('turkey') ||
+        name.includes('bacon')) {
+      return 'Meat & Seafood';
+    }
+    
+    // Pantry Staples
+    if (name.includes('rice') || name.includes('pasta') || name.includes('flour') ||
+        name.includes('sugar') || name.includes('salt') || name.includes('oil') ||
+        name.includes('vinegar') || name.includes('sauce') || name.includes('spice') ||
+        name.includes('herb') || name.includes('can') || name.includes('jar')) {
+      return 'Pantry Staples';
+    }
+    
+    // Bakery
+    if (name.includes('bread') || name.includes('bagel') || name.includes('muffin') ||
+        name.includes('croissant') || name.includes('cake') || name.includes('cookie')) {
+      return 'Bakery';
+    }
+    
+    // Beverages
+    if (name.includes('juice') || name.includes('soda') || name.includes('water') ||
+        name.includes('coffee') || name.includes('tea') || name.includes('beer') ||
+        name.includes('wine') || name.includes('drink')) {
+      return 'Beverages';
+    }
+    
+    // Frozen Foods
+    if (name.includes('frozen') || name.includes('ice cream') || name.includes('popsicle')) {
+      return 'Frozen Foods';
+    }
+    
+    // Snacks
+    if (name.includes('chip') || name.includes('cracker') || name.includes('nut') ||
+        name.includes('candy') || name.includes('chocolate') || name.includes('popcorn')) {
+      return 'Snacks';
+    }
+    
+    // Default category
+    return 'Other';
+  };
+
+  // Parse bulk text into individual items
+  const parseBulkText = (text: string) => {
+    const lines = text.split('\n').filter(line => line.trim() !== '');
+    const items = [];
+    
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      if (!trimmedLine) continue;
+      
+      // Try to parse different formats:
+      // Format 1: "quantity unit item" (e.g., "2 lbs apples")
+      // Format 2: "item, quantity unit" (e.g., "apples, 2 lbs")
+      // Format 3: "item - quantity unit" (e.g., "apples - 2 lbs")
+      // Format 4: Just "item" (defaults to 1 piece)
+      
+      let name = '', quantity = 1, unit = 'pieces';
+      
+      // Try format: "2 lbs apples" or "2 apples"
+      const match1 = trimmedLine.match(/^(\d+)\s*([a-zA-Z]*)\s+(.+)$/);
+      if (match1) {
+        quantity = parseInt(match1[1]);
+        unit = match1[2] || 'pieces';
+        name = match1[3];
+      }
+      // Try format: "apples, 2 lbs" or "apples - 2 lbs"
+      else {
+        const match2 = trimmedLine.match(/^(.+?)[,\-]\s*(\d+)\s*([a-zA-Z]*)$/);
+        if (match2) {
+          name = match2[1].trim();
+          quantity = parseInt(match2[2]);
+          unit = match2[3] || 'pieces';
+        }
+        // Default: just the item name
+        else {
+          name = trimmedLine;
+        }
+      }
+      
+      // Clean up unit
+      if (!unit || unit === '') unit = 'pieces';
+      
+      // Categorize the item
+      const category = categorizeItem(name);
+      
+      items.push({
+        name: name.trim(),
+        category,
+        quantity,
+        unit: unit.trim(),
+        priority: 'Medium' as 'High' | 'Medium' | 'Low',
+        notes: ''
+      });
+    }
+    
+    return items;
+  };
+
+  // Handle bulk submission
+  const handleBulkSubmit = async () => {
+    if (!bulkText.trim()) return;
+    
+    const items = parseBulkText(bulkText);
+    let successCount = 0;
+    
+    try {
+      for (const item of items) {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/groceries`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({...item, addedDate: new Date().toISOString(), completed: false}),
+        });
+        
+        if (response.ok) {
+          successCount++;
+        }
+      }
+      
+      if (successCount > 0) {
+        setShowAddModal(false);
+        setBulkText('');
+        setBulkMode(false);
+        fetchShoppingList();
+        
+        // Show success message (you can add a toast notification here)
+        console.log(`Successfully added ${successCount} items to shopping list`);
+      }
+    } catch (error) {
+      console.error('Error adding bulk items:', error);
+    }
+  };
+
   // Fetch data on component mount
   useEffect(() => {
     fetchPantryItems();
@@ -1452,7 +1616,56 @@ function App() {
             ✨ Add New Item to List
           </h2>
           
-          <form onSubmit={handleSubmit}>
+          {/* Toggle between Single and Bulk mode */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginBottom: '1.5rem',
+            background: 'rgba(0,0,0,0.3)',
+            borderRadius: '1rem',
+            padding: '0.5rem',
+            border: '1px solid rgba(255,215,0,0.3)'
+          }}>
+            <button
+              type="button"
+              onClick={() => setBulkMode(false)}
+              style={{
+                flex: 1,
+                padding: '0.75rem 1rem',
+                borderRadius: '0.75rem',
+                border: 'none',
+                background: !bulkMode ? 'rgba(255,215,0,0.3)' : 'transparent',
+                color: '#ffd700',
+                fontSize: '0.9rem',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              📝 Single Add
+            </button>
+            <button
+              type="button"
+              onClick={() => setBulkMode(true)}
+              style={{
+                flex: 1,
+                padding: '0.75rem 1rem',
+                borderRadius: '0.75rem',
+                border: 'none',
+                background: bulkMode ? 'rgba(255,215,0,0.3)' : 'transparent',
+                color: '#ffd700',
+                fontSize: '0.9rem',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              📋 Bulk Add
+            </button>
+          </div>
+
+          {!bulkMode ? (
+            <form onSubmit={handleSubmit}>
             <div style={{display: 'grid', gap: '1.5rem', padding: '0'}}>
               <input
                 type="text"
@@ -2649,7 +2862,7 @@ function App() {
                 </div>
                 <div>
                   <h2 style={styles.cardTitleText}>Laurie's Loot List</h2>
-                  <p style={{...styles.cardSubtitle, marginTop: '0.25rem'}}>Adventures awaiting in the grocery jungle! 🛒✨</p>
+                  <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>Adventures awaiting in the grocery jungle! 🛒✨</p>
                 </div>
               </div>
               <div style={styles.buttonGroup}>
@@ -2842,7 +3055,7 @@ function App() {
                 </div>
                 <div>
                   <h2 style={styles.cardTitleText}>Laurie's Secret Stash</h2>
-                  <p style={{...styles.cardSubtitle, marginTop: '0.25rem'}}>The mysterious depths of the kitchen kingdom! 👑</p>
+                  <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>The mysterious depths of the kitchen kingdom! 👑</p>
                 </div>
               </div>
               <button 
@@ -3246,7 +3459,7 @@ function App() {
                 </div>
                 <div>
                   <h2 style={styles.cardTitleText}>Recipe Inspiration</h2>
-                  <p style={{...styles.cardSubtitle, marginTop: '0.25rem'}}>Delicious ideas based on your pantry ingredients! 👨‍🍳✨</p>
+                  <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>Delicious ideas based on your pantry ingredients! 👨‍🍳✨</p>
                 </div>
               </div>
               <button 
