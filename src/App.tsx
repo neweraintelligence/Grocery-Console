@@ -611,8 +611,8 @@ const styles = {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   },
-  // Item status badges
-  statusBadge: {
+  // Item source badges
+  itemBadge: {
     padding: '0.25rem 0.75rem',
     borderRadius: '9999px',
     fontSize: '0.75rem',
@@ -623,12 +623,12 @@ const styles = {
     alignItems: 'center',
     gap: '0.25rem',
   },
-  statusBadgeSource: {
+  itemBadgeSource: {
     background: 'linear-gradient(135deg, rgba(34,197,94,0.2), rgba(22,163,74,0.3))',
     color: 'rgba(34,197,94,1)',
     border: '1px solid rgba(34,197,94,0.4)',
   },
-  statusBadgeManual: {
+  itemBadgeManual: {
     background: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(37,99,235,0.3))',
     color: 'rgba(59,130,246,1)',
     border: '1px solid rgba(59,130,246,0.4)',
@@ -3143,14 +3143,14 @@ chicken breast, 2 lbs`}
                                 {getDescription()}
                               </span>
                               <span style={{
-                                ...styles.statusBadge,
-                                ...(item.source === 'pantry' ? styles.statusBadgeSource : styles.statusBadgeManual)
+                                ...styles.itemBadge,
+                                ...(item.source === 'pantry' ? styles.itemBadgeSource : styles.itemBadgeManual)
                               }}>
                                 {item.source === 'pantry' ? '🏠 Pantry' : '✋ Manual'}
                               </span>
                               {item.expiryDate && (
                                 <span style={{
-                                  ...styles.statusBadge,
+                                  ...styles.itemBadge,
                                   background: 'linear-gradient(135deg, rgba(251,191,36,0.2), rgba(245,158,11,0.3))',
                                   color: 'rgba(251,191,36,1)',
                                   border: '1px solid rgba(251,191,36,0.4)',
