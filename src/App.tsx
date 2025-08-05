@@ -72,7 +72,7 @@ interface RecipeTemplate {
 const styles = {
   container: {
     minHeight: '100vh',
-    backgroundImage: 'linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url("/cupboard image 1.png")',
+    backgroundImage: 'linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url("/kitchen scene 1.png")',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
@@ -3237,7 +3237,7 @@ function App() {
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
                 <div style={styles.cardIcon}>
-                  <img src="/kitchen icon 2.png" alt="Recipe Icon" style={{width: '60px', height: '60px', objectFit: 'contain'}} />
+                  <img src="/cupboard image 1.png" alt="Recipe Icon" style={{width: '60px', height: '60px', objectFit: 'contain'}} />
                 </div>
                 <div>
                   <h2 style={styles.cardTitleText}>Recipe Inspiration</h2>
@@ -3257,7 +3257,7 @@ function App() {
                 onClick={generateRecipes}
                 disabled={loadingRecipes}
               >
-                <img src="/kitchen icon 2.png" alt="Refresh Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+                <img src="/cupboard image 1.png" alt="Refresh Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
                 {loadingRecipes ? 'Finding Recipes...' : 'Get New Recipes'}
               </button>
             </div>
@@ -3265,7 +3265,7 @@ function App() {
             <div style={{padding: '1rem'}}>
               {recipes.length === 0 ? (
                 <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
-                  <img src="/kitchen icon 2.png" alt="Recipe Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
+                  <img src="/cupboard image 1.png" alt="Recipe Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
                   <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem', marginBottom: '1rem'}}>
                     🍽️ {pantryItems.filter(item => item.currentCount > 0).length === 0 
                       ? "Add some ingredients to your pantry first!" 
