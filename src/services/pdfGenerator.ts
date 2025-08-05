@@ -90,7 +90,7 @@ export class PDFGeneratorService {
     pdf.setFontSize(24);
     pdf.setTextColor(opts.colorScheme === 'blackwhite' ? 0 : 255, 255, 255);
     
-    const title = "🍳 Laurie's Weekly Grocery Adventure";
+    const title = "Laurie's Weekly Grocery Adventure";
     const titleWidth = pdf.getTextWidth(title);
     pdf.text(title, (pageWidth - titleWidth) / 2, 25);
 
@@ -142,7 +142,7 @@ export class PDFGeneratorService {
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(14);
     pdf.setTextColor(opts.colorScheme === 'colorful' ? 16 : 0, opts.colorScheme === 'colorful' ? 185 : 0, opts.colorScheme === 'colorful' ? 129 : 0);
-    pdf.text('📊 Shopping Summary', margin + 5, yPosition + 8);
+    pdf.text('Shopping Summary', margin + 5, yPosition + 8);
 
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(10);
