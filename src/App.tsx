@@ -1453,7 +1453,7 @@ function App() {
           </h2>
           
           <form onSubmit={handleSubmit}>
-            <div style={{display: 'grid', gap: '1.5rem', padding: '0 1rem'}}>
+            <div style={{display: 'grid', gap: '1.5rem', padding: '0 0.5rem'}}>
               <input
                 type="text"
                 placeholder="What would you like to add? (e.g., Organic Bananas)"
@@ -1472,7 +1472,7 @@ function App() {
                 }}
               />
               
-              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', maxWidth: '90%', margin: '0 auto'}}>
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({...formData, category: e.target.value})}
@@ -1507,7 +1507,7 @@ function App() {
                 />
               </div>
               
-              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', maxWidth: '90%', margin: '0 auto'}}>
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
                 <div>
                   <label style={{color: '#ffd700', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold'}}>
                     📊 Quantity
@@ -1562,10 +1562,7 @@ function App() {
                   backgroundColor: 'rgba(139,69,19,0.8)',
                   color: '#ffd700',
                   resize: 'none',
-                  fontFamily: 'inherit',
-                  maxWidth: '90%',
-                  margin: '0 auto',
-                  display: 'block'
+                  fontFamily: 'inherit'
                 }}
               />
             </div>
