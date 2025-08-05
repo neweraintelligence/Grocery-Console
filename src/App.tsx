@@ -180,11 +180,7 @@ const styles = {
     maxWidth: '80rem',
     margin: '0 auto',
     padding: '2rem',
-    zIndex: 1,
-    '@media (max-width: 768px)': {
-      padding: '1rem',
-      margin: '0 0.5rem'
-    }
+    zIndex: 1
   },
   grid: {
     display: 'grid',
@@ -208,22 +204,12 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: '2rem',
-    '@media (max-width: 768px)': {
-      flexDirection: 'column' as const,
-      gap: '1rem',
-      alignItems: 'flex-start'
-    }
+    marginBottom: '2rem'
   },
   cardTitle: {
     display: 'flex',
     alignItems: 'center',
-    gap: '1rem',
-    '@media (max-width: 768px)': {
-      flexDirection: 'column' as const,
-      alignItems: 'flex-start',
-      gap: '0.5rem'
-    }
+    gap: '1rem'
   },
   cardIcon: {
     width: '4rem',
@@ -237,11 +223,7 @@ const styles = {
     fontSize: '2rem',
     fontWeight: 'bold',
     color: 'white',
-    fontFamily: "'Fredoka', system-ui, sans-serif",
-    '@media (max-width: 768px)': {
-      fontSize: '1.5rem',
-      wordWrap: 'break-word' as const
-    }
+    fontFamily: "'Fredoka', system-ui, sans-serif"
   },
   cardSubtitle: {
     color: 'rgba(255,255,255,0.6)',
@@ -273,11 +255,7 @@ const styles = {
   buttonGroup: {
     display: 'flex',
     gap: '1rem',
-    flexWrap: 'wrap' as const,
-    '@media (max-width: 768px)': {
-      gap: '0.5rem',
-      flexDirection: 'column' as const
-    }
+    flexWrap: 'wrap' as const
   },
   inventoryList: {
     display: 'flex',
@@ -288,10 +266,7 @@ const styles = {
     backgroundColor: 'rgba(255,255,255,0.05)',
     backdropFilter: 'blur(10px)',
     borderRadius: '1rem',
-    padding: '1.5rem',
-    '@media (max-width: 768px)': {
-      padding: '1rem'
-    }
+    padding: '1.5rem'
   },
     border: '1px solid rgba(255,255,255,0.1)',
     transition: 'all 0.3s ease',
@@ -300,12 +275,7 @@ const styles = {
   itemContent: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    '@media (max-width: 768px)': {
-      flexDirection: 'column' as const,
-      alignItems: 'flex-start',
-      gap: '0.75rem'
-    }
+    justifyContent: 'space-between'
   },
   itemLeft: {
     display: 'flex',
@@ -470,11 +440,7 @@ const styles = {
   quickStatsGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '2rem',
-    '@media (max-width: 768px)': {
-      gridTemplateColumns: 'repeat(2, 1fr)',
-      gap: '1rem'
-    }
+    gap: '2rem'
   },
   quickStatCard: {
     textAlign: 'center' as const,
@@ -500,11 +466,7 @@ const styles = {
     borderRadius: '1rem',
     padding: '0.5rem',
     marginBottom: '2rem',
-    border: '1px solid rgba(255,255,255,0.15)',
-    '@media (max-width: 768px)': {
-      flexDirection: 'column' as const,
-      gap: '0.25rem'
-    }
+    border: '1px solid rgba(255,255,255,0.15)'
   },
   tab: {
     flex: 1,
@@ -517,11 +479,7 @@ const styles = {
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
-    fontFamily: "'Fredoka', system-ui, sans-serif",
-    '@media (max-width: 768px)': {
-      padding: '0.75rem 1rem',
-      fontSize: '0.875rem'
-    }
+    fontFamily: "'Fredoka', system-ui, sans-serif"
   },
   tabShopping: {
     background: 'rgba(251, 146, 60, 0.1)', // Orange tint for shopping
