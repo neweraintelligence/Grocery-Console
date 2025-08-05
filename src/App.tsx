@@ -943,7 +943,13 @@ function App() {
     'Pantry – Pasta',
     'Pantry – Rice & Grains',
     'Pantry – Baking & Misc. Dry Goods',
-    'Fridge'
+    'Fridge',
+    'Freezer',
+    'Produce',
+    'Dairy',
+    'Meat',
+    'Snacks',
+    'Beverages'
   ];
 
   // Filter pantry items by selected categories
@@ -2924,7 +2930,13 @@ function App() {
                      category === 'Pantry – Pasta' ? '🍝 Pasta' :
                      category === 'Pantry – Rice & Grains' ? '🌾 Rice & Grains' :
                      category === 'Pantry – Baking & Misc. Dry Goods' ? '🧁 Baking & Misc' :
-                     category === 'Fridge' ? '❄️ Fridge' : category}
+                     category === 'Fridge' ? '❄️ Fridge' :
+                     category === 'Freezer' ? '🧊 Freezer' :
+                     category === 'Produce' ? '🥬 Produce' :
+                     category === 'Dairy' ? '🥛 Dairy' :
+                     category === 'Meat' ? '🥩 Meat' :
+                     category === 'Snacks' ? '🍿 Snacks' :
+                     category === 'Beverages' ? '🥤 Beverages' : category}
                   </label>
                 ))}
               </div>
@@ -2946,7 +2958,13 @@ function App() {
                              pantryCategoryFilter.includes('Pantry – Pasta') ? 'Pasta' :
                              pantryCategoryFilter.includes('Pantry – Rice & Grains') ? 'Rice & Grains' :
                              pantryCategoryFilter.includes('Pantry – Baking & Misc. Dry Goods') ? 'Baking & Misc' :
-                             pantryCategoryFilter.includes('Fridge') ? 'Fridge' : 'selected categories'}`
+                             pantryCategoryFilter.includes('Fridge') ? 'Fridge' :
+                             pantryCategoryFilter.includes('Freezer') ? 'Freezer' :
+                             pantryCategoryFilter.includes('Produce') ? 'Produce' :
+                             pantryCategoryFilter.includes('Dairy') ? 'Dairy' :
+                             pantryCategoryFilter.includes('Meat') ? 'Meat' :
+                             pantryCategoryFilter.includes('Snacks') ? 'Snacks' :
+                             pantryCategoryFilter.includes('Beverages') ? 'Beverages' : 'selected categories'}`
                         }
                       </p>
                     </div>
