@@ -1073,6 +1073,85 @@ function App() {
     }
   };
 
+  // Get category-specific emoji icon
+  const getCategoryEmoji = (category: string): string => {
+    const cat = category.toLowerCase();
+    
+    // Fresh Produce
+    if (cat.includes('fresh') || cat.includes('produce')) return '🥬';
+    if (cat.includes('fruit')) return '🍎';
+    if (cat.includes('vegetable')) return '🥕';
+    
+    // Dairy & Eggs
+    if (cat.includes('dairy')) return '🥛';
+    if (cat.includes('egg')) return '🥚';
+    if (cat.includes('milk')) return '🥛';
+    if (cat.includes('cheese')) return '🧀';
+    if (cat.includes('yogurt')) return '🍦';
+    if (cat.includes('butter')) return '🧈';
+    
+    // Meat & Seafood
+    if (cat.includes('meat')) return '🍖';
+    if (cat.includes('seafood') || cat.includes('fish')) return '🐟';
+    if (cat.includes('chicken') || cat.includes('poultry')) return '🍗';
+    if (cat.includes('beef')) return '🥩';
+    if (cat.includes('pork')) return '🥓';
+    
+    // Pantry Staples & Grains
+    if (cat.includes('pantry') || cat.includes('staple')) return '🏺';
+    if (cat.includes('grain') || cat.includes('rice') || cat.includes('quinoa') || cat.includes('oats')) return '🌾';
+    if (cat.includes('pasta')) return '🍝';
+    if (cat.includes('flour') || cat.includes('baking')) return '🥖';
+    if (cat.includes('oil') || cat.includes('vinegar')) return '🫒';
+    if (cat.includes('spice') || cat.includes('herb') || cat.includes('seasoning')) return '🌿';
+    if (cat.includes('sauce') || cat.includes('condiment')) return '🍯';
+    if (cat.includes('can') || cat.includes('jar')) return '🥫';
+    
+    // Bakery
+    if (cat.includes('bakery') || cat.includes('bread')) return '🍞';
+    if (cat.includes('bagel')) return '🥯';
+    if (cat.includes('muffin') || cat.includes('pastry')) return '🧁';
+    if (cat.includes('cake')) return '🎂';
+    if (cat.includes('cookie')) return '🍪';
+    
+    // Beverages
+    if (cat.includes('beverage') || cat.includes('drink')) return '🥤';
+    if (cat.includes('juice')) return '🧃';
+    if (cat.includes('soda') || cat.includes('soft drink')) return '🥤';
+    if (cat.includes('water')) return '💧';
+    if (cat.includes('coffee')) return '☕';
+    if (cat.includes('tea')) return '🍵';
+    if (cat.includes('beer')) return '🍺';
+    if (cat.includes('wine')) return '🍷';
+    
+    // Frozen Foods
+    if (cat.includes('frozen')) return '🧊';
+    if (cat.includes('ice cream')) return '🍨';
+    if (cat.includes('popsicle')) return '🍭';
+    
+    // Snacks
+    if (cat.includes('snack')) return '🍿';
+    if (cat.includes('chip')) return '🥨';
+    if (cat.includes('cracker')) return '🍘';
+    if (cat.includes('nut')) return '🥜';
+    if (cat.includes('candy') || cat.includes('sweet')) return '🍬';
+    if (cat.includes('chocolate')) return '🍫';
+    if (cat.includes('popcorn')) return '🍿';
+    
+    // Health & Personal Care
+    if (cat.includes('health') || cat.includes('pharmacy') || cat.includes('medicine')) return '💊';
+    if (cat.includes('vitamin')) return '💊';
+    if (cat.includes('personal') || cat.includes('hygiene')) return '🧴';
+    
+    // Household & Cleaning
+    if (cat.includes('household') || cat.includes('cleaning')) return '🧽';
+    if (cat.includes('detergent') || cat.includes('soap')) return '🧼';
+    if (cat.includes('paper') || cat.includes('tissue')) return '🧻';
+    
+    // Default fallback
+    return '🛒';
+  };
+
   // Fetch data on component mount
   useEffect(() => {
     fetchPantryItems();
@@ -3114,10 +3193,8 @@ chicken breast, 2 lbs`}
                   };
                   
                   const getItemIcon = () => {
-                    if (item.source === 'pantry') {
-                      return <img src="/grocery icon 2.png" alt="Pantry Item" style={{width: '24px', height: '24px', objectFit: 'contain'}} />;
-                    }
-                    return <img src="/grocery icon 1.png" alt="Shopping Item" style={{width: '24px', height: '24px', objectFit: 'contain'}} />;
+                    const emoji = getCategoryEmoji(item.category || 'other');
+                    return <span style={{fontSize: '1.5rem'}}>{emoji}</span>;
                   };
                   
                   const getDescription = () => {
@@ -3398,43 +3475,8 @@ chicken breast, 2 lbs`}
                   };
                   
                   const getItemIcon = () => {
-                    const category = item.category?.toLowerCase() || '';
-                    
-                    if (category.includes('dairy')) {
-                      return (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5 12V7A7 7 0 0 1 19 7V12A7 7 0 0 1 5 12Z" stroke="white" strokeWidth="2"/>
-                          <path d="M12 7V17" stroke="white" strokeWidth="2"/>
-                        </svg>
-                      );
-                    }
-                    if (category.includes('meat')) {
-                      return (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M20.84 4.61A5.5 5.5 0 0 0 15.5 3H8.5A5.5 5.5 0 0 0 3.16 4.61A2 2 0 0 0 2 6.5V18A2 2 0 0 0 4 20H20A2 2 0 0 0 22 18V6.5A2 2 0 0 0 20.84 4.61Z" fill="white"/>
-                        </svg>
-                      );
-                    }
-                    if (category.includes('produce')) {
-                      return <img src="/grocery icon 1.png" alt="Produce" style={{width: '24px', height: '24px', objectFit: 'contain'}} />;
-                    }
-                    if (category.includes('bakery')) {
-                      return (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M12 2L13.09 8.26L19 9L14 14.27L15.18 21.02L12 17.77L8.82 21.02L10 14.27L5 9L10.91 8.26L12 2Z" fill="white"/>
-                        </svg>
-                      );
-                    }
-                    if (category.includes('pantry') || category.includes('canned')) {
-                      return <img src="/grocery icon 2.png" alt="Pantry" style={{width: '24px', height: '24px', objectFit: 'contain'}} />;
-                    }
-                    
-                    // Default icon
-                    return (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M19 7H16V6A4 4 0 0 0 8 6V7H5A1 1 0 0 0 4 8V19A3 3 0 0 0 7 22H17A3 3 0 0 0 20 19V8A1 1 0 0 0 19 7ZM10 6A2 2 0 0 1 14 6V7H10V6Z" fill="white"/>
-                      </svg>
-                    );
+                    const emoji = getCategoryEmoji(item.category || 'other');
+                    return <span style={{fontSize: '1.5rem'}}>{emoji}</span>;
                   };
                   
                   return (
