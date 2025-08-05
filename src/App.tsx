@@ -1393,7 +1393,7 @@ function App() {
           border: '3px solid rgba(255,215,0,0.6)',
           padding: '2.5rem',
           width: '90%',
-          maxWidth: '550px',
+          maxWidth: '650px',
           boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
           position: 'relative'
         }}>
@@ -1453,7 +1453,7 @@ function App() {
           </h2>
           
           <form onSubmit={handleSubmit}>
-            <div style={{display: 'grid', gap: '1.5rem', padding: '0 0.5rem'}}>
+            <div style={{display: 'grid', gap: '1.5rem', padding: '0'}}>
               <input
                 type="text"
                 placeholder="What would you like to add? (e.g., Organic Bananas)"
@@ -1482,7 +1482,8 @@ function App() {
                     border: '2px solid rgba(255,215,0,0.4)',
                     backgroundColor: 'rgba(139,69,19,0.8)',
                     color: '#ffd700',
-                    fontSize: '1rem'
+                    fontSize: '1rem',
+                    width: '100%'
                   }}
                 >
                   <option value="" disabled style={{backgroundColor: 'rgba(139,69,19,0.9)', color: '#ffd700'}}>📂 Select Category</option>
@@ -1502,7 +1503,8 @@ function App() {
                     borderRadius: '0.75rem',
                     border: '2px solid rgba(255,215,0,0.4)',
                     backgroundColor: 'rgba(139,69,19,0.8)',
-                    color: '#ffd700'
+                    color: '#ffd700',
+                    width: '100%'
                   }}
                 />
               </div>
