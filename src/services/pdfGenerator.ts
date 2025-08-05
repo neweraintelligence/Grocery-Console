@@ -309,7 +309,7 @@ export class PDFGeneratorService {
     pdf.text(pageInfo, pageWidth - margin - pdf.getTextWidth(pageInfo), footerY);
   }
 
-  private getCategoryIcon(category: string): string {
+  private getCategoryIcon(_category: string): string {
     // Return empty string to avoid Unicode icons that may cause encoding issues
     return '';
   }
