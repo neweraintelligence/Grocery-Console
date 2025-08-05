@@ -247,21 +247,23 @@ export class PDFGeneratorService {
         }
 
         // Item details
-        const urgencyEmoji = this.getUrgencyEmoji(item.urgency);
         const quantityText = `${item.quantity} ${item.unit}`;
         const storeText = opts.includeStoreInfo ? ` • ${item.bestStore}` : '';
         
-        // Clean up item name and add checkbox
+        // Clean up item name
         const cleanItemName = this.cleanText(item.name);
-        const checkbox = '☐'; // Empty checkbox
+
+        // Draw checkbox outline
+        pdf.setDrawColor(0, 0, 0);
+        pdf.rect(margin + 2, yPosition + 1, 4, 4);
         
         pdf.setFont('helvetica', 'bold');
-        pdf.text(`${checkbox} ${urgencyEmoji} ${cleanItemName}`, margin + 2, yPosition + 5);
+        pdf.text(`${cleanItemName}`, margin + 8, yPosition + 5);
         
         pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(9);
         pdf.setTextColor(100, 100, 100);
-        pdf.text(`${quantityText}${storeText}`, margin + 2, yPosition + 9);
+        pdf.text(`${quantityText}${storeText}`, margin + 8, yPosition + 9);
 
         // Add reasoning if requested
         if (opts.includeReasoningDetails && item.reasoning.length > 0) {
@@ -308,35 +310,11 @@ export class PDFGeneratorService {
   }
 
   private getCategoryIcon(category: string): string {
-    const icons: Record<string, string> = {
-      'Pantry – Staples': '🏺',
-      'Pantry – Oils, Vinegars & Condiments': '🫒',
-      'Pantry – Cereals': '🥣',
-      'Pantry – Pasta': '🍝',
-      'Pantry – Rice & Grains': '🌾',
-      'Pantry – Baking & Misc. Dry Goods': '🧁',
-      'Fridge': '🧊',
-      'Produce': '🥬',
-      'Dairy': '🥛',
-      'Meat': '🥩',
-      'Frozen': '❄️',
-      'Snacks': '🍿',
-      'Beverages': '🥤',
-      'Cleaning': '🧽',
-      'Personal Care': '🧴'
-    };
-    return icons[category] || '📦';
+    // Return empty string to avoid Unicode icons that may cause encoding issues
+    return '';
   }
 
-  private getUrgencyEmoji(urgency: string): string {
-    const emojis: Record<string, string> = {
-      'critical': '🚨',
-      'high': '🔴',
-      'medium': '🟡',
-      'low': '🟢'
-    };
-    return emojis[urgency] || '⚪';
-  }
+
 
   private formatDateForFilename(date: Date): string {
     return date.toISOString().split('T')[0].replace(/-/g, '_');
