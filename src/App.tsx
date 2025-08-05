@@ -913,6 +913,8 @@ function App() {
   const [showWeeksListBox, setShowWeeksListBox] = useState(false);
   const [bulkMode, setBulkMode] = useState(false);
   const [bulkText, setBulkText] = useState('');
+  const [pantryBulkMode, setPantryBulkMode] = useState(false);
+  const [pantryBulkText, setPantryBulkText] = useState('');
 
   // AI categorization function
   const categorizeItem = (itemName: string): string => {
@@ -1073,6 +1075,112 @@ function App() {
     }
   };
 
+  // Parse bulk text for pantry items (different structure)
+  const parseBulkPantryText = (text: string) => {
+    const lines = text.split('\n').filter(line => line.trim() !== '');
+    const items = [];
+    
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      if (!trimmedLine) continue;
+      
+      // Try to parse different formats:
+      // Format 1: "item name, current amount, min needed" (e.g., "Rice, 5 cups, 2 cups")
+      // Format 2: "current amount item name, min needed" (e.g., "5 cups rice, 2 cups")
+      // Format 3: "item name - current amount" (e.g., "Rice - 5 cups")
+      // Format 4: Just "item name" (defaults to 1 current, 1 min)
+      
+      let name = '', currentCount = 1, minCount = 1, unit = 'pieces';
+      
+      // Try format: "item, current, min" (e.g., "Rice, 5 cups, 2 cups")
+      const commaMatch = trimmedLine.match(/^(.+?),\s*(\d+)\s*([a-zA-Z]*),?\s*(\d+)?\s*([a-zA-Z]*)?$/);
+      if (commaMatch) {
+        name = commaMatch[1].trim();
+        currentCount = parseInt(commaMatch[2]);
+        unit = commaMatch[3] || 'pieces';
+        minCount = commaMatch[4] ? parseInt(commaMatch[4]) : 1;
+      }
+      // Try format: "current amount item, min amount" (e.g., "5 cups rice, 2 cups")
+      else {
+        const complexMatch = trimmedLine.match(/^(\d+)\s*([a-zA-Z]*)\s+(.+?),\s*(\d+)\s*([a-zA-Z]*)?$/);
+        if (complexMatch) {
+          currentCount = parseInt(complexMatch[1]);
+          unit = complexMatch[2] || 'pieces';
+          name = complexMatch[3].trim();
+          minCount = parseInt(complexMatch[4]);
+        }
+        // Try format: "item - amount" (e.g., "Rice - 5 cups")
+        else {
+          const dashMatch = trimmedLine.match(/^(.+?)\s*-\s*(\d+)\s*([a-zA-Z]*)$/);
+          if (dashMatch) {
+            name = dashMatch[1].trim();
+            currentCount = parseInt(dashMatch[2]);
+            unit = dashMatch[3] || 'pieces';
+            minCount = Math.max(1, Math.floor(currentCount * 0.3)); // Set min to 30% of current
+          }
+          // Default: just the item name
+          else {
+            name = trimmedLine;
+          }
+        }
+      }
+      
+      // Clean up unit
+      if (!unit || unit === '') unit = 'pieces';
+      
+      // Categorize the item
+      const category = categorizeItem(name);
+      
+      items.push({
+        name: name.trim(),
+        category,
+        currentCount,
+        minCount,
+        unit: unit.trim(),
+        notes: '',
+        expiryDate: ''
+      });
+    }
+    
+    return items;
+  };
+
+  // Handle bulk pantry submission
+  const handleBulkPantrySubmit = async () => {
+    if (!bulkText.trim()) return;
+    
+    const items = parseBulkPantryText(bulkText);
+    let successCount = 0;
+    
+    try {
+      for (const item of items) {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(item),
+        });
+        
+        if (response.ok) {
+          successCount++;
+        }
+      }
+      
+      if (successCount > 0) {
+        setShowAddModal(false);
+        setBulkText('');
+        setBulkMode(false);
+        fetchPantryItems();
+        
+        // Show success message
+        console.log(`Successfully added ${successCount} items to pantry`);
+      }
+    } catch (error) {
+      console.error('Error adding bulk pantry items:', error);
+    }
+  };
+
   // Get category-specific emoji icon
   const getCategoryEmoji = (category: string): string => {
     const cat = category.toLowerCase();
@@ -1098,9 +1206,9 @@ function App() {
     if (cat.includes('pork')) return '🥓';
     
     // Pantry Staples & Grains
-    if (cat.includes('pantry') || cat.includes('staple')) return '🏺';
+    if (cat.includes('pantry') || cat.includes('staple')) return '🌾';
     if (cat.includes('grain') || cat.includes('rice') || cat.includes('quinoa') || cat.includes('oats')) return '🌾';
-    if (cat.includes('pasta')) return '🍝';
+    if (cat.includes('pasta') || cat.includes('spaghetti') || cat.includes('fusilli') || cat.includes('noodle')) return '🍝';
     if (cat.includes('flour') || cat.includes('baking')) return '🥖';
     if (cat.includes('oil') || cat.includes('vinegar')) return '🫒';
     if (cat.includes('spice') || cat.includes('herb') || cat.includes('seasoning')) return '🌿';
@@ -2231,11 +2339,59 @@ chicken breast, 2 lbs`}
             🏠 Add to Pantry Inventory
           </h2>
           
-          <form onSubmit={handleSubmit}>
-            <div style={{display: 'grid', gap: '1rem'}}>
-              <input
-                type="text"
-                placeholder="What would you like to add to your pantry? (e.g., Extra Virgin Olive Oil)"
+          {/* Toggle buttons for single vs bulk mode */}
+          <div style={{
+            display: 'flex',
+            gap: '0.5rem',
+            marginBottom: '1rem',
+            backgroundColor: 'rgba(30, 58, 138, 0.4)',
+            borderRadius: '0.75rem',
+            padding: '0.25rem'
+          }}>
+            <button
+              type="button"
+              onClick={() => setPantryBulkMode(false)}
+              style={{
+                flex: 1,
+                padding: '0.75rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                backgroundColor: !pantryBulkMode ? 'rgba(59, 130, 246, 0.8)' : 'transparent',
+                color: !pantryBulkMode ? '#ffffff' : '#bfdbfe'
+              }}
+            >
+              Single Item
+            </button>
+            <button
+              type="button"
+              onClick={() => setPantryBulkMode(true)}
+              style={{
+                flex: 1,
+                padding: '0.75rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                backgroundColor: pantryBulkMode ? 'rgba(59, 130, 246, 0.8)' : 'transparent',
+                color: pantryBulkMode ? '#ffffff' : '#bfdbfe'
+              }}
+            >
+              Bulk Add
+            </button>
+          </div>
+          
+          {!pantryBulkMode ? (
+            <form onSubmit={handleSubmit}>
+              <div style={{display: 'grid', gap: '1rem'}}>
+                <input
+                  type="text"
+                  placeholder="What would you like to add to your pantry? (e.g., Extra Virgin Olive Oil)"
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                 required
@@ -2416,6 +2572,37 @@ chicken breast, 2 lbs`}
               </button>
             </div>
           </form>
+          ) : (
+            <div>
+              <label style={styles.bulkLabel}>
+                📝 Paste your pantry list (one item per line)
+              </label>
+              <textarea
+                value={pantryBulkText}
+                onChange={(e) => setPantryBulkText(e.target.value)}
+                placeholder="Rice, 5 cups, 2 cups&#10;Pasta - 3 boxes&#10;Olive Oil, 2 bottles, 1 bottle&#10;Salt&#10;Black Pepper, 1 container, min 1"
+                style={styles.bulkTextarea}
+                rows={8}
+              />
+              
+              <div style={styles.bulkHelp}>
+                💡 <strong>Format examples:</strong><br/>
+                • Item name, current amount, minimum needed<br/>
+                • Item name - current amount<br/>
+                • Just item name (will set defaults)<br/>
+                • Add expiry dates with "expires YYYY-MM-DD"
+              </div>
+              
+              <button
+                type="button"
+                onClick={handleBulkPantrySubmit}
+                style={styles.bulkButton}
+                disabled={!pantryBulkText.trim()}
+              >
+                🏠 Add All to Pantry ({pantryBulkText.split('\n').filter(line => line.trim()).length} items)
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
