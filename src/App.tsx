@@ -2517,8 +2517,7 @@ function App() {
                 e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)';
               }}
             >
-              <img src="/grocery icon 2.png" alt="Spreadsheet Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
-              View Spreadsheet
+              📊 View Spreadsheet
             </button>
             <button
               style={styles.weeksListBtn}
@@ -2532,8 +2531,13 @@ function App() {
                 e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)';
               }}
             >
-              <img src="/grocery icon 3.png" alt="Weeks List Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
-              Weeks List
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span>📥</span>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                  <span>Weeks List</span>
+                  <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>PDF</span>
+                </div>
+              </div>
             </button>
           </div>
         </div>
