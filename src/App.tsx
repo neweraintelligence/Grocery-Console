@@ -79,14 +79,14 @@ const styles = {
     backgroundAttachment: 'fixed',
     fontFamily: "'Inter', system-ui, sans-serif",
     position: 'relative' as const,
-    overflow: 'hidden'
+    overflow: 'hidden',
   },
   backgroundOrbs: {
     position: 'absolute' as const,
     inset: 0,
     overflow: 'hidden',
     pointerEvents: 'none' as const,
-    zIndex: 0
+    zIndex: 0,
   },
   orb1: {
     position: 'absolute' as const,
@@ -97,7 +97,7 @@ const styles = {
     background: 'radial-gradient(circle, rgba(251,146,60,0.2) 0%, rgba(236,72,153,0.2) 100%)',
     borderRadius: '50%',
     filter: 'blur(3rem)',
-    animation: 'pulse 3s ease-in-out infinite'
+    animation: 'pulse 3s ease-in-out infinite',
   },
   orb2: {
     position: 'absolute' as const,
@@ -108,7 +108,7 @@ const styles = {
     background: 'radial-gradient(circle, rgba(34,197,94,0.2) 0%, rgba(59,130,246,0.2) 100%)',
     borderRadius: '50%',
     filter: 'blur(3rem)',
-    animation: 'pulse 3s ease-in-out infinite 1s'
+    animation: 'pulse 3s ease-in-out infinite 1s',
   },
   header: {
     position: 'sticky' as const,
@@ -117,7 +117,7 @@ const styles = {
     borderBottom: '1px solid rgba(255,255,255,0.1)',
     boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
     top: 0,
-    zIndex: 50
+    zIndex: 50,
   },
   headerContent: {
     maxWidth: '80rem',
@@ -125,12 +125,12 @@ const styles = {
     padding: '1.5rem',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
   logoSection: {
     display: 'flex',
     alignItems: 'center',
-    gap: '1rem'
+    gap: '1rem',
   },
   logoIcon: {
     width: '4rem',
@@ -138,7 +138,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '1.5rem'
+    fontSize: '1.5rem',
   },
   title: {
     fontSize: '2.5rem',
@@ -149,48 +149,81 @@ const styles = {
     color: 'transparent',
     fontFamily: "'Fredoka', system-ui, sans-serif",
     margin: '0',
-    lineHeight: '1.2'
+    lineHeight: '1.2',
   },
   subtitle: {
     color: 'rgba(255,255,255,0.7)',
     margin: '0',
     marginTop: '0.125rem',
     fontSize: '0.875rem',
-    fontWeight: '500'
+    fontWeight: '500',
   },
   headerActions: {
     display: 'flex',
     alignItems: 'center',
-    gap: '1rem'
+    gap: '1rem',
   },
   quickAddBtn: {
     padding: '0.75rem 1.5rem',
     background: 'linear-gradient(to right, rgba(16,185,129,0.7), rgba(5,150,105,0.7))',
     color: 'white',
     borderRadius: '0.75rem',
-    fontSize: '0.875rem',
     fontWeight: '600',
-    border: 'none',
+    border: '1px solid rgba(255,255,255,0.2)',
     cursor: 'pointer',
-    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
-    transition: 'all 0.2s ease'
+    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+    transition: 'all 0.2s ease',
+  },
+  spreadsheetBtn: {
+    padding: '0.75rem 1.5rem',
+    background: 'linear-gradient(to right, rgba(75,85,99,0.8), rgba(55,65,81,0.9))',
+    color: 'white',
+    borderRadius: '0.75rem',
+    fontWeight: '600',
+    border: '1px solid rgba(255,255,255,0.2)',
+    cursor: 'pointer',
+    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+    transition: 'all 0.2s ease',
+  },
+  weeksListBtn: {
+    padding: '0.75rem 1.5rem',
+    background: 'linear-gradient(to right, rgba(59,130,246,0.8), rgba(37,99,235,0.9))',
+    color: 'white',
+    borderRadius: '0.75rem',
+    fontWeight: '600',
+    border: '1px solid rgba(255,255,255,0.2)',
+    cursor: 'pointer',
+    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+    transition: 'all 0.2s ease',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'center',
+    gap: '0.25rem',
+  },
+  btnIcon: {
+    fontSize: '0.75rem',
+    marginBottom: '0.25rem',
+  },
+  btnText: {
+    fontSize: '0.75rem',
+    fontWeight: '500',
   },
   main: {
     position: 'relative' as const,
     maxWidth: '80rem',
     margin: '0 auto',
     padding: '2rem',
-    zIndex: 1
+    zIndex: 1,
   },
   grid: {
     display: 'grid',
     gridTemplateColumns: '1fr',
-    gap: '2rem'
+    gap: '2rem',
   },
   gridLarge: {
     '@media (min-width: 1280px)': {
-      gridTemplateColumns: '3fr 2fr'
-    }
+      gridTemplateColumns: '3fr 2fr',
+    },
   },
   card: {
     backgroundColor: 'rgba(0,0,0,0.2)',
@@ -198,18 +231,18 @@ const styles = {
     borderRadius: '1.5rem',
     border: '1px solid rgba(255,255,255,0.1)',
     padding: '2rem',
-    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)'
+    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
   },
   cardHeader: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: '2rem'
+    marginBottom: '2rem',
   },
   cardTitle: {
     display: 'flex',
     alignItems: 'center',
-    gap: '1rem'
+    gap: '1rem',
   },
   cardIcon: {
     width: '4rem',
@@ -217,18 +250,18 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '2rem'
+    fontSize: '2rem',
   },
   cardTitleText: {
     fontSize: '2rem',
     fontWeight: 'bold',
     color: 'white',
-    fontFamily: "'Fredoka', system-ui, sans-serif"
+    fontFamily: "'Fredoka', system-ui, sans-serif",
   },
   cardSubtitle: {
     color: 'rgba(255,255,255,0.6)',
     fontSize: '0.875rem',
-    marginTop: '0.05rem'
+    marginTop: '0.05rem',
   },
   addBtn: {
     padding: '0.75rem 1.5rem',
@@ -239,7 +272,7 @@ const styles = {
     border: '1px solid rgba(255,255,255,0.2)',
     cursor: 'pointer',
     boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-    transition: 'all 0.2s ease'
+    transition: 'all 0.2s ease',
   },
   pantryBtn: {
     padding: '0.75rem 1.5rem',
@@ -250,37 +283,36 @@ const styles = {
     border: '1px solid rgba(255,255,255,0.2)',
     cursor: 'pointer',
     boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-    transition: 'all 0.2s ease'
+    transition: 'all 0.2s ease',
   },
   buttonGroup: {
     display: 'flex',
     gap: '1rem',
-    flexWrap: 'wrap' as const
+    flexWrap: 'wrap' as const,
   },
   inventoryList: {
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: '1rem'
+    gap: '1rem',
   },
   inventoryItem: {
     backgroundColor: 'rgba(255,255,255,0.05)',
     backdropFilter: 'blur(10px)',
     borderRadius: '1rem',
-    padding: '1.5rem'
-  },
+    padding: '1.5rem',
     border: '1px solid rgba(255,255,255,0.1)',
     transition: 'all 0.3s ease',
-    cursor: 'pointer'
+    cursor: 'pointer',
   },
   itemContent: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
   itemLeft: {
     display: 'flex',
     alignItems: 'center',
-    gap: '1rem'
+    gap: '1rem',
   },
   itemIcon: {
     width: '2.5rem',
@@ -288,32 +320,32 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '1.25rem'
+    fontSize: '1.25rem',
   },
   itemDetails: {
     display: 'flex',
-    flexDirection: 'column' as const
+    flexDirection: 'column' as const,
   },
   itemName: {
     color: 'white',
     fontWeight: '600',
-    fontSize: '1.25rem'
+    fontSize: '1.25rem',
   },
   itemCategory: {
     color: 'rgba(255,255,255,0.6)',
-    fontSize: '0.875rem'
+    fontSize: '0.875rem',
   },
   itemRight: {
     display: 'flex',
     alignItems: 'center',
     gap: '1.5rem',
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
   },
   itemRightMobile: {
     display: 'flex',
     flexDirection: 'column' as const,
     alignItems: 'flex-end',
-    gap: '1rem'
+    gap: '1rem',
   },
   mobileButton: {
     width: '2.5rem',
@@ -323,24 +355,24 @@ const styles = {
     color: 'white',
     cursor: 'pointer',
     fontSize: '1.2rem',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   stockInfo: {
-    textAlign: 'center' as const
+    textAlign: 'center' as const,
   },
   stockLabel: {
     color: 'rgba(255,255,255,0.6)',
     fontSize: '0.75rem',
-    marginBottom: '0.25rem'
+    marginBottom: '0.25rem',
   },
   stockValue: {
     color: 'white',
     fontWeight: 'bold',
-    fontSize: '1.5rem'
+    fontSize: '1.5rem',
   },
   stockUnit: {
     color: 'rgba(255,255,255,0.4)',
-    fontSize: '0.75rem'
+    fontSize: '0.75rem',
   },
   statusBadge: {
     padding: '0.75rem 1rem',
@@ -351,22 +383,22 @@ const styles = {
     boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
     minWidth: '90px',
     textAlign: 'center' as const,
-    whiteSpace: 'nowrap' as const
+    whiteSpace: 'nowrap' as const,
   },
   statusLow: {
-    background: 'linear-gradient(to right, rgba(234,179,8,0.7), rgba(249,115,22,0.7))'
+    background: 'linear-gradient(to right, rgba(234,179,8,0.7), rgba(249,115,22,0.7))',
   },
   statusOut: {
     background: 'linear-gradient(to right, rgba(239,68,68,0.7), rgba(236,72,153,0.7))',
-    animation: 'pulse 2s ease-in-out infinite'
+    animation: 'pulse 2s ease-in-out infinite',
   },
   statusGood: {
-    background: 'linear-gradient(to right, rgba(16,185,129,0.7), rgba(5,150,105,0.7))'
+    background: 'linear-gradient(to right, rgba(16,185,129,0.7), rgba(5,150,105,0.7))',
   },
   sidebar: {
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: '1.5rem'
+    gap: '1.5rem',
   },
   sidebarCard: {
     backgroundColor: 'rgba(0,0,0,0.2)',
@@ -374,13 +406,13 @@ const styles = {
     borderRadius: '1.5rem',
     border: '1px solid rgba(255,255,255,0.1)',
     padding: '1.5rem',
-    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)'
+    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
   },
   sidebarHeader: {
     display: 'flex',
     alignItems: 'center',
     gap: '0.75rem',
-    marginBottom: '1.5rem'
+    marginBottom: '1.5rem',
   },
   sidebarIcon: {
     width: '3rem',
@@ -388,77 +420,73 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '1.25rem'
+    fontSize: '1.25rem',
   },
   sidebarTitle: {
     color: 'white',
     fontWeight: 'bold',
     fontSize: '1.25rem',
-    fontFamily: "'Fredoka', system-ui, sans-serif"
+    fontFamily: "'Fredoka', system-ui, sans-serif",
   },
   sidebarSubtitle: {
     color: 'rgba(255,255,255,0.6)',
-    fontSize: '0.875rem'
+    fontSize: '0.875rem',
   },
-  listItem: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: '0.75rem',
-    padding: '1rem',
-    border: '1px solid rgba(255,255,255,0.1)',
-    marginBottom: '0.75rem',
-    transition: 'all 0.2s ease'
-  },
-  statsGrid: {
+  filterContainer: {
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: '1rem'
+    gap: '1rem',
   },
-  statRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  statLabel: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: '0.875rem',
-    fontWeight: '500'
-  },
-  statValue: {
+  filterButton: {
+    padding: '1rem',
+    borderRadius: '0.75rem',
+    color: 'white',
+    fontSize: '0.75rem',
     fontWeight: 'bold',
-    fontSize: '1.5rem'
+    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+    minWidth: '90px',
+    textAlign: 'center' as const,
+    whiteSpace: 'nowrap' as const,
+    transition: 'all 0.2s ease',
   },
-  quickStatsContainer: {
-    backgroundColor: 'rgba(0,0,0,0.3)',
+  filterActive: {
+    background: 'linear-gradient(to right, rgba(16,185,129,0.7), rgba(5,150,105,0.7))',
+  },
+  filterInactive: {
+    background: 'rgba(255,255,255,0.1)',
+  },
+  quickStatsCard: {
+    backgroundColor: 'rgba(0,0,0,0.2)',
     backdropFilter: 'blur(20px)',
     borderRadius: '1.5rem',
     border: '1px solid rgba(255,255,255,0.15)',
     padding: '1.5rem',
     marginBottom: '2rem',
     boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
-    background: 'linear-gradient(135deg, rgba(30, 58, 138, 0.6), rgba(59, 130, 246, 0.4))'
+    background: 'linear-gradient(135deg, rgba(30, 58, 138, 0.6), rgba(59, 130, 246, 0.4))',
   },
   quickStatsGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '2rem'
+    gap: '2rem',
   },
   quickStatCard: {
     textAlign: 'center' as const,
-    padding: '1rem'
+    padding: '1rem',
   },
   quickStatValue: {
     fontSize: '2.5rem',
     fontWeight: 'bold',
     color: 'white',
     margin: '0.5rem 0',
-    fontFamily: "'Fredoka', system-ui, sans-serif"
+    fontFamily: "'Fredoka', system-ui, sans-serif",
   },
   quickStatLabel: {
     color: 'rgba(255,255,255,0.8)',
     fontSize: '0.875rem',
     fontWeight: '500',
     textTransform: 'uppercase' as const,
-    letterSpacing: '0.05em'
+    letterSpacing: '0.05em',
   },
   tabContainer: {
     display: 'flex',
@@ -466,7 +494,7 @@ const styles = {
     borderRadius: '1rem',
     padding: '0.5rem',
     marginBottom: '2rem',
-    border: '1px solid rgba(255,255,255,0.15)'
+    border: '1px solid rgba(255,255,255,0.15)',
   },
   tab: {
     flex: 1,
@@ -479,53 +507,53 @@ const styles = {
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
-    fontFamily: "'Fredoka', system-ui, sans-serif"
+    fontFamily: "'Fredoka', system-ui, sans-serif",
   },
   tabShopping: {
-    background: 'rgba(251, 146, 60, 0.1)', // Orange tint for shopping
-    borderLeft: '3px solid #fb923c'
+    background: 'rgba(251, 146, 60, 0.1)',
+    borderLeft: '3px solid #fb923c',
   },
   tabShoppingHover: {
     background: 'rgba(251, 146, 60, 0.2)',
     color: 'rgba(255,255,255,0.8)',
-    transform: 'translateY(-1px)'
+    transform: 'translateY(-1px)',
   },
   tabShoppingActive: {
     background: 'linear-gradient(135deg, rgba(251, 146, 60, 0.3), rgba(236, 72, 153, 0.2))',
     color: 'white',
     boxShadow: '0 10px 15px -3px rgba(251, 146, 60, 0.3)',
-    borderLeft: '3px solid #fb923c'
+    borderLeft: '3px solid #fb923c',
   },
   tabPantry: {
-    background: 'rgba(16, 185, 129, 0.1)', // Forest green tint for pantry
-    borderLeft: '3px solid #10b981'
+    background: 'rgba(16, 185, 129, 0.1)',
+    borderLeft: '3px solid #10b981',
   },
   tabPantryHover: {
     background: 'rgba(16, 185, 129, 0.2)',
     color: 'rgba(255,255,255,0.8)',
-    transform: 'translateY(-1px)'
+    transform: 'translateY(-1px)',
   },
   tabPantryActive: {
     background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(59, 130, 246, 0.2))',
     color: 'white',
     boxShadow: '0 10px 15px -3px rgba(16, 185, 129, 0.3)',
-    borderLeft: '3px solid #10b981'
+    borderLeft: '3px solid #10b981',
   },
   tabRecipes: {
-    background: 'rgba(168, 85, 247, 0.1)', // Purple tint for recipes
-    borderLeft: '3px solid #a855f7'
+    background: 'rgba(168, 85, 247, 0.1)',
+    borderLeft: '3px solid #a855f7',
   },
   tabRecipesHover: {
     background: 'rgba(168, 85, 247, 0.2)',
     color: 'rgba(255,255,255,0.8)',
-    transform: 'translateY(-1px)'
+    transform: 'translateY(-1px)',
   },
   tabRecipesActive: {
     background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(139, 92, 246, 0.2))',
     color: 'white',
     boxShadow: '0 10px 15px -3px rgba(168, 85, 247, 0.3)',
-    borderLeft: '3px solid #a855f7'
-  }
+    borderLeft: '3px solid #a855f7',
+  },
 };
 
 // PantryAnalytics Component
@@ -2478,21 +2506,7 @@ function App() {
           </div>
           <div style={styles.headerActions}>
             <button
-              style={{
-                padding: '0.75rem 1.25rem',
-                background: 'linear-gradient(to right, rgba(75,85,99,0.8), rgba(55,65,81,0.9))',
-                color: 'white',
-                borderRadius: '0.75rem',
-                fontSize: '0.875rem',
-                fontWeight: '600',
-                border: 'none',
-                cursor: 'pointer',
-                boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
-                transition: 'all 0.2s ease',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}
+              style={styles.spreadsheetBtn}
               onClick={() => window.open('https://docs.google.com/spreadsheets/d/1HtJ5n9WkxkQbtRlaMYxQ9xv_ZISN9lEqoGtgf-7bPO4/edit?gid=899749109#gid=899749109', '_blank')}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-1px)';
@@ -2503,24 +2517,11 @@ function App() {
                 e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)';
               }}
             >
-              📊 View Spreadsheet
+              <img src="/grocery icon 2.png" alt="Spreadsheet Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+              View Spreadsheet
             </button>
             <button
-              style={{
-                padding: '0.75rem 1.25rem',
-                background: 'linear-gradient(to right, rgba(59,130,246,0.8), rgba(37,99,235,0.9))',
-                color: 'white',
-                borderRadius: '0.75rem',
-                fontSize: '0.875rem',
-                fontWeight: '600',
-                border: 'none',
-                cursor: 'pointer',
-                boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
-                transition: 'all 0.2s ease',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}
+              style={styles.weeksListBtn}
               onClick={() => setShowWeeksListBox(true)}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-1px)';
@@ -2531,13 +2532,8 @@ function App() {
                 e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)';
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span>📥</span>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                  <span>Weeks List</span>
-                  <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>PDF</span>
-                </div>
-              </div>
+              <img src="/grocery icon 3.png" alt="Weeks List Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+              Weeks List
             </button>
           </div>
         </div>
@@ -2545,30 +2541,29 @@ function App() {
 
       {/* Quick Stats Section */}
       <div style={{...styles.main, paddingBottom: 0}}>
-        <div style={styles.quickStatsContainer}>
-                  <div style={styles.quickStatsGrid}>
-          <div style={styles.quickStatCard}>
-            <div style={styles.quickStatValue}>{pantryItems.length}</div>
-            <div style={styles.quickStatLabel}>In Pantry</div>
-          </div>
-          <div style={styles.quickStatCard}>
-            <div style={{...styles.quickStatValue, color: '#fbbf24'}}>
-              {pantryItems.filter(item => item.currentCount <= item.minCount).length}
+        <div style={styles.quickStatsCard}>
+          <div style={styles.quickStatsGrid}>
+            <div style={styles.quickStatCard}>
+              <div style={styles.quickStatValue}>{pantryItems.length}</div>
+              <div style={styles.quickStatLabel}>In Pantry</div>
             </div>
-            <div style={styles.quickStatLabel}>Running Low</div>
-          </div>
-          <div style={styles.quickStatCard}>
-            <div style={{...styles.quickStatValue, color: '#f87171'}}>
-              {pantryItems.filter(item => item.currentCount < item.minCount).length}
+            <div style={styles.quickStatCard}>
+              <div style={{...styles.quickStatValue, color: '#fbbf24'}}>
+                {pantryItems.filter(item => item.currentCount <= item.minCount).length}
+              </div>
+              <div style={styles.quickStatLabel}>Running Low</div>
             </div>
-            <div style={styles.quickStatLabel}>Items below minimum</div>
+            <div style={styles.quickStatCard}>
+              <div style={{...styles.quickStatValue, color: '#f87171'}}>
+                {pantryItems.filter(item => item.currentCount < item.minCount).length}
+              </div>
+              <div style={styles.quickStatLabel}>Items below minimum</div>
+            </div>
+            <div style={styles.quickStatCard}>
+              <div style={{...styles.quickStatValue, color: '#6ee7b7'}}>{shoppingList.length}</div>
+              <div style={styles.quickStatLabel}>Need to Buy</div>
+            </div>
           </div>
-          <div style={styles.quickStatCard}>
-            <div style={{...styles.quickStatValue, color: '#6ee7b7'}}>{shoppingList.length}</div>
-            <div style={styles.quickStatLabel}>Need to Buy</div>
-          </div>
-
-        </div>
         </div>
       </div>
 
@@ -2842,13 +2837,7 @@ function App() {
                 </div>
               </div>
               <button 
-                style={{
-                  ...styles.addBtn,
-                  background: 'linear-gradient(to right, rgba(99,102,241,0.4), rgba(139,92,246,0.4))',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
+                style={styles.addBtn}
                 onClick={() => {
                   setModalType('pantry');
                   setShowAddModal(true);
