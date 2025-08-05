@@ -1519,6 +1519,8 @@ function App() {
         
         if (response.ok) {
           setShowAddModal(false);
+          setBulkMode(false);
+          setBulkText('');
           setFormData({
             name: '',
             category: '',
@@ -1563,7 +1565,11 @@ function App() {
         }}>
           {/* Close X button */}
           <button
-            onClick={() => setShowAddModal(false)}
+            onClick={() => {
+              setShowAddModal(false);
+              setBulkMode(false);
+              setBulkText('');
+            }}
             style={{
               position: 'absolute',
               top: '1rem',
@@ -1792,7 +1798,11 @@ function App() {
             }}>
               <button
                 type="button"
-                onClick={() => setShowAddModal(false)}
+                onClick={() => {
+                  setShowAddModal(false);
+                  setBulkMode(false);
+                  setBulkText('');
+                }}
                 style={{
                   flex: '1 1 0',
                   padding: '1rem',
@@ -1832,6 +1842,139 @@ function App() {
               </button>
             </div>
           </form>
+          ) : (
+            /* Bulk Add Mode */
+            <div style={{display: 'grid', gap: '1.5rem'}}>
+              <div>
+                <label style={{
+                  color: '#ffd700',
+                  fontSize: '1rem',
+                  marginBottom: '0.75rem',
+                  display: 'block',
+                  fontWeight: 'bold',
+                  textAlign: 'center'
+                }}>
+                  📋 Paste your grocery list below (one item per line)
+                </label>
+                <textarea
+                  value={bulkText}
+                  onChange={(e) => setBulkText(e.target.value)}
+                  placeholder={`Examples:
+2 lbs apples
+bananas - 6 pieces
+milk, 1 gallon
+bread
+3 bottles olive oil
+chicken breast, 2 lbs`}
+                  rows={8}
+                  style={{
+                    width: '100%',
+                    padding: '1rem',
+                    borderRadius: '1rem',
+                    border: '2px solid rgba(255,215,0,0.4)',
+                    backgroundColor: 'rgba(139,69,19,0.8)',
+                    color: '#ffd700',
+                    fontSize: '0.9rem',
+                    fontFamily: 'monospace',
+                    resize: 'vertical',
+                    minHeight: '200px',
+                    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)'
+                  }}
+                />
+              </div>
+              
+              <div style={{
+                background: 'rgba(0,0,0,0.2)',
+                padding: '1rem',
+                borderRadius: '0.75rem',
+                border: '1px solid rgba(255,215,0,0.2)'
+              }}>
+                <p style={{
+                  color: '#ffd700',
+                  fontSize: '0.8rem',
+                  margin: '0 0 0.5rem 0',
+                  fontWeight: 'bold'
+                }}>
+                  📝 Supported formats:
+                </p>
+                <ul style={{
+                  color: 'rgba(255,215,0,0.8)',
+                  fontSize: '0.75rem',
+                  margin: 0,
+                  paddingLeft: '1.2rem'
+                }}>
+                  <li>"2 lbs apples" or "3 bottles water"</li>
+                  <li>"apples, 2 lbs" or "water - 3 bottles"</li>
+                  <li>"bread" (defaults to 1 piece)</li>
+                </ul>
+                <p style={{
+                  color: 'rgba(255,215,0,0.7)',
+                  fontSize: '0.7rem',
+                  margin: '0.5rem 0 0 0',
+                  fontStyle: 'italic'
+                }}>
+                  🤖 Items will be automatically categorized by AI
+                </p>
+              </div>
+
+              <div style={{
+                display: 'flex', 
+                gap: '1rem', 
+                width: '100%',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBulkText('');
+                    setBulkMode(false);
+                    setShowAddModal(false);
+                  }}
+                  style={{
+                    flex: '1 1 0',
+                    padding: '1rem',
+                    borderRadius: '0.75rem',
+                    border: '2px solid rgba(255,215,0,0.4)',
+                    backgroundColor: 'rgba(139,69,19,0.8)',
+                    color: '#ffd700',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    minWidth: '0',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}
+                >
+                  ❌ Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleBulkSubmit}
+                  disabled={!bulkText.trim()}
+                  style={{
+                    flex: '1 1 0',
+                    padding: '1rem',
+                    borderRadius: '0.75rem',
+                    border: 'none',
+                    background: bulkText.trim() 
+                      ? 'linear-gradient(45deg, #ffd700, #ffed4e)'
+                      : 'rgba(100,100,100,0.5)',
+                    color: bulkText.trim() ? '#8b4513' : '#666',
+                    cursor: bulkText.trim() ? 'pointer' : 'not-allowed',
+                    fontWeight: 'bold',
+                    minWidth: '0',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    boxShadow: bulkText.trim() ? '0 4px 8px rgba(255,215,0,0.3)' : 'none'
+                  }}
+                >
+                  🚀 Add All Items
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
