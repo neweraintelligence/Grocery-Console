@@ -1779,7 +1779,8 @@ function App() {
                     border: '2px solid rgba(59, 130, 246, 0.4)',
                     backgroundColor: 'rgba(30, 58, 138, 0.6)',
                     color: '#bfdbfe',
-                    fontSize: '1rem'
+                    fontSize: '1rem',
+                    width: '100%'
                   }}
                 >
                   <option value="" disabled style={{backgroundColor: 'rgba(30, 58, 138, 0.8)', color: '#bfdbfe'}}>🎪 Select Category</option>
@@ -1799,7 +1800,8 @@ function App() {
                     borderRadius: '0.75rem',
                     border: '2px solid rgba(59, 130, 246, 0.4)',
                     backgroundColor: 'rgba(30, 58, 138, 0.6)',
-                    color: '#bfdbfe'
+                    color: '#bfdbfe',
+                    width: '100%'
                   }}
                 />
               </div>
@@ -1856,7 +1858,8 @@ function App() {
                     backgroundColor: 'rgba(30, 58, 138, 0.6)',
                     color: '#bfdbfe',
                     resize: 'none',
-                    fontFamily: 'inherit'
+                    fontFamily: 'inherit',
+                    width: '100%'
                   }}
                 />
                 <div>
