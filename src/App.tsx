@@ -2472,7 +2472,7 @@ function App() {
             <button
               style={{
                 padding: '0.75rem 1.25rem',
-                background: 'linear-gradient(to right, rgba(34,197,94,0.6), rgba(22,163,74,0.7))',
+                background: 'linear-gradient(to right, rgba(75,85,99,0.8), rgba(55,65,81,0.9))',
                 color: 'white',
                 borderRadius: '0.75rem',
                 fontSize: '0.875rem',
@@ -2500,7 +2500,7 @@ function App() {
             <button
               style={{
                 padding: '0.75rem 1.25rem',
-                background: 'linear-gradient(to right, rgba(16,185,129,0.6), rgba(5,150,105,0.7))',
+                background: 'linear-gradient(to right, rgba(59,130,246,0.8), rgba(37,99,235,0.9))',
                 color: 'white',
                 borderRadius: '0.75rem',
                 fontSize: '0.875rem',
@@ -2523,7 +2523,13 @@ function App() {
                 e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)';
               }}
             >
-              📋 Weeks List
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span>📥</span>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                  <span>Weeks List</span>
+                  <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>PDF</span>
+                </div>
+              </div>
             </button>
           </div>
         </div>
