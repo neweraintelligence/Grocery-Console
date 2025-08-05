@@ -298,13 +298,16 @@ const styles = {
     gap: '1rem',
   },
   inventoryItem: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    backdropFilter: 'blur(10px)',
-    borderRadius: '1rem',
-    padding: '1.5rem',
-    border: '1px solid rgba(255,255,255,0.1)',
-    transition: 'all 0.3s ease',
+    background: 'linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))',
+    backdropFilter: 'blur(15px)',
+    borderRadius: '1.25rem',
+    padding: '1.25rem',
+    border: '1px solid rgba(255,255,255,0.15)',
+    borderLeft: '4px solid rgba(59,130,246,0.6)',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     cursor: 'pointer',
+    position: 'relative' as const,
   },
   itemContent: {
     display: 'flex',
@@ -317,12 +320,16 @@ const styles = {
     gap: '1rem',
   },
   itemIcon: {
-    width: '2.5rem',
-    height: '2.5rem',
+    width: '3rem',
+    height: '3rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '1.25rem',
+    fontSize: '1.5rem',
+    background: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(37,99,235,0.1))',
+    borderRadius: '0.75rem',
+    border: '1px solid rgba(59,130,246,0.3)',
+    boxShadow: '0 4px 12px rgba(59,130,246,0.15)',
   },
   itemDetails: {
     display: 'flex',
@@ -330,12 +337,20 @@ const styles = {
   },
   itemName: {
     color: 'white',
-    fontWeight: '600',
+    fontWeight: '700',
     fontSize: '1.25rem',
+    margin: 0,
+    marginBottom: '0.25rem',
+    lineHeight: '1.3',
   },
   itemCategory: {
-    color: 'rgba(255,255,255,0.6)',
+    color: 'rgba(255,255,255,0.7)',
     fontSize: '0.875rem',
+    margin: 0,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    flexWrap: 'wrap' as const,
   },
   itemRight: {
     display: 'flex',
@@ -555,6 +570,79 @@ const styles = {
     color: 'white',
     boxShadow: '0 10px 15px -3px rgba(168, 85, 247, 0.3)',
     borderLeft: '3px solid #a855f7',
+  },
+  // Bulk Add Modal Styles
+  bulkTextarea: {
+    width: '100%',
+    padding: '1rem',
+    borderRadius: '1rem',
+    border: '2px solid rgba(255,215,0,0.4)',
+    backgroundColor: 'rgba(139,69,19,0.8)',
+    color: '#ffd700',
+    fontSize: '0.9rem',
+    fontFamily: 'monospace',
+    resize: 'vertical' as const,
+    minHeight: '200px',
+    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)',
+  },
+  bulkLabel: {
+    color: '#ffd700',
+    fontSize: '1rem',
+    marginBottom: '0.75rem',
+    display: 'block',
+    fontWeight: 'bold',
+    textAlign: 'center' as const,
+  },
+  bulkHelp: {
+    background: 'rgba(0,0,0,0.2)',
+    padding: '1rem',
+    borderRadius: '0.75rem',
+    border: '1px solid rgba(255,215,0,0.2)',
+  },
+  bulkButton: {
+    flex: '1 1 0',
+    padding: '1rem',
+    borderRadius: '0.75rem',
+    border: 'none',
+    cursor: 'pointer',
+    fontWeight: 'bold',
+    minWidth: '0',
+    whiteSpace: 'nowrap' as const,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
+  // Item status badges
+  statusBadge: {
+    padding: '0.25rem 0.75rem',
+    borderRadius: '9999px',
+    fontSize: '0.75rem',
+    fontWeight: '600',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.025em',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.25rem',
+  },
+  statusBadgeSource: {
+    background: 'linear-gradient(135deg, rgba(34,197,94,0.2), rgba(22,163,74,0.3))',
+    color: 'rgba(34,197,94,1)',
+    border: '1px solid rgba(34,197,94,0.4)',
+  },
+  statusBadgeManual: {
+    background: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(37,99,235,0.3))',
+    color: 'rgba(59,130,246,1)',
+    border: '1px solid rgba(59,130,246,0.4)',
+  },
+  quantityDisplay: {
+    background: 'rgba(0,0,0,0.3)',
+    borderRadius: '0.5rem',
+    padding: '0.5rem 0.75rem',
+    fontSize: '0.875rem',
+    fontWeight: '600',
+    color: 'white',
+    border: '1px solid rgba(255,255,255,0.1)',
+    minWidth: '4rem',
+    textAlign: 'center' as const,
   },
 };
 
@@ -1846,14 +1934,7 @@ function App() {
             /* Bulk Add Mode */
             <div style={{display: 'grid', gap: '1.5rem'}}>
               <div>
-                <label style={{
-                  color: '#ffd700',
-                  fontSize: '1rem',
-                  marginBottom: '0.75rem',
-                  display: 'block',
-                  fontWeight: 'bold',
-                  textAlign: 'center'
-                }}>
+                <label style={styles.bulkLabel}>
                   📋 Paste your grocery list below (one item per line)
                 </label>
                 <textarea
@@ -1867,28 +1948,11 @@ bread
 3 bottles olive oil
 chicken breast, 2 lbs`}
                   rows={8}
-                  style={{
-                    width: '100%',
-                    padding: '1rem',
-                    borderRadius: '1rem',
-                    border: '2px solid rgba(255,215,0,0.4)',
-                    backgroundColor: 'rgba(139,69,19,0.8)',
-                    color: '#ffd700',
-                    fontSize: '0.9rem',
-                    fontFamily: 'monospace',
-                    resize: 'vertical',
-                    minHeight: '200px',
-                    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)'
-                  }}
+                  style={styles.bulkTextarea}
                 />
               </div>
               
-              <div style={{
-                background: 'rgba(0,0,0,0.2)',
-                padding: '1rem',
-                borderRadius: '0.75rem',
-                border: '1px solid rgba(255,215,0,0.2)'
-              }}>
+              <div style={styles.bulkHelp}>
                 <p style={{
                   color: '#ffd700',
                   fontSize: '0.8rem',
@@ -1932,18 +1996,10 @@ chicken breast, 2 lbs`}
                     setShowAddModal(false);
                   }}
                   style={{
-                    flex: '1 1 0',
-                    padding: '1rem',
-                    borderRadius: '0.75rem',
+                    ...styles.bulkButton,
                     border: '2px solid rgba(255,215,0,0.4)',
                     backgroundColor: 'rgba(139,69,19,0.8)',
                     color: '#ffd700',
-                    cursor: 'pointer',
-                    fontWeight: 'bold',
-                    minWidth: '0',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
                   }}
                 >
                   ❌ Cancel
@@ -1953,20 +2009,12 @@ chicken breast, 2 lbs`}
                   onClick={handleBulkSubmit}
                   disabled={!bulkText.trim()}
                   style={{
-                    flex: '1 1 0',
-                    padding: '1rem',
-                    borderRadius: '0.75rem',
-                    border: 'none',
+                    ...styles.bulkButton,
                     background: bulkText.trim() 
                       ? 'linear-gradient(45deg, #ffd700, #ffed4e)'
                       : 'rgba(100,100,100,0.5)',
                     color: bulkText.trim() ? '#8b4513' : '#666',
                     cursor: bulkText.trim() ? 'pointer' : 'not-allowed',
-                    fontWeight: 'bold',
-                    minWidth: '0',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
                     boxShadow: bulkText.trim() ? '0 4px 8px rgba(255,215,0,0.3)' : 'none'
                   }}
                 >
@@ -3090,18 +3138,27 @@ chicken breast, 2 lbs`}
                           </div>
                           <div style={styles.itemDetails}>
                             <h3 style={styles.itemName}>{item.name}</h3>
-                            <p style={styles.itemCategory}>
-                              {getDescription()} • {item.source === 'pantry' ? 'From pantry stock' : 'Manual addition'}
+                            <div style={styles.itemCategory}>
+                              <span style={{fontSize: '0.875rem', color: 'rgba(255,255,255,0.7)'}}>
+                                {getDescription()}
+                              </span>
+                              <span style={{
+                                ...styles.statusBadge,
+                                ...(item.source === 'pantry' ? styles.statusBadgeSource : styles.statusBadgeManual)
+                              }}>
+                                {item.source === 'pantry' ? '🏠 Pantry' : '✋ Manual'}
+                              </span>
                               {item.expiryDate && (
                                 <span style={{
-                                  color: '#fbbf24',
-                                  fontWeight: 'bold',
-                                  marginLeft: '0.5rem'
+                                  ...styles.statusBadge,
+                                  background: 'linear-gradient(135deg, rgba(251,191,36,0.2), rgba(245,158,11,0.3))',
+                                  color: 'rgba(251,191,36,1)',
+                                  border: '1px solid rgba(251,191,36,0.4)',
                                 }}>
-                                  • Expires: {new Date(item.expiryDate).toLocaleDateString()}
+                                  📅 Expires: {new Date(item.expiryDate).toLocaleDateString()}
                                 </span>
                               )}
-                            </p>
+                            </div>
                           </div>
                         </div>
                         <div style={isMobile ? styles.itemRightMobile : styles.itemRight}>
