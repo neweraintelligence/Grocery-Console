@@ -56,7 +56,7 @@ export class PDFGeneratorService {
       // Add header
       this.addHeader(pdf, pageWidth, margin, opts);
       
-      let yPosition = 60; // Start below header
+             let yPosition = 45; // Start below header
 
       // Add summary section
       yPosition = this.addSummarySection(pdf, items, margin, yPosition, contentWidth, opts);
@@ -124,7 +124,7 @@ export class PDFGeneratorService {
     contentWidth: number, 
     opts: PDFGenerationOptions
   ): number {
-    let yPosition = yPos + 10;
+         let yPosition = yPos + 5;
 
     // Summary box
     if (opts.colorScheme === 'colorful') {
