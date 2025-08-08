@@ -209,12 +209,17 @@ app.post('/api/pantry', async (req, res) => {
     console.log('📝 Values being written to Google Sheets:', values);
     console.log('📅 Expiry date in values array:', values[0][7]);
 
-    await sheets.spreadsheets.values.append({
+    console.log('📝 Attempting to write to Pantry sheet...');
+    const result = await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
       range: 'Pantry!A:H',
       valueInputOption: 'USER_ENTERED',
       resource: { values }
     });
+    
+    console.log('✅ Successfully wrote to Pantry sheet:', result.status);
+    console.log('📊 Updated range:', result.data.updates?.updatedRange);
+    console.log('📊 Updated rows:', result.data.updates?.updatedRows);
 
     res.json({ message: 'Pantry item added successfully' });
   } catch (error) {

@@ -2257,7 +2257,7 @@ chicken breast, 2 lbs`}
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       try {
-        console.log('🏠 Adding new pantry item:', formData);
+        console.log('🏠 Adding new pantry item:', `Name: ${formData.name}, Category: ${formData.category}, Count: ${formData.currentCount}, Unit: ${formData.unit}`);
         const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry`, {
           method: 'POST',
           headers: {
