@@ -3719,7 +3719,10 @@ chicken breast, 2 lbs`}
                               gap: '0.75rem'
                             }}>
                               <button
-                                onClick={() => updateItemQuantity(item.id, Math.max(0, item.currentCount - 1), false)}
+                                onClick={() => {
+                                  console.log('🔽 Decrease button clicked for item:', item.id, item.name);
+                                  updateItemQuantity(item.id, Math.max(0, item.currentCount - 1), false);
+                                }}
                                 style={{
                                   width: '2rem',
                                   height: '2rem',
@@ -3765,7 +3768,10 @@ chicken breast, 2 lbs`}
                                 </p>
                               </div>
                               <button
-                                onClick={() => updateItemQuantity(item.id, item.currentCount + 1, true)}
+                                onClick={() => {
+                                  console.log('🔼 Increase button clicked for item:', item.id, item.name);
+                                  updateItemQuantity(item.id, item.currentCount + 1, true);
+                                }}
                                 style={{
                                   width: '2rem',
                                   height: '2rem',
