@@ -224,6 +224,17 @@ app.post('/api/pantry', async (req, res) => {
     console.log(`✅ Successfully added pantry item: ${name}`);
     console.log('📊 Append updatedRange:', result.data && result.data.updates && result.data.updates.updatedRange);
     console.log('📊 Append updatedRows:', result.data && result.data.updates && result.data.updates.updatedRows);
+
+    // Verify by reading back the sheet
+    const verify = await sheets.spreadsheets.values.get({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID,
+      range: 'Pantry!A2:H',
+    });
+    const verifyRows = verify.data.values || [];
+    console.log(`🔎 Verify after append: rows=${verifyRows.length}`);
+    if (verifyRows.length > 0) {
+      console.log('🔎 Last row:', verifyRows[verifyRows.length - 1]);
+    }
     res.json({ message: 'Pantry item added successfully' });
   } catch (error) {
     console.error('Error adding pantry item:', error);
