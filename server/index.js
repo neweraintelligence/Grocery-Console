@@ -63,6 +63,12 @@ async function initializeGoogleSheets() {
 // Get pantry items (current inventory)
 app.get('/api/pantry', async (req, res) => {
     try {
+        res.set({
+            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            'Surrogate-Control': 'no-store',
+        });
         if (!sheets || !process.env.GOOGLE_SHEET_ID) {
             return res.status(500).json({ error: 'Google Sheets not configured' });
         }
@@ -81,6 +87,10 @@ app.get('/api/pantry', async (req, res) => {
             return;
         }
         const rows = response.data.values || [];
+        console.log(`Pantry GET: rows=${rows.length}`);
+        if (rows.length > 0) {
+            console.log('Pantry GET: first row:', rows[0]);
+        }
         const pantryItems = rows
             .filter((row) => row[0] && row[0].trim()) // Only include rows with names
             .map((row, index) => ({
@@ -180,6 +190,16 @@ app.post('/api/pantry', async (req, res) => {
         console.log('✅ Append result status:', result.status);
         console.log('📊 Updated range:', result.data.updates && result.data.updates.updatedRange);
         console.log('📊 Updated rows:', result.data.updates && result.data.updates.updatedRows);
+        // Read back to confirm
+        const verify = await sheets.spreadsheets.values.get({
+            spreadsheetId: process.env.GOOGLE_SHEET_ID,
+            range: 'Pantry!A2:H'
+        });
+        const verifyRows = verify.data.values || [];
+        console.log(`🔎 Verify after append: rows=${verifyRows.length}`);
+        if (verifyRows.length > 0) {
+            console.log('🔎 Last row:', verifyRows[verifyRows.length - 1]);
+        }
         res.json({ message: 'Pantry item added successfully' });
     }
     catch (error) {
