@@ -1304,6 +1304,7 @@ function App() {
       if (response.ok) {
         const data = await response.json();
         console.log('🔍 Frontend: Pantry data received:', data);
+        console.log('🔍 Frontend: First item details:', data[0] ? { id: data[0].id, name: data[0].name, currentCount: data[0].currentCount } : 'No items');
         setPantryItems(Array.isArray(data) ? data : []);
       } else {
         console.error('Failed to fetch pantry items:', response.status);
@@ -1351,6 +1352,7 @@ function App() {
 
   const updateItemQuantity = async (itemId: string, newQuantity: number, _isIncrease: boolean) => {
     try {
+      console.log('🔄 Updating quantity:', { itemId, newQuantity });
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
         method: 'PUT',
         headers: {
@@ -1359,12 +1361,17 @@ function App() {
         body: JSON.stringify({ currentCount: newQuantity }),
       });
       
+      console.log('🔄 Update response status:', response.status);
+      
       if (response.ok) {
+        const responseText = await response.text();
+        console.log('🔄 Update response:', responseText);
         // Refresh data after successful update
         fetchPantryItems();
         fetchShoppingList();
       } else {
-        console.error('Failed to update item quantity');
+        const errorText = await response.text();
+        console.error('Failed to update item quantity:', response.status, errorText);
       }
     } catch (error) {
       console.error('Error updating item quantity:', error);
