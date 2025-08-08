@@ -1304,7 +1304,7 @@ function App() {
       if (response.ok) {
         const data = await response.json();
         console.log('🔍 Frontend: Pantry data received:', data);
-        console.log('🔍 Frontend: First item details:', data[0] ? { id: data[0].id, name: data[0].name, currentCount: data[0].currentCount } : 'No items');
+        console.log('🔍 Frontend: First item details:', data[0] ? `ID: ${data[0].id}, Name: ${data[0].name}, Count: ${data[0].currentCount}` : 'No items');
         setPantryItems(Array.isArray(data) ? data : []);
       } else {
         console.error('Failed to fetch pantry items:', response.status);
