@@ -1758,6 +1758,8 @@ function App() {
   };
 
   const openQuantityModal = (item: ShoppingListItem) => {
+    console.log('📝 Opening quantity modal for:', item.name, 'Current quantity:', item.quantity || item.needed || 1);
+    alert(`Opening quantity modal for: ${item.name} (Current: ${item.quantity || item.needed || 1})`);
     setEditingItem(item);
     setNewQuantity((item.quantity || item.needed || 1).toString());
     setShowQuantityModal(true);
@@ -1772,6 +1774,8 @@ function App() {
       return;
     }
 
+    console.log('🔄 Submitting quantity update for:', editingItem.name, 'New quantity:', quantity);
+    alert(`Submitting update: ${editingItem.name} to ${quantity}`);
     await updateShoppingListQuantity(editingItem.id, quantity);
     setShowQuantityModal(false);
     setEditingItem(null);
