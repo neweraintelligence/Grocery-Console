@@ -279,13 +279,13 @@ app.put('/api/pantry/:id', async (req, res) => {
     const rowId = req.params.id;
     const { currentCount, minCount } = req.body;
 
-    // Update current count (column C) and/or min count (column D) in the Grocery List sheet
+    // Update current count (column C) and/or min count (column D) in the Pantry sheet
     if (currentCount !== undefined && minCount !== undefined) {
       // Update both current and min count
       const values = [[currentCount || 0, minCount || 1]];
       await sheets.spreadsheets.values.update({
         spreadsheetId: process.env.GOOGLE_SHEET_ID,
-        range: `Grocery List!C${rowId}:D${rowId}`,
+        range: `Pantry!C${rowId}:D${rowId}`,
         valueInputOption: 'USER_ENTERED',
         resource: { values }
       });
@@ -294,7 +294,7 @@ app.put('/api/pantry/:id', async (req, res) => {
       const values = [[currentCount || 0]];
       await sheets.spreadsheets.values.update({
         spreadsheetId: process.env.GOOGLE_SHEET_ID,
-        range: `Grocery List!C${rowId}:C${rowId}`,
+        range: `Pantry!C${rowId}:C${rowId}`,
         valueInputOption: 'USER_ENTERED',
         resource: { values }
       });
@@ -303,7 +303,7 @@ app.put('/api/pantry/:id', async (req, res) => {
       const values = [[minCount || 1]];
       await sheets.spreadsheets.values.update({
         spreadsheetId: process.env.GOOGLE_SHEET_ID,
-        range: `Grocery List!D${rowId}:D${rowId}`,
+        range: `Pantry!D${rowId}:D${rowId}`,
         valueInputOption: 'USER_ENTERED',
         resource: { values }
       });
