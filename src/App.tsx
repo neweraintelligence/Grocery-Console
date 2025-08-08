@@ -1738,12 +1738,29 @@ function App() {
   const updateShoppingListQuantity = async (itemId: string, newQuantity: number) => {
     try {
       console.log('🛒 Updating shopping list item:', itemId, 'to quantity:', newQuantity);
+      
+      // Find the item in the shopping list to get its current data
+      const item = shoppingList.find(item => item.id === itemId);
+      if (!item) {
+        console.error('Item not found in shopping list:', itemId);
+        return;
+      }
+      
+      console.log('🛒 Item data:', { name: item.name, unit: item.unit, category: item.category });
+      
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/groceries/${itemId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ currentCount: newQuantity }),
+        body: JSON.stringify({ 
+          name: item.name,
+          category: item.category,
+          currentCount: newQuantity,
+          minCount: item.needed || 1,
+          unit: item.unit || '',
+          notes: item.unit || '' // Notes field is used for UOM
+        }),
       });
       
       if (response.ok) {
