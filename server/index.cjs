@@ -213,14 +213,17 @@ app.post('/api/pantry', async (req, res) => {
       expiryDate || ''
     ]];
 
-    await sheets.spreadsheets.values.append({
+    console.log('📝 Attempting to write to Pantry sheet range: Pantry!A:H');
+    const result = await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
       range: 'Pantry!A:H',
       valueInputOption: 'USER_ENTERED',
       resource: { values }
     });
 
-    console.log(`Successfully added pantry item: ${name}`);
+    console.log(`✅ Successfully added pantry item: ${name}`);
+    console.log('📊 Append updatedRange:', result.data && result.data.updates && result.data.updates.updatedRange);
+    console.log('📊 Append updatedRows:', result.data && result.data.updates && result.data.updates.updatedRows);
     res.json({ message: 'Pantry item added successfully' });
   } catch (error) {
     console.error('Error adding pantry item:', error);
