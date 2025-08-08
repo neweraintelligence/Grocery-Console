@@ -2257,6 +2257,7 @@ chicken breast, 2 lbs`}
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       try {
+        console.log('🏠 Adding new pantry item:', formData);
         const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry`, {
           method: 'POST',
           headers: {
@@ -2265,7 +2266,12 @@ chicken breast, 2 lbs`}
           body: JSON.stringify(formData),
         });
         
+        console.log('🏠 Add pantry response status:', response.status);
+        
         if (response.ok) {
+          const responseText = await response.text();
+          console.log('🏠 Add pantry response:', responseText);
+          console.log('🏠 Refreshing pantry data after adding item...');
           setShowAddModal(false);
           setFormData({
             name: '',
@@ -2278,9 +2284,12 @@ chicken breast, 2 lbs`}
           });
           fetchPantryItems();
           fetchShoppingList();
+        } else {
+          const errorText = await response.text();
+          console.error('Failed to add pantry item:', response.status, errorText);
         }
       } catch (error) {
-        console.error('Error adding item:', error);
+        console.error('Error adding pantry item:', error);
       }
     };
 
