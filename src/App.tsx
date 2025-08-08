@@ -1147,9 +1147,9 @@ function App() {
 
   // Handle bulk pantry submission
   const handleBulkPantrySubmit = async () => {
-    if (!bulkText.trim()) return;
+    if (!pantryBulkText.trim()) return;
     
-    const items = parseBulkPantryText(bulkText);
+    const items = parseBulkPantryText(pantryBulkText);
     let successCount = 0;
     
     try {
@@ -1169,8 +1169,8 @@ function App() {
       
       if (successCount > 0) {
         setShowAddModal(false);
-        setBulkText('');
-        setBulkMode(false);
+        setPantryBulkText('');
+        setPantryBulkMode(false);
         fetchPantryItems();
         
         // Show success message

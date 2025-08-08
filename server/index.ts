@@ -212,6 +212,27 @@ app.post('/api/pantry', async (req, res) => {
       values[0][0], values[0][1], values[0][2], values[0][3], values[0][4], values[0][5], values[0][6], values[0][7]);
 
     console.log('📝 Attempting to write to Pantry sheet range: Pantry!A:H');
+
+    // Ensure Pantry sheet exists; if missing, create header row first
+    try {
+      await sheets.spreadsheets.values.get({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'Pantry!A1:A1',
+      });
+    } catch (sheetMissingErr) {
+      console.log('ℹ️ Pantry sheet not found. Creating with headers...');
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'Pantry!A1:H1',
+        valueInputOption: 'USER_ENTERED',
+        resource: {
+          values: [[
+            'Name', 'Category', 'Current Count', 'Min Count', 'Unit', 'Last Updated', 'Notes', 'Expiry Date'
+          ]]
+        }
+      });
+    }
+
     const result = await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
       range: 'Pantry!A:H',

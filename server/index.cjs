@@ -164,24 +164,45 @@ app.post('/api/pantry', async (req, res) => {
       return res.status(500).json({ error: 'Google Sheets not configured' });
     }
 
-    const { name, category, currentCount, minCount, unit, notes } = req.body;
-    console.log(`Adding pantry item:`, { name, category, currentCount, minCount, unit, notes });
+    const { name, category, currentCount, minCount, unit, notes, expiryDate } = req.body;
+    console.log(`Adding pantry item:`, { name, category, currentCount, minCount, unit, notes, expiryDate });
 
-    // Add to Pantry sheet: Name, Category, Current Count, Min Count, Unit, Last Updated, Notes
+    // Ensure Pantry sheet exists; if missing, create with headers
+    try {
+      await sheets.spreadsheets.values.get({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'Pantry!A1:A1',
+      });
+    } catch (sheetMissingErr) {
+      console.log('Pantry sheet not found. Creating header row...');
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'Pantry!A1:H1',
+        valueInputOption: 'USER_ENTERED',
+        resource: {
+          values: [[
+            'Name', 'Category', 'Current Count', 'Min Count', 'Unit', 'Last Updated', 'Notes', 'Expiry Date'
+          ]]
+        }
+      });
+    }
+
+    // Add to Pantry sheet: Name, Category, Current Count, Min Count, Unit, Last Updated, Notes, Expiry Date
     const lastUpdated = new Date().toISOString().split('T')[0];
     const values = [[
-      name, 
-      category || '', 
-      currentCount || 0, 
-      minCount || 1, 
-      unit || 'units', 
-      lastUpdated, // Last Updated
-      notes || '' // Notes
+      name,
+      category || '',
+      currentCount || 0,
+      minCount || 1,
+      unit || 'units',
+      lastUpdated,
+      notes || '',
+      expiryDate || ''
     ]];
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Pantry!A:G',
+      range: 'Pantry!A:H',
       valueInputOption: 'USER_ENTERED',
       resource: { values }
     });
