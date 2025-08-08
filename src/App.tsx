@@ -1737,7 +1737,8 @@ function App() {
 
   const updateShoppingListQuantity = async (itemId: string, newQuantity: number) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
+      console.log('🛒 Updating shopping list item:', itemId, 'to quantity:', newQuantity);
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/groceries/${itemId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
