@@ -26,7 +26,10 @@ app.use(cors({
     'http://localhost:5178',
     process.env.FRONTEND_URL || ''
   ].filter(Boolean),
-  credentials: true
+  credentials: true,
+  methods: ['GET','HEAD','PUT','PATCH','POST','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization','X-Requested-With','Accept','Origin'],
+  exposedHeaders: ['Content-Length','X-Kuma-Revision']
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

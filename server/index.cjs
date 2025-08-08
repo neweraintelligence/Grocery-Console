@@ -27,15 +27,16 @@ app.use(cors({
     process.env.FRONTEND_URL || ''
   ].filter(Boolean),
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET','HEAD','PUT','PATCH','POST','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization','X-Requested-With','Accept','Origin'],
+  exposedHeaders: ['Content-Length','X-Kuma-Revision']
 }));
 
 // Add CORS headers to all responses
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', 'https://grocery-dashboard-frontend.onrender.com');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin, Cache-Control');
   res.header('Access-Control-Allow-Credentials', 'true');
   next();
 });

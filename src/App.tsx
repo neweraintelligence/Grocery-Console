@@ -1299,7 +1299,7 @@ function App() {
       console.log('🔍 Frontend: Calling pantry endpoint...');
       const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry?t=${Date.now()}`;
       console.log('🔍 Frontend: API URL:', apiUrl);
-      const response = await fetch(apiUrl, { cache: 'no-store', headers: { 'Cache-Control': 'no-store' } });
+      const response = await fetch(apiUrl, { cache: 'no-store' });
       console.log('🔍 Frontend: Pantry response status:', response.status);
       if (response.ok) {
         const data = await response.json();
