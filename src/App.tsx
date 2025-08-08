@@ -1365,13 +1365,14 @@ function App() {
       
       if (response.ok) {
         const responseText = await response.text();
-        console.log('🔄 Update response:', responseText);
+        console.log('🔄 Pantry update response:', responseText);
+        console.log('🔄 Refreshing pantry data...');
         // Refresh data after successful update
         fetchPantryItems();
         fetchShoppingList();
       } else {
         const errorText = await response.text();
-        console.error('Failed to update item quantity:', response.status, errorText);
+        console.error('Failed to update pantry item quantity:', response.status, errorText);
       }
     } catch (error) {
       console.error('Error updating item quantity:', error);
@@ -1746,7 +1747,7 @@ function App() {
         return;
       }
       
-      console.log('🛒 Item data:', { name: item.name, unit: item.unit, category: item.category });
+      console.log('🛒 Item data:', `Name: ${item.name}, Unit: ${item.unit || 'none'}, Category: ${item.category}`);
       
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/groceries/${itemId}`, {
         method: 'PUT',
