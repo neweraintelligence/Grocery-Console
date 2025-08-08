@@ -107,6 +107,13 @@ interface PantryHistoryItem {
 // Get pantry items (current inventory)
 app.get('/api/pantry', async (req, res) => {
   try {
+    // Disable caching of pantry reads to ensure UI reflects latest writes
+    res.set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      Pragma: 'no-cache',
+      Expires: '0',
+      'Surrogate-Control': 'no-store',
+    });
     if (!sheets || !process.env.GOOGLE_SHEET_ID) {
       return res.status(500).json({ error: 'Google Sheets not configured' });
     }
@@ -150,6 +157,12 @@ app.get('/api/pantry', async (req, res) => {
 // Get grocery list (shopping items)
 app.get('/api/groceries', async (req, res) => {
   try {
+    res.set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      Pragma: 'no-cache',
+      Expires: '0',
+      'Surrogate-Control': 'no-store',
+    });
     if (!sheets || !process.env.GOOGLE_SHEET_ID) {
       return res.status(500).json({ error: 'Google Sheets not configured' });
     }
@@ -407,6 +420,12 @@ app.delete('/api/groceries/:id', async (req, res) => {
 // Get shopping list (items running low)
 app.get('/api/shopping-list', async (req, res) => {
   try {
+    res.set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      Pragma: 'no-cache',
+      Expires: '0',
+      'Surrogate-Control': 'no-store',
+    });
     if (!sheets || !process.env.GOOGLE_SHEET_ID) {
       return res.status(500).json({ error: 'Google Sheets not configured' });
     }
