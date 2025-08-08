@@ -240,13 +240,13 @@ app.post('/api/groceries', async (req, res) => {
       return res.status(500).json({ error: 'Google Sheets not configured' });
     }
 
-    const { name, category, currentCount, minCount, unit, notes } = req.body;
+    const { name, category, currentCount, quantity, minCount, unit, notes } = req.body;
     const lastUpdated = new Date().toISOString().split('T')[0];
 
     const values = [[
       name, 
       category || '', 
-      currentCount || 0, 
+      currentCount || quantity || 0, 
       minCount || 1, 
       unit || 'units', 
       'TRUE', // Set On List to TRUE so it shows up on shopping list
