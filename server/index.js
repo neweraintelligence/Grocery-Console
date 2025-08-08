@@ -155,12 +155,31 @@ app.post('/api/pantry', async (req, res) => {
             ]];
         console.log('📝 Values being written to Google Sheets:', values);
         console.log('📅 Expiry date in values array:', values[0][7]);
-        await sheets.spreadsheets.values.append({
+        // Ensure Pantry sheet exists, create headers if missing
+        try {
+            await sheets.spreadsheets.values.get({
+                spreadsheetId: process.env.GOOGLE_SHEET_ID,
+                range: 'Pantry!A1:A1',
+            });
+        }
+        catch (sheetMissingErr) {
+            console.log('ℹ️ Pantry sheet missing. Creating headers...');
+            await sheets.spreadsheets.values.update({
+                spreadsheetId: process.env.GOOGLE_SHEET_ID,
+                range: 'Pantry!A1:H1',
+                valueInputOption: 'USER_ENTERED',
+                resource: { values: [['Name', 'Category', 'Current Count', 'Min Count', 'Unit', 'Last Updated', 'Notes', 'Expiry Date']] }
+            });
+        }
+        const result = await sheets.spreadsheets.values.append({
             spreadsheetId: process.env.GOOGLE_SHEET_ID,
             range: 'Pantry!A:H',
             valueInputOption: 'USER_ENTERED',
             resource: { values }
         });
+        console.log('✅ Append result status:', result.status);
+        console.log('📊 Updated range:', result.data.updates && result.data.updates.updatedRange);
+        console.log('📊 Updated rows:', result.data.updates && result.data.updates.updatedRows);
         res.json({ message: 'Pantry item added successfully' });
     }
     catch (error) {
