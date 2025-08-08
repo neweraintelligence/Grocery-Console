@@ -3720,6 +3720,7 @@ chicken breast, 2 lbs`}
                             }}>
                               <button
                                 onClick={() => {
+                                  alert(`Decrease button clicked! Item: ${item.name} (ID: ${item.id})`);
                                   console.log('🔽 Decrease button clicked for item:', item.id, item.name);
                                   updateItemQuantity(item.id, Math.max(0, item.currentCount - 1), false);
                                 }}
@@ -3769,6 +3770,7 @@ chicken breast, 2 lbs`}
                               </div>
                               <button
                                 onClick={() => {
+                                  alert(`Increase button clicked! Item: ${item.name} (ID: ${item.id})`);
                                   console.log('🔼 Increase button clicked for item:', item.id, item.name);
                                   updateItemQuantity(item.id, item.currentCount + 1, true);
                                 }}
