@@ -2258,10 +2258,16 @@ chicken breast, 2 lbs`}
       e.preventDefault();
       try {
         console.log('🏠 Adding new pantry item:', `Name: ${formData.name}, Category: ${formData.category}, Count: ${formData.currentCount}, Unit: ${formData.unit}`);
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry`, {
+        const timestamp = Date.now();
+        const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry?t=${timestamp}`;
+        console.log('🏠 POST URL:', apiUrl);
+        console.log('🏠 POST body:', JSON.stringify(formData));
+        const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
           },
           body: JSON.stringify(formData),
         });
