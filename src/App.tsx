@@ -2266,8 +2266,6 @@ chicken breast, 2 lbs`}
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
           },
           body: JSON.stringify(formData),
         });
