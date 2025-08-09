@@ -139,16 +139,23 @@ app.get('/api/pantry', async (req, res) => {
     const rows = response.data.values || [];
     const pantryItems: GroceryItem[] = rows
       .filter((row: any[]) => row[0] && row[0].trim()) // Only include rows with names
-      .map((row: any[], index: number) => ({
-        id: (index + 2).toString(), // Row number as ID
-        name: cleanTextData(row[0] || ''),
-        category: cleanTextData(row[1] || ''),
-        currentCount: parseFloat(row[2]) || 0,
-        minCount: parseFloat(row[3]) || 1,
-        unit: cleanTextData(row[4] || 'units'),
-        lastUpdated: row[5] || new Date().toLocaleDateString(),
-        notes: cleanTextData(row[6] || ''),
-        expiryDate: row[7] || '' // Column H (index 7) is Expiry Date
+      .map((row: any[], index: number) => {
+        // Debug specific items
+        if (row[0] && row[0].includes('Philadelphia')) {
+          console.log(`🔍 Google Sheets Debug - ${row[0]}: row[2]="${row[2]}" (type: ${typeof row[2]}) -> parseFloat: ${parseFloat(row[2])}`);
+        }
+        
+        return {
+          id: (index + 2).toString(), // Row number as ID
+          name: cleanTextData(row[0] || ''),
+          category: cleanTextData(row[1] || ''),
+          currentCount: parseFloat(row[2]) || 0,
+          minCount: parseFloat(row[3]) || 1,
+          unit: cleanTextData(row[4] || 'units'),
+          lastUpdated: row[5] || new Date().toLocaleDateString(),
+          notes: cleanTextData(row[6] || ''),
+          expiryDate: row[7] || '' // Column H (index 7) is Expiry Date
+        };
       }));
 
     res.json(pantryItems);
