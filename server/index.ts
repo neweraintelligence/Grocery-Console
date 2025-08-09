@@ -110,6 +110,42 @@ interface PantryHistoryItem {
 
 // Get pantry items (current inventory)
 app.get('/api/pantry', async (req, res) => {
+  // EMERGENCY TEST: Return test data to verify fraction display works
+  if (req.query.test === 'fractions') {
+    console.log('🚨 EMERGENCY TEST: Returning test fraction data');
+    return res.json([
+      {
+        id: '999',
+        name: 'FRACTION TEST: Quarter',
+        category: 'TEST',
+        currentCount: 0.25,
+        minCount: 1,
+        unit: 'container',
+        lastUpdated: '2025-08-09',
+        notes: 'Should show ¼'
+      },
+      {
+        id: '998', 
+        name: 'FRACTION TEST: Two Fifths',
+        category: 'TEST',
+        currentCount: 0.4,
+        minCount: 1,
+        unit: 'cup',
+        lastUpdated: '2025-08-09',
+        notes: 'Should show ⅖'
+      },
+      {
+        id: '997',
+        name: 'FRACTION TEST: Half',
+        category: 'TEST', 
+        currentCount: 0.5,
+        minCount: 1,
+        unit: 'cup',
+        lastUpdated: '2025-08-09',
+        notes: 'Should show ½'
+      }
+    ]);
+  }
   try {
     // Disable caching of pantry reads to ensure UI reflects latest writes
     res.set({
