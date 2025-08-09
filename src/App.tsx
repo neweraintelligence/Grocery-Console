@@ -3631,34 +3631,6 @@ chicken breast, 2 lbs`}
                 fontWeight: 'bold',
                 marginBottom: '0.75rem'
               }}>
-                🔄 Sort by:
-              </div>
-              <select
-                value={pantrySortBy}
-                onChange={(e) => setPantrySortBy(e.target.value as 'name' | 'status-critical' | 'status-good' | 'category')}
-                style={{
-                  width: '100%',
-                  padding: '0.5rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  background: 'rgba(0,0,0,0.8)',
-                  color: 'white',
-                  fontSize: '0.75rem',
-                  marginBottom: '1rem'
-                }}
-              >
-                <option value="name" style={{background: 'rgba(0,0,0,0.9)', color: 'white'}}>📝 Name (A-Z)</option>
-                <option value="status-critical" style={{background: 'rgba(0,0,0,0.9)', color: 'white'}}>🚨 Status (Critical First)</option>
-                <option value="status-good" style={{background: 'rgba(0,0,0,0.9)', color: 'white'}}>✅ Status (Good First)</option>
-                <option value="category" style={{background: 'rgba(0,0,0,0.9)', color: 'white'}}>📂 Category</option>
-              </select>
-              
-              <div style={{
-                color: 'rgba(255,255,255,0.8)',
-                fontSize: '0.875rem',
-                fontWeight: 'bold',
-                marginBottom: '0.75rem'
-              }}>
                 📂 Filter by Category:
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -3700,7 +3672,7 @@ chicken breast, 2 lbs`}
                             background: pantryCategoryFilter.includes(category) ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(59, 130, 246, 0.2))' : 'rgba(255,255,255,0.05)',
                             color: pantryCategoryFilter.includes(category) ? 'white' : 'rgba(255,255,255,0.7)', fontSize: '0.72rem', cursor: 'pointer'
                           }}>
-                            <input type="checkbox" checked={pantryCategoryFilter.includes(category)} onChange={() => handleCategoryFilterChange(category)} style={{ width: 16, height: 16, accentColor: '#10b981' }} />
+                            <input type="checkbox" checked={pantryCategoryFilter.includes(category)} onChange={() => handleCategoryFilterChange(category)} style={{ width: '16', height: '16', accentColor: '#10b981' }} />
                             {labelText}
                           </label>
                           );
@@ -3710,6 +3682,34 @@ chicken breast, 2 lbs`}
                   </div>
                 ))}
               </div>
+              
+              <div style={{
+                color: 'rgba(255,255,255,0.8)',
+                fontSize: '0.875rem',
+                fontWeight: 'bold',
+                marginBottom: '0.75rem'
+              }}>
+                🔄 Sort by:
+              </div>
+              <select
+                value={pantrySortBy}
+                onChange={(e) => setPantrySortBy(e.target.value as 'name' | 'status-critical' | 'status-good' | 'category')}
+                style={{
+                  width: '100%',
+                  padding: '0.5rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  background: 'rgba(0,0,0,0.8)',
+                  color: 'white',
+                  fontSize: '0.75rem',
+                  marginBottom: '1rem'
+                }}
+              >
+                <option value="name" style={{background: 'rgba(0,0,0,0.9)', color: 'white'}}>📝 Name (A-Z)</option>
+                <option value="status-critical" style={{background: 'rgba(0,0,0,0.9)', color: 'white'}}>🚨 Status (Critical First)</option>
+                <option value="status-good" style={{background: 'rgba(0,0,0,0.9)', color: 'white'}}>✅ Status (Good First)</option>
+                <option value="category" style={{background: 'rgba(0,0,0,0.9)', color: 'white'}}>📂 Category</option>
+              </select>
             </div>
             
             <div style={{display: 'flex', gap: '2rem', minHeight: '600px'}}>
