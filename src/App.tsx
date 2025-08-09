@@ -4310,5 +4310,5 @@ chicken breast, 2 lbs`}
 }
 
 export default App;
-// Force rebuild - Mon, Aug  4, 2025  8:51:15 AM
-/* Clear all caches - Mon, Aug  4, 2025  8:51:39 AM */
+// Force rebuild - Sat, Aug  9, 2025  6:17:00 AM
+/* Trigger Render redeploy - partial quantities + navigation fixes */
