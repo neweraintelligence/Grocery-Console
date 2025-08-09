@@ -1,6 +1,91 @@
 import React, { useState, useEffect } from 'react';
 import { WeeksListBox } from './components/WeeksListBox';
 
+// Smart quantity formatting utility
+const formatQuantity = (quantity: number): string => {
+  if (quantity === 0) return '0';
+  if (quantity >= 1) {
+    // For whole numbers or numbers >= 1, show decimal if needed
+    return quantity % 1 === 0 ? quantity.toString() : quantity.toFixed(2).replace(/\.?0+$/, '');
+  }
+  
+  // For fractional quantities, try to convert to common fractions
+  const fractionMap: { [key: number]: string } = {
+    0.125: '⅛',
+    0.16666666666666666: '⅙', // 1/6
+    0.1667: '⅙',
+    0.17: '⅙',
+    0.2: '⅕',
+    0.25: '¼',
+    0.3333: '⅓',
+    0.33333333333333333: '⅓', // 1/3
+    0.33: '⅓',
+    0.375: '⅜',
+    0.4: '⅖',
+    0.5: '½',
+    0.6: '⅗',
+    0.625: '⅝',
+    0.66666666666666666: '⅔', // 2/3
+    0.6667: '⅔',
+    0.67: '⅔',
+    0.75: '¾',
+    0.8: '⅘',
+    0.875: '⅞',
+  };
+  
+  // Check for exact matches first
+  if (fractionMap[quantity]) {
+    return fractionMap[quantity];
+  }
+  
+  // Check for close matches (within 0.01 tolerance)
+  for (const [decimal, fraction] of Object.entries(fractionMap)) {
+    if (Math.abs(quantity - parseFloat(decimal)) < 0.01) {
+      return fraction;
+    }
+  }
+  
+  // If no fraction match, show decimal with appropriate precision
+  if (quantity < 0.01) {
+    return quantity.toFixed(3).replace(/\.?0+$/, '');
+  } else {
+    return quantity.toFixed(2).replace(/\.?0+$/, '');
+  }
+};
+
+// Enhanced display for stock ratios with special styling for fractions
+const formatStockDisplay = (current: number, min: number, unit: string = ''): string => {
+  const currentFormatted = formatQuantity(current);
+  const minFormatted = formatQuantity(min);
+  const unitStr = unit ? ` ${unit}` : '';
+  
+  return `${currentFormatted}/${minFormatted}${unitStr}`;
+};
+
+// Component for displaying quantities with special fraction styling
+const QuantityDisplay = ({ quantity, className = '', style = {} }: { 
+  quantity: number; 
+  className?: string; 
+  style?: React.CSSProperties;
+}) => {
+  const formatted = formatQuantity(quantity);
+  const isFraction = formatted.match(/[⅛⅙⅕¼⅓⅜⅖½⅗⅝⅔¾⅘⅞]/);
+  
+  return (
+    <span 
+      className={className}
+      style={{
+        ...style,
+        fontSize: isFraction ? '1.1em' : style.fontSize,
+        fontWeight: isFraction ? 'bold' : style.fontWeight,
+        color: isFraction ? '#ffd93d' : style.color
+      }}
+    >
+      {formatted}
+    </span>
+  );
+};
+
 // TypeScript interfaces for proper typing
 interface PantryItem {
   id: string;
@@ -752,10 +837,10 @@ const PantryAnalytics = ({ pantryItems }: { pantryItems: PantryItem[] }) => {
   };
 
   const getValueLabel = (item: any) => {
-    if (sortBy === 'stock') return `${item.currentCount} ${item.unit}`;
+    if (sortBy === 'stock') return `${formatQuantity(item.currentCount)} ${item.unit}`;
     if (sortBy === 'ratio') return `${(getValue(item)).toFixed(1)}x`;
     if (sortBy === 'category') return `${item.totalStock} total`;
-    return `${item.currentCount} ${item.unit}`;
+    return `${formatQuantity(item.currentCount)} ${item.unit}`;
   };
 
   if (pantryItems.length === 0) {
@@ -3649,7 +3734,7 @@ chicken breast, 2 lbs`}
                               margin: 0,
                               textAlign: 'center'
                             }}>
-                              Stock: {item.currentCount}/{item.minCount}
+                              Stock: {formatStockDisplay(item.currentCount, item.minCount)}
                             </p>
                             <div style={{
                               display: 'flex',
@@ -3697,7 +3782,14 @@ chicken breast, 2 lbs`}
                                   fontWeight: 'bold',
                                   color: 'white'
                                 }}>
-                                  {item.currentCount}
+                                  <QuantityDisplay 
+                                    quantity={item.currentCount} 
+                                    style={{
+                                      fontSize: '1rem',
+                                      fontWeight: 'bold',
+                                      color: 'white'
+                                    }}
+                                  />
                                 </p>
                                 <p style={{
                                   margin: 0,
