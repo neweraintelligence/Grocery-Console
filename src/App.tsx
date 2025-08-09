@@ -3391,8 +3391,10 @@ chicken breast, 2 lbs`}
                 shoppingList.map((item, index) => {
                   const getStatusStyle = () => {
                     if (item.source === 'pantry') {
-                      if (item.currentCount === 0) return styles.statusOut;
-                      if (item.currentCount < (item.minCount || 0)) return styles.statusLow;
+                      const current = item.currentCount ?? 0;
+                      const minimum = item.minCount ?? 0;
+                      if (current === 0) return styles.statusOut;
+                      if (current < minimum) return styles.statusLow;
                       return styles.statusGood;
                     }
                     const priority = item.priority?.toLowerCase();
@@ -3403,8 +3405,10 @@ chicken breast, 2 lbs`}
                   
                   const getStatusText = () => {
                     if (item.source === 'pantry') {
-                      if (item.currentCount === 0) return 'Out';
-                      if (item.currentCount < (item.minCount || 0)) return 'Low';
+                      const current = item.currentCount ?? 0;
+                      const minimum = item.minCount ?? 0;
+                      if (current === 0) return 'Out';
+                      if (current < minimum) return 'Low';
                       return 'Okay';
                     }
                     const priority = item.priority?.toString() || 'Medium';
