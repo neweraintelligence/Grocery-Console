@@ -810,9 +810,9 @@ const PantryAnalytics = ({ pantryItems }: { pantryItems: PantryItem[] }) => {
 
   const { highest, lowest, categories } = getAnalyticsData();
 
-  // When sorting by category, aggregate by category totals for the bar view
+  // When sorting by category, aggregate by category item count for the bar view
   const sortedCategories = React.useMemo(() => {
-    return [...categories].sort((a, b) => b.totalStock - a.totalStock);
+    return [...categories].sort((a, b) => b.count - a.count);
   }, [categories]);
 
   const dataToShow: any[] = sortBy === 'category'
@@ -825,7 +825,7 @@ const PantryAnalytics = ({ pantryItems }: { pantryItems: PantryItem[] }) => {
     } else if (sortBy === 'ratio') {
       return Math.max(...pantryItems.map(item => item.minCount > 0 ? item.currentCount / item.minCount : item.currentCount));
     } else if (sortBy === 'category') {
-      return Math.max(...categories.map(c => c.totalStock));
+      return Math.max(...categories.map(c => c.count));
     }
     return 10;
   };
@@ -835,14 +835,14 @@ const PantryAnalytics = ({ pantryItems }: { pantryItems: PantryItem[] }) => {
   const getValue = (item: any) => {
     if (sortBy === 'stock') return item.currentCount;
     if (sortBy === 'ratio') return item.minCount > 0 ? item.currentCount / item.minCount : item.currentCount;
-    if (sortBy === 'category') return item.totalStock || 0;
+    if (sortBy === 'category') return item.count || 0;
     return item.currentCount;
   };
 
   const getValueLabel = (item: any) => {
     if (sortBy === 'stock') return `${formatQuantity(item.currentCount)} ${item.unit}`;
     if (sortBy === 'ratio') return `${(getValue(item)).toFixed(1)}x`;
-    if (sortBy === 'category') return `${item.totalStock} total`;
+    if (sortBy === 'category') return `${item.count} items`;
     return `${formatQuantity(item.currentCount)} ${item.unit}`;
   };
 
@@ -1008,9 +1008,6 @@ const PantryAnalytics = ({ pantryItems }: { pantryItems: PantryItem[] }) => {
                 </div>
                 <div style={{ fontSize: '1rem', color: 'white', fontWeight: 'bold' }}>
                   {category.count} items
-                </div>
-                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)' }}>
-                  {category.totalStock} total
                 </div>
               </div>
             ))}
@@ -3166,7 +3163,7 @@ chicken breast, 2 lbs`}
               }} />
             </div>
             <div style={{paddingLeft: '1.5rem'}}>
-              <h1 style={styles.title}>Laurie's Legendary Kitchen</h1>
+              <h1 style={styles.title}>Laurie's Culinary Console</h1>
               <p style={styles.subtitle}>Where culinary magic meets smart organization! ✨</p>
             </div>
           </div>
@@ -3335,7 +3332,7 @@ chicken breast, 2 lbs`}
                 </div>
                 <div>
                   <h2 style={styles.cardTitleText}>Laurie's Loot List</h2>
-                  <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>Adventures awaiting in the grocery jungle! 🛒✨</p>
+                  <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>Adventures awaiting in the grocery aisles! 🛒✨</p>
                 </div>
               </div>
               <div style={styles.buttonGroup}>
@@ -3630,9 +3627,10 @@ chicken breast, 2 lbs`}
                     {expandedGroups[group.key] && (
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0.5rem 0.75rem' }}>
                         {group.sub.map(category => {
-                          const labelText = group.key === 'fridge'
-                            ? category.replace(/^Fridge\s*–\s*/,'')
-                            : category;
+                          const labelText = category
+                            .replace(/^Fridge\s*–\s*/,'')
+                            .replace(/^Pantry\s*–\s*/,'')
+                            .replace(/^Freezer\s*–\s*/,'');
                           return (
                           <label key={category} style={{
                             display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 0.6rem', borderRadius: '0.5rem', border: '1px solid rgba(255,255,255,0.2)',
