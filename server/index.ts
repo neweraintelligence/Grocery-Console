@@ -174,8 +174,8 @@ app.get('/api/pantry', async (req, res) => {
           console.log(`🧪 TEMP: Setting Philadelphia to 0.25 for testing`);
         }
         if (itemName.includes('Butter') && !itemName.includes('Vegan')) {
-          parsedCurrentCount = 0.33;
-          console.log(`🧪 TEMP: Setting Butter to 0.33 for testing`);
+          parsedCurrentCount = 0.4;
+          console.log(`🧪 TEMP: Setting Butter to 0.4 for testing`);
         }
         
         // Debug specific items with decimal values - always log to help troubleshoot
