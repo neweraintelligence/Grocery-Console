@@ -365,11 +365,11 @@ const styles = {
   },
   addBtn: {
     padding: '0.75rem 1.5rem',
-    background: 'linear-gradient(to right, rgba(59,130,246,0.4), rgba(37,99,235,0.3))',
+    background: 'linear-gradient(to right, rgba(100,100,100,0.8), rgba(80,80,80,0.7))',
     color: 'white',
     borderRadius: '0.75rem',
     fontWeight: '600',
-    border: '1px solid rgba(59,130,246,0.3)',
+    border: '1px solid rgba(100,100,100,0.6)',
     cursor: 'pointer',
     boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
     transition: 'all 0.2s ease',
@@ -3401,9 +3401,8 @@ chicken breast, 2 lbs`}
           <button 
             style={{
               ...styles.addBtn,
-              background: `linear-gradient(135deg, rgba(120,120,120,0.4) 0%, rgba(100,100,100,0.5) 100%), 
-                           repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px)`,
-              border: '2px solid rgba(120,120,120,0.3)',
+              background: 'linear-gradient(135deg, rgba(20,184,166,0.8) 0%, rgba(15,118,110,0.7) 100%)',
+              border: '2px solid rgba(20,184,166,0.6)',
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.2)',
               textShadow: '0 1px 1px rgba(0,0,0,0.3)',
             }}
@@ -3460,8 +3459,8 @@ chicken breast, 2 lbs`}
           <div style={{
             ...styles.card,
             marginBottom: '1.5rem',
-            background: 'linear-gradient(145deg, rgba(120,120,120,0.1), rgba(100,100,100,0.05))',
-            border: '1px solid rgba(120,120,120,0.3)'
+            background: 'linear-gradient(145deg, rgba(20,184,166,0.1), rgba(15,118,110,0.05))',
+            border: '1px solid rgba(20,184,166,0.3)'
           }}>
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
@@ -3478,7 +3477,7 @@ chicken breast, 2 lbs`}
                   ...styles.addBtn,
                   background: loadingRecipes 
                     ? 'linear-gradient(to right, rgba(120,120,120,0.4), rgba(140,140,120,0.3))'
-                    : 'linear-gradient(to right, rgba(120,120,120,0.4), rgba(100,100,100,0.4))',
+                    : 'linear-gradient(to right, rgba(20,184,166,0.8), rgba(15,118,110,0.7))',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
