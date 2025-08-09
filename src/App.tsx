@@ -153,7 +153,8 @@ const styles = {
     backgroundAttachment: 'fixed',
     fontFamily: "'Inter', system-ui, sans-serif",
     position: 'relative' as const,
-    overflow: 'hidden',
+    overflow: 'auto',
+    scrollBehavior: 'smooth' as const,
   },
   backgroundOrbs: {
     position: 'absolute' as const,
@@ -1429,8 +1430,8 @@ function App() {
     fetchPantryItems();
     fetchGroceryItems();
     fetchShoppingList();
-    // Auto-scroll to top disabled - let user control their own scrolling
-    // window.scrollTo(0, 0);
+    // Ensure page starts at top
+    window.scrollTo(0, 0);
   }, []);
 
   // Disable auto-popup of Weeks List entirely; enable only via manual click
