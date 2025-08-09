@@ -3688,6 +3688,7 @@ chicken breast, 2 lbs`}
                 color: 'rgba(255,255,255,0.8)',
                 fontSize: '0.875rem',
                 fontWeight: 'bold',
+                marginTop: '3rem',
                 marginBottom: '0.75rem'
               }}>
                 🔄 Sort by:
@@ -3774,13 +3775,16 @@ chicken breast, 2 lbs`}
                           <div style={styles.itemDetails}>
                             <h3 style={{
                               ...styles.itemName,
-                              width: '100px',
-                              marginRight: '1rem',
+                              width: '180px',
+                              marginRight: '2rem',
                               textOverflow: 'ellipsis',
                               overflow: 'hidden',
                               whiteSpace: 'nowrap'
                             }}>{item.name}</h3>
-                            <div style={styles.itemCategory}>
+                            <div style={{
+                              ...styles.itemCategory,
+                              marginRight: '2rem'
+                            }}>
                               <span style={{
                                 background: 'rgba(59, 130, 246, 0.2)',
                                 color: '#93c5fd',
