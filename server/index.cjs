@@ -223,8 +223,9 @@ app.post('/api/pantry', async (req, res) => {
     console.log('📝 Attempting to write to Pantry sheet range: Pantry!A:H');
     const result = await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Pantry!A:H',
+      range: 'Pantry!A1:H1',
       valueInputOption: 'USER_ENTERED',
+      insertDataOption: 'INSERT_ROWS',
       resource: { values }
     });
 
