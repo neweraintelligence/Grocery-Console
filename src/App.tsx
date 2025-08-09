@@ -3427,11 +3427,11 @@ chicken breast, 2 lbs`}
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
                 <div style={styles.cardIcon}>
-                  📊
+                  Analytics
                 </div>
                 <div>
                   <h2 style={styles.cardTitleText}>Pantry Analytics</h2>
-                  <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>Insights and trends from your pantry data! 📈✨</p>
+                  <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>Insights and trends from your pantry data!</p>
                 </div>
               </div>
             </div>
