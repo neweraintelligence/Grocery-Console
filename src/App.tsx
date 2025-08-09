@@ -372,6 +372,9 @@ const styles = {
     cursor: 'pointer',
     boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
     transition: 'all 0.2s ease',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   pantryBtn: {
     padding: '0.75rem 1.5rem',
@@ -691,7 +694,7 @@ const styles = {
     borderRadius: '1rem',
     border: '2px solid rgba(255,215,0,0.4)',
     backgroundColor: 'rgba(139,69,19,0.8)',
-    color: '#ffd700',
+    color: 'white',
     fontSize: '0.9rem',
     fontFamily: 'monospace',
     resize: 'vertical' as const,
@@ -699,7 +702,7 @@ const styles = {
     boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)',
   },
   bulkLabel: {
-    color: '#ffd700',
+    color: 'white',
     fontSize: '1rem',
     marginBottom: '0.75rem',
     display: 'block',
@@ -1393,6 +1396,8 @@ function App() {
     fetchPantryItems();
     fetchGroceryItems();
     fetchShoppingList();
+    // Scroll to top on page load
+    window.scrollTo(0, 0);
   }, []);
 
   // Disable auto-popup of Weeks List entirely; enable only via manual click
@@ -1815,7 +1820,7 @@ function App() {
               right: '1rem',
               background: 'rgba(255,255,255,0.2)',
               border: 'none',
-              color: '#ffd700',
+              color: 'white',
               width: '2.5rem',
               height: '2.5rem',
               borderRadius: '50%',
@@ -1850,7 +1855,7 @@ function App() {
           </div>
           
           <h2 style={{
-            color: '#ffd700', 
+            color: 'white', 
             marginBottom: '2rem', 
             marginTop: '1rem',
             fontFamily: "'Fredoka', system-ui, sans-serif",
@@ -1880,7 +1885,7 @@ function App() {
                 borderRadius: '0.75rem',
                 border: 'none',
                 background: !bulkMode ? 'rgba(255,215,0,0.3)' : 'transparent',
-                color: '#ffd700',
+                color: 'white',
                 fontSize: '0.9rem',
                 fontWeight: 'bold',
                 cursor: 'pointer',
@@ -1898,7 +1903,7 @@ function App() {
                 borderRadius: '0.75rem',
                 border: 'none',
                 background: bulkMode ? 'rgba(255,215,0,0.3)' : 'transparent',
-                color: '#ffd700',
+                color: 'white',
                 fontSize: '0.9rem',
                 fontWeight: 'bold',
                 cursor: 'pointer',
@@ -1923,7 +1928,7 @@ function App() {
                   borderRadius: '1rem',
                   border: '2px solid rgba(255,215,0,0.4)',
                   backgroundColor: 'rgba(139,69,19,0.8)',
-                  color: '#ffd700',
+                  color: 'white',
                   fontSize: '1rem',
                   fontWeight: '500',
                   boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)'
@@ -1939,14 +1944,14 @@ function App() {
                     borderRadius: '0.75rem',
                     border: '2px solid rgba(255,215,0,0.4)',
                     backgroundColor: 'rgba(139,69,19,0.8)',
-                    color: '#ffd700',
+                    color: 'white',
                     fontSize: '1rem',
                     width: '100%'
                   }}
                 >
-                  <option value="" disabled style={{backgroundColor: 'rgba(139,69,19,0.9)', color: '#ffd700'}}>📂 Select Category</option>
+                  <option value="" disabled style={{backgroundColor: 'rgba(139,69,19,0.9)', color: 'white'}}>📂 Select Category</option>
                   {pantryCategories.filter(cat => cat !== 'all').map((category) => (
-                    <option key={category} value={category} style={{backgroundColor: 'rgba(139,69,19,0.9)', color: '#ffd700'}}>
+                    <option key={category} value={category} style={{backgroundColor: 'rgba(139,69,19,0.9)', color: 'white'}}>
                       {category}
                     </option>
                   ))}
@@ -1961,7 +1966,7 @@ function App() {
                     borderRadius: '0.75rem',
                     border: '2px solid rgba(255,215,0,0.4)',
                     backgroundColor: 'rgba(139,69,19,0.8)',
-                    color: '#ffd700',
+                    color: 'white',
                     width: '100%'
                   }}
                 />
@@ -1969,7 +1974,7 @@ function App() {
               
               <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
                 <div>
-                  <label style={{color: '#ffd700', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold'}}>
+                  <label style={{color: 'white', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold'}}>
                     📊 Quantity
                   </label>
                   <input
@@ -1982,13 +1987,13 @@ function App() {
                       borderRadius: '0.75rem',
                       border: '2px solid rgba(255,215,0,0.4)',
                       backgroundColor: 'rgba(139,69,19,0.8)',
-                      color: '#ffd700',
+                      color: 'white',
                       width: '100%'
                     }}
                   />
                 </div>
                 <div>
-                  <label style={{color: '#ffd700', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold'}}>
+                  <label style={{color: 'white', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold'}}>
                     📈 Priority Level
                   </label>
                   <select
@@ -1999,7 +2004,7 @@ function App() {
                       borderRadius: '0.75rem',
                       border: '2px solid rgba(255,215,0,0.4)',
                       backgroundColor: 'rgba(139,69,19,0.8)',
-                      color: '#ffd700',
+                      color: 'white',
                       width: '100%',
                       cursor: 'pointer'
                     }}
@@ -2021,7 +2026,7 @@ function App() {
                   borderRadius: '0.75rem',
                   border: '2px solid rgba(255,215,0,0.4)',
                   backgroundColor: 'rgba(139,69,19,0.8)',
-                  color: '#ffd700',
+                  color: 'white',
                   resize: 'none',
                   fontFamily: 'inherit'
                 }}
@@ -2049,7 +2054,7 @@ function App() {
                   borderRadius: '0.75rem',
                   border: '2px solid rgba(255,215,0,0.4)',
                   backgroundColor: 'rgba(139,69,19,0.8)',
-                  color: '#ffd700',
+                  color: 'white',
                   cursor: 'pointer',
                   fontWeight: 'bold',
                   minWidth: '0',
@@ -2106,7 +2111,7 @@ chicken breast, 2 lbs`}
               
               <div style={styles.bulkHelp}>
                 <p style={{
-                  color: '#ffd700',
+                  color: 'white',
                   fontSize: '0.8rem',
                   margin: '0 0 0.5rem 0',
                   fontWeight: 'bold'
@@ -2151,7 +2156,7 @@ chicken breast, 2 lbs`}
                     ...styles.bulkButton,
                     border: '2px solid rgba(255,215,0,0.4)',
                     backgroundColor: 'rgba(139,69,19,0.8)',
-                    color: '#ffd700',
+                    color: 'white',
                   }}
                 >
                   ❌ Cancel
