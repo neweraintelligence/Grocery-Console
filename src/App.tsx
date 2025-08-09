@@ -406,7 +406,7 @@ const styles = {
     background: 'linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04))',
     backdropFilter: 'blur(20px)',
     borderRadius: '1.5rem',
-    padding: '1.5rem',
+    padding: '2rem',
     border: '2px solid rgba(255,255,255,0.2)',
     borderLeft: '5px solid rgba(59,130,246,0.8)',
     boxShadow: '0 15px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.15), 0 0 20px rgba(59,130,246,0.1)',
@@ -439,13 +439,13 @@ const styles = {
   itemDetails: {
     display: 'flex',
     flexDirection: 'column' as const,
+    gap: '0.5rem',
   },
   itemName: {
     color: 'white',
     fontWeight: '700',
     fontSize: '1.25rem',
     margin: 0,
-    marginBottom: '0.25rem',
     lineHeight: '1.3',
   },
   itemCategory: {
@@ -454,7 +454,7 @@ const styles = {
     margin: 0,
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem',
+    gap: '0.75rem',
     flexWrap: 'wrap' as const,
   },
   itemRight: {
@@ -1043,6 +1043,7 @@ function App() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loadingRecipes, setLoadingRecipes] = useState(false);
   const [pantryCategoryFilter, setPantryCategoryFilter] = useState<string[]>(['all']);
+  const [pantrySortBy, setPantrySortBy] = useState<'name' | 'status-critical' | 'status-good' | 'category'>('name');
   const [showWeeksListBox, setShowWeeksListBox] = useState(false);
   const [bulkMode, setBulkMode] = useState(false);
   const [bulkText, setBulkText] = useState('');
@@ -1581,10 +1582,40 @@ function App() {
   const pantryCategories = ['all', ...categoryGroups.flatMap(g => g.sub)];
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
 
-  // Filter pantry items by selected categories
-  const filteredPantryItems = pantryCategoryFilter.includes('all') 
-    ? pantryItems 
-    : pantryItems.filter(item => pantryCategoryFilter.includes(item.category));
+  // Filter and sort pantry items
+  const filteredPantryItems = React.useMemo(() => {
+    let filtered = pantryCategoryFilter.includes('all') 
+      ? pantryItems 
+      : pantryItems.filter(item => pantryCategoryFilter.includes(item.category));
+    
+    // Sort the filtered items
+    switch (pantrySortBy) {
+      case 'name':
+        return filtered.sort((a, b) => a.name.localeCompare(b.name));
+      case 'status-critical':
+        return filtered.sort((a, b) => {
+          const getStatusPriority = (item: PantryItem) => {
+            if (item.currentCount === 0) return 0; // Out (highest priority)
+            if (item.currentCount < item.minCount) return 1; // Low
+            return 2; // Okay (lowest priority)
+          };
+          return getStatusPriority(a) - getStatusPriority(b);
+        });
+      case 'status-good':
+        return filtered.sort((a, b) => {
+          const getStatusPriority = (item: PantryItem) => {
+            if (item.currentCount === 0) return 2; // Out (lowest priority)
+            if (item.currentCount < item.minCount) return 1; // Low
+            return 0; // Okay (highest priority)
+          };
+          return getStatusPriority(a) - getStatusPriority(b);
+        });
+      case 'category':
+        return filtered.sort((a, b) => a.category.localeCompare(b.category));
+      default:
+        return filtered;
+    }
+  }, [pantryItems, pantryCategoryFilter, pantrySortBy]);
 
   // Handle category filter checkbox changes
   const handleCategoryFilterChange = (category: string) => {
@@ -3557,7 +3588,7 @@ chicken breast, 2 lbs`}
                 </div>
                 <div>
                   <h2 style={styles.cardTitleText}>Laurie's Secret Stash</h2>
-                  <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>The mysterious depths of the kitchen kingdom! 👑</p>
+                  <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>Your culinary arsenal at a glance! 🍴✨</p>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -3594,6 +3625,34 @@ chicken breast, 2 lbs`}
               borderBottom: '1px solid rgba(255,255,255,0.1)',
               marginBottom: '1rem'
             }}>
+              <div style={{
+                color: 'rgba(255,255,255,0.8)',
+                fontSize: '0.875rem',
+                fontWeight: 'bold',
+                marginBottom: '0.75rem'
+              }}>
+                🔄 Sort by:
+              </div>
+              <select
+                value={pantrySortBy}
+                onChange={(e) => setPantrySortBy(e.target.value as 'name' | 'status-critical' | 'status-good' | 'category')}
+                style={{
+                  width: '100%',
+                  padding: '0.5rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  background: 'rgba(255,255,255,0.1)',
+                  color: 'white',
+                  fontSize: '0.75rem',
+                  marginBottom: '1rem'
+                }}
+              >
+                <option value="name">📝 Name (A-Z)</option>
+                <option value="status-critical">🚨 Status (Critical First)</option>
+                <option value="status-good">✅ Status (Good First)</option>
+                <option value="category">📂 Category</option>
+              </select>
+              
               <div style={{
                 color: 'rgba(255,255,255,0.8)',
                 fontSize: '0.875rem',
