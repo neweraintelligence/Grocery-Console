@@ -3416,8 +3416,7 @@ chicken breast, 2 lbs`}
           </button>
         </div>
 
-        {/* Analytics Section - Full Width Above All Tab Content */
-        {/* {showAnalytics && (
+        {showAnalytics ? (
           <div style={{
             ...styles.card,
             marginBottom: '1.5rem',
@@ -3435,12 +3434,11 @@ chicken breast, 2 lbs`}
                 </div>
               </div>
             </div>
-            
             <div style={{padding: '1rem'}}>
               <PantryAnalytics pantryItems={filteredPantryItems} />
             </div>
           </div>
-        )} */}
+        ) : null}
 
         {/* Recipes Section - Full Width Above All Tab Content */}
         {showRecipes && (
