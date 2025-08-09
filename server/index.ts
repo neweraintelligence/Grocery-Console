@@ -143,8 +143,8 @@ app.get('/api/pantry', async (req, res) => {
         id: (index + 2).toString(), // Row number as ID
         name: cleanTextData(row[0] || ''),
         category: cleanTextData(row[1] || ''),
-        currentCount: parseInt(row[2]) || 0,
-        minCount: parseInt(row[3]) || 1,
+        currentCount: parseFloat(row[2]) || 0,
+        minCount: parseFloat(row[3]) || 1,
         unit: cleanTextData(row[4] || 'units'),
         lastUpdated: row[5] || new Date().toLocaleDateString(),
         notes: cleanTextData(row[6] || ''),

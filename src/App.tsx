@@ -999,18 +999,18 @@ function App() {
       let name = '', quantity = 1, unit = 'pieces';
       
       // Try format: "2 lbs apples" or "2 apples"
-      const match1 = trimmedLine.match(/^(\d+)\s*([a-zA-Z]*)\s+(.+)$/);
+      const match1 = trimmedLine.match(/^(\d+(?:\.\d+)?)\s*([a-zA-Z]*)\s+(.+)$/);
       if (match1) {
-        quantity = parseInt(match1[1]);
+        quantity = parseFloat(match1[1]);
         unit = match1[2] || 'pieces';
         name = match1[3];
       }
       // Try format: "apples, 2 lbs" or "apples - 2 lbs"
       else {
-        const match2 = trimmedLine.match(/^(.+?)[,\-]\s*(\d+)\s*([a-zA-Z]*)$/);
+        const match2 = trimmedLine.match(/^(.+?)[,\-]\s*(\d+(?:\.\d+)?)\s*([a-zA-Z]*)$/);
         if (match2) {
           name = match2[1].trim();
-          quantity = parseInt(match2[2]);
+          quantity = parseFloat(match2[2]);
           unit = match2[3] || 'pieces';
         }
         // Default: just the item name
@@ -1089,33 +1089,33 @@ function App() {
       // Format 3: "item name - current amount" (e.g., "Rice - 5 cups")
       // Format 4: Just "item name" (defaults to 1 current, 1 min)
       
-      let name = '', currentCount = 1, minCount = 1, unit = 'pieces';
+      let name = '', currentCount: number = 1, minCount: number = 1, unit = 'pieces';
       
       // Try format: "item, current, min" (e.g., "Rice, 5 cups, 2 cups")
-      const commaMatch = trimmedLine.match(/^(.+?),\s*(\d+)\s*([a-zA-Z]*),?\s*(\d+)?\s*([a-zA-Z]*)?$/);
+      const commaMatch = trimmedLine.match(/^(.+?),\s*(\d+(?:\.\d+)?)\s*([a-zA-Z]*),?\s*(\d+(?:\.\d+)?)?\s*([a-zA-Z]*)?$/);
       if (commaMatch) {
         name = commaMatch[1].trim();
-        currentCount = parseInt(commaMatch[2]);
+        currentCount = parseFloat(commaMatch[2]);
         unit = commaMatch[3] || 'pieces';
-        minCount = commaMatch[4] ? parseInt(commaMatch[4]) : 1;
+        minCount = commaMatch[4] ? parseFloat(commaMatch[4]) : 1;
       }
       // Try format: "current amount item, min amount" (e.g., "5 cups rice, 2 cups")
       else {
-        const complexMatch = trimmedLine.match(/^(\d+)\s*([a-zA-Z]*)\s+(.+?),\s*(\d+)\s*([a-zA-Z]*)?$/);
+        const complexMatch = trimmedLine.match(/^(\d+(?:\.\d+)?)\s*([a-zA-Z]*)\s+(.+?),\s*(\d+(?:\.\d+)?)\s*([a-zA-Z]*)?$/);
         if (complexMatch) {
-          currentCount = parseInt(complexMatch[1]);
+          currentCount = parseFloat(complexMatch[1]);
           unit = complexMatch[2] || 'pieces';
           name = complexMatch[3].trim();
-          minCount = parseInt(complexMatch[4]);
+          minCount = parseFloat(complexMatch[4]);
         }
         // Try format: "item - amount" (e.g., "Rice - 5 cups")
         else {
-          const dashMatch = trimmedLine.match(/^(.+?)\s*-\s*(\d+)\s*([a-zA-Z]*)$/);
+          const dashMatch = trimmedLine.match(/^(.+?)\s*-\s*(\d+(?:\.\d+)?)\s*([a-zA-Z]*)$/);
           if (dashMatch) {
             name = dashMatch[1].trim();
-            currentCount = parseInt(dashMatch[2]);
+            currentCount = parseFloat(dashMatch[2]);
             unit = dashMatch[3] || 'pieces';
-            minCount = Math.max(1, Math.floor(currentCount * 0.3)); // Set min to 30% of current
+            minCount = Math.max(0.25, Number((currentCount * 0.3).toFixed(2))); // Allow fractions
           }
           // Default: just the item name
           else {
@@ -3649,7 +3649,7 @@ chicken breast, 2 lbs`}
                               onClick={() => {
                                 const newMin = prompt(`Set minimum needed for ${item.name}:`, item.minCount.toString());
                                 if (newMin !== null) {
-                                  const newMinValue = parseInt(newMin);
+                                  const newMinValue = parseFloat(newMin);
                                   if (!isNaN(newMinValue) && newMinValue >= 0) {
                                     updateItemMinCount(item.id, newMinValue);
                                   } else {
