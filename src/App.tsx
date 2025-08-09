@@ -1276,8 +1276,11 @@ function App() {
       }
     };
 
-    // Only auto-check after mount; avoid opening immediately on first render
+    checkFridayStatus();
+    
+    // Check every 5 minutes for Friday status
     const interval = setInterval(checkFridayStatus, 5 * 60 * 1000);
+    
     return () => clearInterval(interval);
   }, [showWeeksListBox]);
 
@@ -3233,13 +3236,7 @@ chicken breast, 2 lbs`}
               📊 View Spreadsheet
             </button>
             <button
-              style={{
-                ...styles.weeksListBtn,
-                ...(predictiveRestockService.isFridayRestockTime() ? {
-                  boxShadow: '0 0 0 0 rgba(16,185,129,0.7)',
-                  animation: 'weeklyGlow 2s infinite'
-                } : {})
-              }}
+              style={styles.weeksListBtn}
               onClick={() => setShowWeeksListBox(true)}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-1px)';
@@ -4298,12 +4295,6 @@ chicken breast, 2 lbs`}
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.7; }
-        }
-
-        @keyframes weeklyGlow {
-          0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.7); }
-          70% { box-shadow: 0 0 0 12px rgba(16,185,129,0); }
-          100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
         }
         
         button:hover {

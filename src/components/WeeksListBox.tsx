@@ -30,7 +30,7 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
   const [predictions, setPredictions] = useState<RestockPrediction[]>([]);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
-  const [isVisible, setIsVisible] = useState(!!propIsVisible);
+  const [isVisible, setIsVisible] = useState(false);
 
   // Check if it's Friday and should show the component
   useEffect(() => {
@@ -49,13 +49,6 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
     const interval = setInterval(checkFridayStatus, 60000);
     
     return () => clearInterval(interval);
-  }, [propIsVisible]);
-
-  // Sync internal visibility with prop changes so parent can force-close it
-  useEffect(() => {
-    if (propIsVisible !== undefined) {
-      setIsVisible(propIsVisible);
-    }
   }, [propIsVisible]);
 
   // Generate predictions when component becomes visible
