@@ -905,9 +905,10 @@ function App() {
   const [, setGroceryItems] = useState<GroceryItem[]>([]);
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
   const [detectedItems, setDetectedItems] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'shopping' | 'pantry' | 'recipes'>('shopping');
+  const [activeTab, setActiveTab] = useState<'shopping' | 'pantry'>('shopping');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [hoveredTab, setHoveredTab] = useState<'shopping' | 'pantry' | 'recipes' | null>(null);
+  const [hoveredTab, setHoveredTab] = useState<'shopping' | 'pantry' | null>(null);
+  const [showRecipes, setShowRecipes] = useState(false);
   const [showPantryReviewModal, setShowPantryReviewModal] = useState(false);
   const [reviewItems, setReviewItems] = useState<ShoppingListItem[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -3137,27 +3138,6 @@ chicken breast, 2 lbs`}
             <img src="/grocery icon 2.png" alt="Grocery Icon" style={{width: '20px', height: '20px', objectFit: 'contain', marginRight: '8px'}} />
             Laurie's Secret Stash
           </button>
-          <button 
-            style={{
-              ...styles.tab,
-              ...styles.tabRecipes,
-              ...(activeTab === 'recipes' 
-                ? styles.tabRecipesActive 
-                : hoveredTab === 'recipes' 
-                ? styles.tabRecipesHover 
-                : {}
-              )
-            }}
-            onClick={() => {
-              setActiveTab('recipes');
-              generateRecipes();
-            }}
-            onMouseEnter={() => setHoveredTab('recipes')}
-            onMouseLeave={() => setHoveredTab(null)}
-          >
-            <img src="/kitchen icon 2.png" alt="Recipe Icon" style={{width: '20px', height: '20px', objectFit: 'contain', marginRight: '8px'}} />
-            Recipe Ideas
-          </button>
         </div>
 
         {/* Tab Content */}
@@ -3380,16 +3360,32 @@ chicken breast, 2 lbs`}
                   <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>The mysterious depths of the kitchen kingdom! 👑</p>
                 </div>
               </div>
-              <button 
-                style={styles.addBtn}
-                onClick={() => {
-                  setModalType('pantry');
-                  setShowAddModal(true);
-                }}
-              >
-                <img src="/grocery icon 2.png" alt="Add Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
-                Top Up Stash!
-              </button>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button 
+                  style={styles.addBtn}
+                  onClick={() => {
+                    setModalType('pantry');
+                    setShowAddModal(true);
+                  }}
+                >
+                  <img src="/grocery icon 2.png" alt="Add Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+                  Top Up Stash!
+                </button>
+                <button 
+                  style={{
+                    ...styles.addBtn,
+                    background: 'linear-gradient(135deg, rgba(168,85,247,0.8) 0%, rgba(139,92,246,0.8) 100%)',
+                    border: '2px solid rgba(168,85,247,0.4)',
+                  }}
+                  onClick={() => {
+                    setShowRecipes(!showRecipes);
+                    if (!showRecipes) generateRecipes();
+                  }}
+                >
+                  <img src="/kitchen icon 2.png" alt="Recipe Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+                  {showRecipes ? 'Hide Recipes' : 'Recipe Ideas'}
+                </button>
+              </div>
             </div>
             
             {/* Pantry Category Multi-Select */}
@@ -3717,11 +3713,184 @@ chicken breast, 2 lbs`}
                 <PantryAnalytics pantryItems={filteredPantryItems} />
               </div>
             </div>
+            
+            {/* Recipe Section within Pantry Tab */}
+            {showRecipes && (
+              <div style={{
+                ...styles.card,
+                marginTop: '1rem',
+                background: 'linear-gradient(145deg, rgba(168,85,247,0.1), rgba(139,92,246,0.05))',
+                border: '1px solid rgba(168,85,247,0.3)'
+              }}>
+                <div style={styles.cardHeader}>
+                  <div style={styles.cardTitle}>
+                    <div style={styles.cardIcon}>
+                      <img src="/cupboard image 1.png" alt="Recipe Icon" style={{width: '60px', height: '60px', objectFit: 'contain'}} />
+                    </div>
+                    <div>
+                      <h2 style={styles.cardTitleText}>Recipe Inspiration</h2>
+                      <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>Delicious ideas based on your pantry ingredients! 👨‍🍳✨</p>
+                    </div>
+                  </div>
+                  <button 
+                    style={{
+                      ...styles.addBtn,
+                      background: loadingRecipes 
+                        ? 'linear-gradient(to right, rgba(120,120,120,0.4), rgba(140,140,140,0.3))'
+                        : 'linear-gradient(to right, rgba(168,85,247,0.4), rgba(139,92,246,0.4))',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                    onClick={generateRecipes}
+                    disabled={loadingRecipes}
+                  >
+                    <img src="/cupboard image 1.png" alt="Refresh Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+                    {loadingRecipes ? 'Finding Recipes...' : 'Get New Recipes'}
+                  </button>
+                </div>
+                
+                <div style={{padding: '1rem'}}>
+                  {recipes.length === 0 ? (
+                    loadingRecipes ? (
+                      <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
+                        <img src="/cupboard image 1.png" alt="Recipe Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
+                        <p style={{color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem', marginBottom: '0.5rem'}}>
+                          👩‍🍳 Hang on while the AI chefs cook something up for you!
+                        </p>
+                        <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem'}}>
+                          We're crafting breakfast, lunch, dinner, and dessert ideas from your pantry.
+                        </p>
+                      </div>
+                    ) : (
+                      <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
+                        <img src="/cupboard image 1.png" alt="Recipe Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
+                        <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem', marginBottom: '1rem'}}>
+                          🍽️ {pantryItems.filter(item => item.currentCount > 0).length === 0 
+                            ? "Add some ingredients to your pantry first!" 
+                            : "Not enough ingredients for complete recipes"}
+                        </p>
+                        <p style={{color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem'}}>
+                          {pantryItems.filter(item => item.currentCount > 0).length === 0 
+                            ? "Stock up your pantry, then click 'Get New Recipes' to discover dishes you can make!"
+                            : "Try adding more ingredients to your pantry for more recipe options. We only suggest recipes you can actually make!"}
+                        </p>
+                      </div>
+                    )
+                  ) : (
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+                      gap: '1.5rem'
+                    }}>
+                      {recipes
+                        .sort((a, b) => {
+                          const mealOrder = { breakfast: 1, lunch: 2, dinner: 3, dessert: 4 };
+                          return mealOrder[a.mealType] - mealOrder[b.mealType];
+                        })
+                        .map((recipe) => (
+                        <div key={recipe.id} style={{
+                          background: 'linear-gradient(145deg, rgba(168,85,247,0.1), rgba(139,92,246,0.05))',
+                          borderRadius: '1rem',
+                          border: '1px solid rgba(168,85,247,0.3)',
+                          padding: '1.5rem',
+                          backdropFilter: 'blur(10px)'
+                        }}>
+                          {/* Recipe Header */}
+                          <div style={{ marginBottom: '1rem' }}>
+                            <h3 style={{color: 'white', fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem'}}>
+                              {recipe.title}
+                            </h3>
+                            <p style={{color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem', lineHeight: '1.4', marginBottom: '0.75rem'}}>
+                              {recipe.description}
+                            </p>
+                            
+                            {/* Recipe Meta */}
+                            <div style={{ display: 'flex', gap: '1rem', fontSize: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                              <span style={{
+                                background: recipe.mealType === 'breakfast' 
+                                  ? 'rgba(251,191,36,0.3)' 
+                                  : recipe.mealType === 'lunch'
+                                  ? 'rgba(34,197,94,0.3)'
+                                  : recipe.mealType === 'dinner'
+                                  ? 'rgba(239,68,68,0.3)'
+                                  : 'rgba(168,85,247,0.3)',
+                                color: recipe.mealType === 'breakfast' 
+                                  ? 'rgba(251,191,36,1)' 
+                                  : recipe.mealType === 'lunch'
+                                  ? 'rgba(34,197,94,1)'
+                                  : recipe.mealType === 'dinner'
+                                  ? 'rgba(239,68,68,1)'
+                                  : 'rgba(168,85,247,1)',
+                                padding: '0.25rem 0.5rem',
+                                borderRadius: '0.25rem',
+                                fontWeight: 'bold'
+                              }}>
+                                {recipe.mealType.charAt(0).toUpperCase() + recipe.mealType.slice(1)}
+                              </span>
+                              <span style={{color: 'rgba(255,255,255,0.7)'}}>
+                                🕒 {recipe.cookTime}
+                              </span>
+                              <span style={{color: 'rgba(255,255,255,0.7)'}}>
+                                👥 {recipe.servings} servings
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Recipe Content - Ingredients & Instructions */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            {/* Ingredients */}
+                            <div>
+                              <h4 style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.875rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                                🥘 Ingredients:
+                              </h4>
+                              <ul style={{ margin: 0, paddingLeft: '1rem', fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)', lineHeight: '1.4' }}>
+                                {recipe.ingredients.slice(0, 6).map((ingredient, i) => (
+                                  <li key={i} style={{ marginBottom: '0.25rem' }}>
+                                    {ingredient}
+                                  </li>
+                                ))}
+                                {recipe.ingredients.length > 6 && (
+                                  <li style={{ color: 'rgba(255,255,255,0.5)', fontStyle: 'italic', fontSize: '0.7rem' }}>
+                                    ... and {recipe.ingredients.length - 6} more
+                                  </li>
+                                )}
+                              </ul>
+                            </div>
+
+                            {/* Instructions Preview */}
+                            <div>
+                              <h4 style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.875rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                                📝 Instructions:
+                              </h4>
+                              <div style={{ fontSize: '0.75rem' }}>
+                                {recipe.instructions.slice(0, 3).map((step, i) => (
+                                  <p key={i} style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '0.5rem', lineHeight: '1.3' }}>
+                                    <span style={{ color: 'rgba(168,85,247,0.8)', fontWeight: 'bold' }}>
+                                      {i + 1}.
+                                    </span> {step}
+                                  </p>
+                                ))}
+                                {recipe.instructions.length > 3 && (
+                                  <p style={{ color: 'rgba(255,255,255,0.5)', fontStyle: 'italic', fontSize: '0.7rem' }}>
+                                    ... {recipe.instructions.length - 3} more steps
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
-        {/* Recipes Tab Content */}
-        {activeTab === 'recipes' && (
+        {/* Old Recipes Tab Content - Now Removed */}
+        {false && (
           <div style={styles.card}>
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
