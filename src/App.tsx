@@ -1276,11 +1276,8 @@ function App() {
       }
     };
 
-    checkFridayStatus();
-    
-    // Check every 5 minutes for Friday status
+    // Only auto-check after mount; avoid opening immediately on first render
     const interval = setInterval(checkFridayStatus, 5 * 60 * 1000);
-    
     return () => clearInterval(interval);
   }, [showWeeksListBox]);
 
