@@ -142,11 +142,29 @@ app.get('/api/pantry', async (req, res) => {
       .map((row: any[], index: number) => {
         const itemName = cleanTextData(row[0] || '');
         const rawCurrentCount = row[2];
-        const parsedCurrentCount = parseFloat(rawCurrentCount) || 0;
         
-        // Debug specific items with decimal values
+        // Enhanced parsing to handle various number formats
+        let parsedCurrentCount = 0;
+        if (rawCurrentCount !== undefined && rawCurrentCount !== null && rawCurrentCount !== '') {
+          // Try to parse as number first
+          parsedCurrentCount = parseFloat(String(rawCurrentCount).replace(/[^\d.-]/g, ''));
+          // If still NaN, default to 0
+          if (isNaN(parsedCurrentCount)) {
+            parsedCurrentCount = 0;
+          }
+        }
+        
+        // Debug specific items with decimal values - always log to help troubleshoot
         if (itemName.includes('Philadelphia') || itemName.includes('Butter')) {
-          console.log(`🔍 Backend Debug - ${itemName}: raw="${rawCurrentCount}" parsed=${parsedCurrentCount} (type: ${typeof parsedCurrentCount})`);
+          console.log(`🔍 Backend Debug - ${itemName}:`);
+          console.log(`  Raw value: "${rawCurrentCount}" (type: ${typeof rawCurrentCount})`);
+          console.log(`  Parsed value: ${parsedCurrentCount} (type: ${typeof parsedCurrentCount})`);
+          console.log(`  Full row data:`, JSON.stringify(row.slice(0, 8)));
+        }
+        
+        // Also debug any item with decimal values
+        if (parsedCurrentCount > 0 && parsedCurrentCount < 1) {
+          console.log(`🔍 Found decimal quantity - ${itemName}: ${parsedCurrentCount}`);
         }
         
         return {
