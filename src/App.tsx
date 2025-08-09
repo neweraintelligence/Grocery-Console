@@ -423,6 +423,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '1rem',
+    marginRight: '1.5rem',
   },
   itemIcon: {
     width: '3rem',
@@ -460,7 +461,7 @@ const styles = {
   itemRight: {
     display: 'flex',
     alignItems: 'center',
-    gap: '1.5rem',
+    gap: '2rem',
     justifyContent: 'flex-end',
   },
   itemRightMobile: {
@@ -3740,7 +3741,7 @@ chicken breast, 2 lbs`}
                       </p>
                     </div>
                   ) : (
-                    filteredPantryItems.map((item, index) => {
+                                        filteredPantryItems.map((item, index) => {
                   // Debug specific items with decimal values
                   if (item.name.includes('Philadelphia') || item.name.includes('Butter')) {
                     console.log(`🔍 Card View Debug - ${item.name}: currentCount=${item.currentCount} (type: ${typeof item.currentCount})`);
@@ -3756,7 +3757,7 @@ chicken breast, 2 lbs`}
                     if (item.currentCount === 0) return 'Out';
                     if (item.currentCount < item.minCount) return 'Low';
                     return 'Okay';
-                  };
+                    };
                   
                   const getItemIcon = () => {
                     const emoji = getCategoryEmoji(item.category || 'other');
@@ -3771,7 +3772,14 @@ chicken breast, 2 lbs`}
                             {getItemIcon()}
                           </div>
                           <div style={styles.itemDetails}>
-                            <h3 style={styles.itemName}>{item.name}</h3>
+                            <h3 style={{
+                              ...styles.itemName,
+                              width: '100px',
+                              marginRight: '1rem',
+                              textOverflow: 'ellipsis',
+                              overflow: 'hidden',
+                              whiteSpace: 'nowrap'
+                            }}>{item.name}</h3>
                             <div style={styles.itemCategory}>
                               <span style={{
                                 background: 'rgba(59, 130, 246, 0.2)',
@@ -3810,7 +3818,8 @@ chicken breast, 2 lbs`}
                             flexDirection: 'column',
                             alignItems: 'center',
                             gap: '0.5rem',
-                            minWidth: '120px'
+                            minWidth: '140px',
+                            marginLeft: '1rem'
                           }}>
                             <p style={{
                               ...styles.stockLabel,
