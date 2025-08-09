@@ -999,8 +999,8 @@ app.post('/api/recipes/gpt', async (req, res) => {
       return res.status(500).json({ error: 'OpenAI request failed' });
     }
 
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || '{}';
+    const data: any = await response.json();
+    const content = (data as any).choices?.[0]?.message?.content || '{}';
     let parsed;
     try { parsed = JSON.parse(content); } catch { parsed = { recipes: [] }; }
     res.json(parsed);

@@ -56,17 +56,7 @@ interface Recipe {
   missingIngredients: string[];
 }
 
-interface RecipeTemplate {
-  title: string;
-  description: string;
-  cookTime: string;
-  servings: number;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  cuisine: string;
-  mealType: 'breakfast' | 'lunch' | 'dinner' | 'dessert';
-  requiredIngredients: string[];
-  baseIngredients: string[];
-}
+// (removed unused RecipeTemplate interface)
 
 const styles = {
   container: {
