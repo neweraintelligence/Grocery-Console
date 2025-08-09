@@ -3383,7 +3383,11 @@ chicken breast, 2 lbs`}
           justifyContent: 'center'
         }}>
           <button 
-            style={styles.addBtn}
+            style={{
+              ...styles.addBtn,
+              background: 'linear-gradient(135deg, rgba(34,197,94,0.8) 0%, rgba(22,163,74,0.8) 100%)',
+              border: '2px solid rgba(34,197,94,0.4)',
+            }}
             onClick={() => {
               setModalType('pantry');
               setShowAddModal(true);
@@ -3414,6 +3418,7 @@ chicken breast, 2 lbs`}
             }}
             onClick={() => setShowAnalytics(!showAnalytics)}
           >
+            <img src="/grocery icon 1.png" alt="Analytics Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
             {showAnalytics ? 'Hide Analytics' : 'Analytics'}
           </button>
         </div>
