@@ -1428,8 +1428,8 @@ function App() {
     fetchPantryItems();
     fetchGroceryItems();
     fetchShoppingList();
-    // Scroll to top on page load
-    window.scrollTo(0, 0);
+    // Auto-scroll to top disabled - let user control their own scrolling
+    // window.scrollTo(0, 0);
   }, []);
 
   // Disable auto-popup of Weeks List entirely; enable only via manual click
@@ -3752,8 +3752,15 @@ chicken breast, 2 lbs`}
               </select>
             </div>
             
-            {/* Inventory List - Full Width */}
-            <div style={{minHeight: '600px'}}>
+            {/* Main Content Grid - Pantry List, Analytics, and Recipes */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '1.5rem',
+              alignItems: 'start'
+            }}>
+              {/* Left Column - Pantry List */}
+              <div style={{minHeight: '600px'}}>
                 <div style={styles.inventoryList}>
                   {filteredPantryItems.length === 0 ? (
                     <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
@@ -3779,297 +3786,521 @@ chicken breast, 2 lbs`}
                       </p>
                     </div>
                   ) : (
-                                        filteredPantryItems.map((item, index) => {
-                  // Debug specific items with decimal values
-                  if (item.name.includes('Philadelphia') || item.name.includes('Butter')) {
-                    console.log(`🔍 Card View Debug - ${item.name}: currentCount=${item.currentCount} (type: ${typeof item.currentCount})`);
-                  }
-                  
-                  const getStatusStyle = () => {
-                    if (item.currentCount === 0) return styles.statusOut;
-                    if (item.currentCount < item.minCount) return styles.statusLow;
-                    return styles.statusGood;
-                  };
-                  
-                  const getStatusText = () => {
-                    if (item.currentCount === 0) return 'Out';
-                    if (item.currentCount < item.minCount) return 'Low';
-                    return 'Okay';
-                    };
-                  
-                  const getItemIcon = () => {
-                    const emoji = getCategoryEmoji(item.category || 'other');
-                    return <span style={{fontSize: '1.5rem'}}>{emoji}</span>;
-                  };
-                  
-                  return (
-                    <div key={item.id || index} style={styles.inventoryItem}>
-                      <div style={styles.itemContent}>
-                        <div style={styles.itemLeft}>
-                          <div style={styles.itemIcon}>
-                            {getItemIcon()}
-                          </div>
-                          <div style={styles.itemDetails}>
-                            <h3 style={{
-                              ...styles.itemName,
-                              width: '180px',
-                              marginRight: '2rem',
-                              textOverflow: 'ellipsis',
-                              overflow: 'hidden',
-                              whiteSpace: 'nowrap'
-                            }}>{item.name}</h3>
-                            <div style={{
-                              ...styles.itemCategory,
-                              marginRight: '2rem'
-                            }}>
-                              <span style={{
-                                background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(59,130,246,0.1))',
-                                color: '#34d399',
-                                padding: '0.25rem 0.75rem',
-                                borderRadius: '1rem',
-                                fontSize: '0.75rem',
-                                fontWeight: '500',
-                                border: '1px solid rgba(16,185,129,0.3)',
-                                boxShadow: '0 4px 12px rgba(16,185,129,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
-                                backdropFilter: 'blur(10px)',
-                                transition: 'all 0.3s ease'
-                              }}>
-                                📦 {item.category.replace(/^Pantry\s*–\s*/, '').replace(/^Fridge\s*–\s*/, '').replace(/^Freezer\s*–\s*/, '')}
-                              </span>
-                              <span style={{
-                                color: 'rgba(255,255,255,0.5)',
-                                fontSize: '0.7rem',
-                                fontStyle: 'italic'
-                              }}>
-                                ⏰ {item.lastUpdated}
-                              </span>
-                            </div>
-                              {item.expiryDate && (
-                                <span style={{
-                                  color: '#fbbf24',
-                                  fontWeight: '600',
-                                  marginLeft: '0.75rem',
-                                  fontSize: '0.75rem',
-                                  padding: '0.125rem 0.5rem',
-                                  background: 'rgba(251,191,36,0.1)',
-                                  borderRadius: '0.5rem',
-                                  border: '1px solid rgba(251,191,36,0.2)',
-                                  backdropFilter: 'blur(10px)'
+                    filteredPantryItems.map((item, index) => {
+                      // Debug specific items with decimal values
+                      if (item.name.includes('Philadelphia') || item.name.includes('Butter')) {
+                        console.log(`🔍 Card View Debug - ${item.name}: currentCount=${item.currentCount} (type: ${typeof item.currentCount})`);
+                      }
+                      
+                      const getStatusStyle = () => {
+                        if (item.currentCount === 0) return styles.statusOut;
+                        if (item.currentCount < item.minCount) return styles.statusLow;
+                        return styles.statusGood;
+                      };
+                      
+                      const getStatusText = () => {
+                        if (item.currentCount === 0) return 'Out';
+                        if (item.currentCount < item.minCount) return 'Low';
+                        return 'Okay';
+                      };
+                      
+                      const getItemIcon = () => {
+                        const emoji = getCategoryEmoji(item.category || 'other');
+                        return <span style={{fontSize: '1.5rem'}}>{emoji}</span>;
+                      };
+                      
+                      return (
+                        <div key={item.id || index} style={styles.inventoryItem}>
+                          <div style={styles.itemContent}>
+                            <div style={styles.itemLeft}>
+                              <div style={styles.itemIcon}>
+                                {getItemIcon()}
+                              </div>
+                              <div style={styles.itemDetails}>
+                                <h3 style={{
+                                  ...styles.itemName,
+                                  width: '180px',
+                                  marginRight: '2rem',
+                                  textOverflow: 'ellipsis',
+                                  overflow: 'hidden',
+                                  whiteSpace: 'nowrap'
+                                }}>{item.name}</h3>
+                                <div style={{
+                                  ...styles.itemCategory,
+                                  marginRight: '2rem'
                                 }}>
-                                  ⏰ Expires: {new Date(item.expiryDate).toLocaleDateString()}
-                                </span>
-                              )}
-                          </div>
-                        </div>
-                        <div style={isMobile ? styles.itemRightMobile : styles.itemRight}>
-                          {/* Stock Controls */}
-                          <div style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            minWidth: '140px',
-                            marginLeft: '1rem'
-                          }}>
-                            <p style={{
-                              ...styles.stockLabel,
-                              fontSize: '0.75rem',
-                              margin: 0,
-                              textAlign: 'center'
-                            }}>
-                              Stock: {formatStockDisplay(item.currentCount, item.minCount)}
-                            </p>
-                            <div style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.75rem'
-                            }}>
-                              <button
-                                onClick={() => {
-                                  console.log('🔽 Decrease button clicked for item:', item.id, item.name);
-                                  // Smart decrement: use 0.25 for values < 1, otherwise use 1
-                                  const decrement = item.currentCount <= 1 ? 0.25 : 1;
-                                  const newValue = Math.max(0, item.currentCount - decrement);
-                                  updateItemQuantity(item.id, Math.round(newValue * 100) / 100, false);
-                                }}
-                                style={{
-                                  width: '2.25rem',
-                                  height: '2.25rem',
-                                  borderRadius: '50%',
-                                  border: '1px solid rgba(239,68,68,0.3)',
-                                  color: 'white',
-                                  cursor: 'pointer',
-                                  fontSize: '1rem',
-                                  fontWeight: '600',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  background: 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(220,38,38,0.15))',
-                                  boxShadow: '0 4px 12px rgba(239,68,68,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
-                                  backdropFilter: 'blur(10px)',
-                                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                                }}
-                              >
-                                -
-                              </button>
+                                  <span style={{
+                                    background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(59,130,246,0.1))',
+                                    color: '#34d399',
+                                    padding: '0.25rem 0.75rem',
+                                    borderRadius: '1rem',
+                                    fontSize: '0.75rem',
+                                    fontWeight: '500',
+                                    border: '1px solid rgba(16,185,129,0.3)',
+                                    boxShadow: '0 4px 12px rgba(16,185,129,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
+                                    backdropFilter: 'blur(10px)',
+                                    transition: 'all 0.3s ease'
+                                  }}>
+                                    📦 {item.category.replace(/^Pantry\s*–\s*/, '').replace(/^Fridge\s*–\s*/, '').replace(/^Freezer\s*–\s*/, '')}
+                                  </span>
+                                  <span style={{
+                                    color: 'rgba(255,255,255,0.5)',
+                                    fontSize: '0.7rem',
+                                    fontStyle: 'italic'
+                                  }}>
+                                    ⏰ {item.lastUpdated}
+                                  </span>
+                                </div>
+                                {item.expiryDate && (
+                                  <span style={{
+                                    color: '#fbbf24',
+                                    fontWeight: '600',
+                                    marginLeft: '0.75rem',
+                                    fontSize: '0.75rem',
+                                    padding: '0.125rem 0.5rem',
+                                    background: 'rgba(251,191,36,0.1)',
+                                    borderRadius: '0.5rem',
+                                    border: '1px solid rgba(251,191,36,0.2)',
+                                    backdropFilter: 'blur(10px)'
+                                  }}>
+                                    ⏰ Expires: {new Date(item.expiryDate).toLocaleDateString()}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div style={isMobile ? styles.itemRightMobile : styles.itemRight}>
+                              {/* Stock Controls */}
                               <div style={{
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
-                                justifyContent: 'center',
-                                minWidth: '2.5rem',
-                                height: '2rem'
+                                gap: '0.5rem',
+                                minWidth: '140px',
+                                marginLeft: '1rem'
                               }}>
                                 <p style={{
+                                  ...styles.stockLabel,
+                                  fontSize: '0.75rem',
                                   margin: 0,
-                                  lineHeight: '1',
-                                  fontSize: '1.125rem',
-                                  fontWeight: '600',
-                                  color: 'rgba(255,255,255,0.95)',
-                                  textShadow: '0 1px 2px rgba(0,0,0,0.3)',
-                                  letterSpacing: '0.025em'
+                                  textAlign: 'center'
                                 }}>
-                                  <QuantityDisplay 
-                                    quantity={item.currentCount} 
+                                  Stock: {formatStockDisplay(item.currentCount, item.minCount)}
+                                </p>
+                                <div style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '0.75rem'
+                                }}>
+                                  <button
+                                    onClick={() => {
+                                      console.log('🔽 Decrease button clicked for item:', item.id, item.name);
+                                      // Smart decrement: use 0.25 for values < 1, otherwise use 1
+                                      const decrement = item.currentCount <= 1 ? 0.25 : 1;
+                                      const newValue = Math.max(0, item.currentCount - decrement);
+                                      updateItemQuantity(item.id, Math.round(newValue * 100) / 100, false);
+                                    }}
                                     style={{
+                                      width: '2.25rem',
+                                      height: '2.25rem',
+                                      borderRadius: '50%',
+                                      border: '1px solid rgba(239,68,68,0.3)',
+                                      color: 'white',
+                                      cursor: 'pointer',
+                                      fontSize: '1rem',
+                                      fontWeight: '600',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      background: 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(220,38,38,0.15))',
+                                      boxShadow: '0 4px 12px rgba(239,68,68,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
+                                      backdropFilter: 'blur(10px)',
+                                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                                    }}
+                                  >
+                                    -
+                                  </button>
+                                  <div style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    minWidth: '2.5rem',
+                                    height: '2rem'
+                                  }}>
+                                    <p style={{
+                                      margin: 0,
+                                      lineHeight: '1',
                                       fontSize: '1.125rem',
                                       fontWeight: '600',
                                       color: 'rgba(255,255,255,0.95)',
-                                      textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                                      textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+                                      letterSpacing: '0.025em'
+                                    }}>
+                                      <QuantityDisplay 
+                                        quantity={item.currentCount} 
+                                        style={{
+                                          fontSize: '1.125rem',
+                                          fontWeight: '600',
+                                          color: 'rgba(255,255,255,0.95)',
+                                          textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                                        }}
+                                      />
+                                    </p>
+                                    <p style={{
+                                      margin: 0,
+                                      lineHeight: '1',
+                                      fontSize: '0.7rem',
+                                      color: 'rgba(255,255,255,0.6)',
+                                      fontWeight: '500',
+                                      letterSpacing: '0.025em'
+                                    }}>
+                                      {item.unit}
+                                    </p>
+                                  </div>
+                                  <button
+                                    onClick={() => {
+                                      console.log('🔼 Increase button clicked for item:', item.id, item.name);
+                                      // Smart increment: use 0.25 for values < 1, otherwise use 1  
+                                      const increment = item.currentCount < 1 ? 0.25 : 1;
+                                      const newValue = item.currentCount + increment;
+                                      updateItemQuantity(item.id, Math.round(newValue * 100) / 100, true);
                                     }}
-                                  />
-                                </p>
-                                <p style={{
-                                  margin: 0,
-                                  lineHeight: '1',
-                                  fontSize: '0.7rem',
-                                  color: 'rgba(255,255,255,0.6)',
-                                  fontWeight: '500',
-                                  letterSpacing: '0.025em'
-                                }}>
-                                  {item.unit}
-                                </p>
+                                    style={{
+                                      width: '2.25rem',
+                                      height: '2.25rem',
+                                      borderRadius: '50%',
+                                      border: '1px solid rgba(34,197,94,0.3)',
+                                      color: 'white',
+                                      cursor: 'pointer',
+                                      fontSize: '1rem',
+                                      fontWeight: '600',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      background: 'linear-gradient(135deg, rgba(34,197,94,0.2), rgba(22,163,74,0.15))',
+                                      boxShadow: '0 4px 12px rgba(34,197,94,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
+                                      backdropFilter: 'blur(10px)',
+                                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                                    }}
+                                  >
+                                    +
+                                  </button>
+                                </div>
                               </div>
-                              <button
-                                onClick={() => {
-                                  console.log('🔼 Increase button clicked for item:', item.id, item.name);
-                                  // Smart increment: use 0.25 for values < 1, otherwise use 1  
-                                  const increment = item.currentCount < 1 ? 0.25 : 1;
-                                  const newValue = item.currentCount + increment;
-                                  updateItemQuantity(item.id, Math.round(newValue * 100) / 100, true);
-                                }}
-                                style={{
-                                  width: '2.25rem',
-                                  height: '2.25rem',
-                                  borderRadius: '50%',
-                                  border: '1px solid rgba(34,197,94,0.3)',
-                                  color: 'white',
-                                  cursor: 'pointer',
-                                  fontSize: '1rem',
-                                  fontWeight: '600',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  background: 'linear-gradient(135deg, rgba(34,197,94,0.2), rgba(22,163,74,0.15))',
-                                  boxShadow: '0 4px 12px rgba(34,197,94,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
-                                  backdropFilter: 'blur(10px)',
-                                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                                }}
-                              >
-                                +
-                              </button>
-                            </div>
-                          </div>
 
-                          {/* Min Needed - Compact */}
-                          <div style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '0.25rem',
-                            minWidth: '80px'
-                          }}>
-                            <p style={{
-                              ...styles.stockLabel,
-                              fontSize: '0.7rem',
-                              margin: 0,
-                              textAlign: 'center'
-                            }}>
-                              Min Needed
-                            </p>
-                            <div 
-                              style={{
-                                textAlign: 'center',
-                                cursor: 'pointer',
-                                padding: '0.25rem 0.5rem',
-                                borderRadius: '0.5rem',
-                                border: '1px solid rgba(255,255,255,0.15)',
-                                background: 'rgba(255,255,255,0.08)',
-                                minWidth: '2.5rem',
-                                height: '2rem',
+                              {/* Min Needed - Compact */}
+                              <div style={{
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
-                                justifyContent: 'center',
-                                transition: 'all 0.3s ease',
-                                backdropFilter: 'blur(10px)'
-                              }}
-                              onClick={() => {
-                                const newMin = prompt(`Set minimum needed for ${item.name}:`, item.minCount.toString());
-                                if (newMin !== null) {
-                                  const newMinValue = parseFloat(newMin);
-                                  if (!isNaN(newMinValue) && newMinValue >= 0) {
-                                    updateItemMinCount(item.id, newMinValue);
-                                  } else {
-                                    alert('Please enter a valid number (0 or greater)');
-                                  }
-                                }
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
-                                e.currentTarget.style.border = '1px solid rgba(255,255,255,0.3)';
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-                                e.currentTarget.style.border = '1px solid rgba(255,255,255,0.2)';
-                              }}
-                            >
-                              <p style={{
-                                margin: 0,
-                                lineHeight: '1',
-                                fontSize: '0.875rem',
-                                fontWeight: 'bold',
-                                color: 'white'
+                                gap: '0.25rem',
+                                minWidth: '80px'
                               }}>
-                                {item.minCount}
-                              </p>
-                              <p style={{
-                                margin: 0,
-                                lineHeight: '1',
-                                fontSize: '0.5rem',
-                                color: 'rgba(255,255,255,0.6)'
+                                <p style={{
+                                  ...styles.stockLabel,
+                                  fontSize: '0.7rem',
+                                  margin: 0,
+                                  textAlign: 'center'
+                                }}>
+                                  Min Needed
+                                </p>
+                                <div 
+                                  style={{
+                                    textAlign: 'center',
+                                    cursor: 'pointer',
+                                    padding: '0.25rem 0.5rem',
+                                    borderRadius: '0.5rem',
+                                    border: '1px solid rgba(255,255,255,0.15)',
+                                    background: 'rgba(255,255,255,0.08)',
+                                    minWidth: '2.5rem',
+                                    height: '2rem',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    transition: 'all 0.3s ease',
+                                    backdropFilter: 'blur(10px)'
+                                  }}
+                                  onClick={() => {
+                                    const newMin = prompt(`Set minimum needed for ${item.name}:`, item.minCount.toString());
+                                    if (newMin !== null) {
+                                      const newMinValue = parseFloat(newMin);
+                                      if (!isNaN(newMinValue) && newMinValue >= 0) {
+                                        updateItemMinCount(item.id, newMinValue);
+                                      } else {
+                                        alert('Please enter a valid number (0 or greater)');
+                                      }
+                                    }
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+                                    e.currentTarget.style.border = '1px solid rgba(255,255,255,0.3)';
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                                    e.currentTarget.style.border = '1px solid rgba(255,255,255,0.2)';
+                                  }}
+                                >
+                                  <p style={{
+                                    margin: 0,
+                                    lineHeight: '1',
+                                    fontSize: '0.875rem',
+                                    fontWeight: 'bold',
+                                    color: 'white'
+                                  }}>
+                                    {item.minCount}
+                                  </p>
+                                  <p style={{
+                                    margin: 0,
+                                    lineHeight: '1',
+                                    fontSize: '0.5rem',
+                                    color: 'rgba(255,255,255,0.6)'
+                                  }}>
+                                    edit
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Status Badge */}
+                              <div style={{
+                                ...styles.statusBadge,
+                                ...getStatusStyle(),
+                                minWidth: '60px',
+                                textAlign: 'center'
                               }}>
-                                edit
-                              </p>
+                                {getStatusText()}
+                              </div>
                             </div>
                           </div>
-
-                          {/* Status Badge */}
-                          <div style={{
-                            ...styles.statusBadge,
-                            ...getStatusStyle(),
-                            minWidth: '60px',
-                            textAlign: 'center'
-                          }}>
-                            {getStatusText()}
-                          </div>
                         </div>
-                      </div>
-                    </div>
-                  );
+                      );
                     })
                   )}
                 </div>
+              </div>
+
+              {/* Right Column - Analytics and Recipes */}
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.5rem'
+              }}>
+                {/* Analytics Section */}
+                {showAnalytics && (
+                  <div style={{
+                    ...styles.card,
+                    background: 'linear-gradient(145deg, rgba(59,130,246,0.1), rgba(37,99,235,0.05))',
+                    border: '1px solid rgba(59,130,246,0.3)'
+                  }}>
+                    <div style={styles.cardHeader}>
+                      <div style={styles.cardTitle}>
+                        <div style={styles.cardIcon}>
+                          📊
+                        </div>
+                        <div>
+                          <h2 style={styles.cardTitleText}>Pantry Analytics</h2>
+                          <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>Insights and trends from your pantry data! 📈✨</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div style={{padding: '1rem'}}>
+                      <PantryAnalytics pantryItems={filteredPantryItems} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Recipe Section */}
+                {showRecipes && (
+                  <div style={{
+                    ...styles.card,
+                    background: 'linear-gradient(145deg, rgba(168,85,247,0.1), rgba(139,92,246,0.05))',
+                    border: '1px solid rgba(168,85,247,0.3)'
+                  }}>
+                    <div style={styles.cardHeader}>
+                      <div style={styles.cardTitle}>
+                        <div style={styles.cardIcon}>
+                          <img src="/cupboard image 1.png" alt="Recipe Icon" style={{width: '60px', height: '60px', objectFit: 'contain'}} />
+                        </div>
+                        <div>
+                          <h2 style={styles.cardTitleText}>Recipe Inspiration</h2>
+                          <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>Delicious ideas based on your pantry ingredients! 👨‍🍳✨</p>
+                        </div>
+                      </div>
+                      <button 
+                        style={{
+                          ...styles.addBtn,
+                          background: loadingRecipes 
+                            ? 'linear-gradient(to right, rgba(120,120,120,0.4), rgba(140,140,120,0.3))'
+                            : 'linear-gradient(to right, rgba(168,85,247,0.4), rgba(139,92,246,0.4))',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                        onClick={generateRecipes}
+                        disabled={loadingRecipes}
+                      >
+                        <img src="/cupboard image 1.png" alt="Refresh Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+                        {loadingRecipes ? 'Finding Recipes...' : 'Get New Recipes'}
+                      </button>
+                    </div>
+                    
+                    <div style={{padding: '1rem'}}>
+                      {recipes.length === 0 ? (
+                        loadingRecipes ? (
+                          <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
+                            <img src="/cupboard image 1.png" alt="Recipe Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
+                            <p style={{color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem', marginBottom: '0.5rem'}}>
+                              👩‍🍳 Hang on while the AI chefs cook something up for you!
+                            </p>
+                            <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem'}}>
+                              We're crafting breakfast, lunch, dinner, and dessert ideas from your pantry.
+                            </p>
+                          </div>
+                        ) : (
+                          <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
+                            <img src="/cupboard image 1.png" alt="Recipe Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
+                            <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem', marginBottom: '1rem'}}>
+                              🍽️ {pantryItems.filter(item => item.currentCount > 0).length === 0 
+                                ? "Add some ingredients to your pantry first!" 
+                                : "Not enough ingredients for complete recipes"}
+                            </p>
+                            <p style={{color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem'}}>
+                              {pantryItems.filter(item => item.currentCount > 0).length === 0 
+                                ? "Stock up your pantry, then click 'Get New Recipes' to discover dishes you can make!"
+                                : "Try adding more ingredients to your pantry for more recipe options. We only suggest recipes you can actually make!"}
+                            </p>
+                          </div>
+                        )
+                      ) : (
+                        <div style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+                          gap: '1.5rem'
+                        }}>
+                          {recipes
+                            .sort((a, b) => {
+                              const mealOrder = { breakfast: 1, lunch: 2, dinner: 3, dessert: 4 };
+                              return mealOrder[a.mealType] - mealOrder[b.mealType];
+                            })
+                            .map((recipe) => (
+                            <div key={recipe.id} style={{
+                              background: 'linear-gradient(145deg, rgba(168,85,247,0.1), rgba(139,92,246,0.05))',
+                              borderRadius: '1rem',
+                              border: '1px solid rgba(168,85,247,0.3)',
+                              padding: '1.5rem',
+                              backdropFilter: 'blur(10px)'
+                            }}>
+                              {/* Recipe Header */}
+                              <div style={{ marginBottom: '1rem' }}>
+                                <h3 style={{color: 'white', fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem'}}>
+                                  {recipe.title}
+                                </h3>
+                                <p style={{color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem', lineHeight: '1.4', marginBottom: '0.75rem'}}>
+                                  {recipe.description}
+                                </p>
+                                
+                                {/* Recipe Meta */}
+                                <div style={{ display: 'flex', gap: '1rem', fontSize: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                                  <span style={{
+                                    background: recipe.mealType === 'breakfast' 
+                                      ? 'rgba(251,191,36,0.3)' 
+                                      : recipe.mealType === 'lunch'
+                                      ? 'rgba(34,197,94,0.3)'
+                                      : recipe.mealType === 'dinner'
+                                      ? 'rgba(239,68,68,0.3)'
+                                      : 'rgba(168,85,247,0.3)',
+                                    color: recipe.mealType === 'breakfast' 
+                                      ? 'rgba(251,191,36,1)' 
+                                      : recipe.mealType === 'lunch'
+                                      ? 'rgba(34,197,94,1)'
+                                      : recipe.mealType === 'dinner'
+                                      ? 'rgba(239,68,68,1)'
+                                      : 'rgba(168,85,247,1)',
+                                    padding: '0.25rem 0.5rem',
+                                    borderRadius: '0.25rem',
+                                    fontWeight: 'bold'
+                                  }}>
+                                    {recipe.mealType.charAt(0).toUpperCase() + recipe.mealType.slice(1)}
+                                  </span>
+                                  <span style={{color: 'rgba(255,255,255,0.7)'}}>
+                                    🕒 {recipe.cookTime}
+                                  </span>
+                                  <span style={{color: 'rgba(255,255,255,0.7)'}}>
+                                    👥 {recipe.servings} servings
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Recipe Content - Ingredients & Instructions */}
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                {/* Ingredients */}
+                                <div>
+                                  <h4 style={{color: 'white', fontSize: '1rem', fontWeight: '600', marginBottom: '0.5rem'}}>
+                                    🥘 Ingredients
+                                  </h4>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                    {recipe.ingredients.map((ingredient, idx) => (
+                                      <div key={idx} style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                        padding: '0.5rem',
+                                        borderRadius: '0.5rem',
+                                        background: 'rgba(255,255,255,0.05)',
+                                        border: '1px solid rgba(255,255,255,0.1)'
+                                      }}>
+                                        <span style={{
+                                          color: recipe.availableIngredients.includes(ingredient) ? '#10b981' : '#ef4444',
+                                          fontSize: '1.2rem'
+                                        }}>
+                                          {recipe.availableIngredients.includes(ingredient) ? '✅' : '❌'}
+                                        </span>
+                                        <span style={{
+                                          color: 'rgba(255,255,255,0.9)',
+                                          fontSize: '0.875rem'
+                                        }}>
+                                          {ingredient}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                {/* Instructions */}
+                                <div>
+                                  <h4 style={{color: 'white', fontSize: '1rem', fontWeight: '600', marginBottom: '0.5rem'}}>
+                                    📝 Instructions
+                                  </h4>
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                    {recipe.instructions.map((instruction, idx) => (
+                                      <div key={idx} style={{
+                                        padding: '0.75rem',
+                                        borderRadius: '0.5rem',
+                                        background: 'rgba(255,255,255,0.05)',
+                                        border: '1px solid rgba(255,255,255,0.1)',
+                                        borderLeft: '3px solid rgba(168,85,247,0.5)'
+                                      }}>
+                                        <span style={{
+                                          color: 'rgba(255,255,255,0.9)',
+                                          fontSize: '0.875rem',
+                                          lineHeight: '1.5'
+                                        }}>
+                                          <strong style={{color: 'rgba(168,85,247,0.8)'}}>Step {idx + 1}:</strong> {instruction}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             
             {/* Recipe Section within Pantry Tab */}
