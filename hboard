@@ -1,0 +1,5 @@
+[33m13bf3e7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Further reduce text bubble width from 90px to 70px for better spacing
+[33md7a305d[m Reduce text bubble width from 120px to 90px to prevent crowding
+[33m8b43b5a[m Fix dropdown visibility and improve item card spacing
+[33m9ca3157[m Add padding to item cards, update subtitle, and implement sort by status feature
+[33m787963b[m Fix JSX syntax errors in build
