@@ -1387,27 +1387,49 @@ function App() {
     }
   };
 
-  // Pantry category filter options
-  const pantryCategories = [
-    'all',
-    'Pantry – Staples',
-    'Pantry – Oils, Vinegars & Condiments', 
-    'Pantry – Cereals',
-    'Pantry – Pasta',
-    'Pantry – Rice & Grains',
-    'Pantry – Baking & Misc. Dry Goods',
-    'Fridge – Dairy & Plant-Based Alternatives',
-    'Fridge – Sauces & Condiments',
-    'Fridge – Pickled & Preserved',
-    'Fridge',
-    'Freezer',
-    'Produce',
-    'Dairy',
-    'Meat',
-    'Snacks',
-    'Beverages',
-    'CHOCOLATE'
-  ];
+  // Category groups for a cleaner UI
+  const categoryGroups = [
+    {
+      key: 'pantry',
+      name: 'Pantry',
+      emoji: '📦',
+      sub: [
+        'Pantry – Staples',
+        'Pantry – Oils, Vinegars & Condiments',
+        'Pantry – Cereals',
+        'Pantry – Pasta',
+        'Pantry – Rice & Grains',
+        'Pantry – Baking & Misc. Dry Goods',
+        'Snacks',
+        'Beverages',
+        'CHOCOLATE'
+      ]
+    },
+    {
+      key: 'fridge',
+      name: 'Fridge',
+      emoji: '🧊',
+      sub: [
+        'Fridge – Dairy & Plant-Based Alternatives',
+        'Fridge – Sauces & Condiments',
+        'Fridge – Pickled & Preserved'
+      ]
+    },
+    {
+      key: 'fresh',
+      name: 'Fresh & Cold',
+      emoji: '🥬',
+      sub: [
+        'Produce',
+        'Meat',
+        'Freezer'
+      ]
+    }
+  ] as const;
+
+  // Flattened list for filtering logic
+  const pantryCategories = ['all', ...categoryGroups.flatMap(g => g.sub)];
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
 
   // Filter pantry items by selected categories
   const filteredPantryItems = pantryCategoryFilter.includes('all') 
@@ -3366,74 +3388,47 @@ chicken breast, 2 lbs`}
               }}>
                 📂 Filter by Category:
               </div>
-              <div style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '0.5rem'
-              }}>
-                {pantryCategories.map((category) => (
-                  <label
-                    key={category}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      padding: '0.5rem 0.75rem',
-                      borderRadius: '0.5rem',
-                      border: '1px solid rgba(255,255,255,0.2)',
-                      background: pantryCategoryFilter.includes(category)
-                        ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(59, 130, 246, 0.2))'
-                        : 'rgba(255,255,255,0.05)',
-                      color: pantryCategoryFilter.includes(category) ? 'white' : 'rgba(255,255,255,0.7)',
-                      fontSize: '0.75rem',
-                      fontWeight: pantryCategoryFilter.includes(category) ? 'bold' : 'normal',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      boxShadow: pantryCategoryFilter.includes(category) 
-                        ? '0 4px 8px rgba(16, 185, 129, 0.3)' 
-                        : 'none',
-                      userSelect: 'none'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!pantryCategoryFilter.includes(category)) {
-                        e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-                        e.currentTarget.style.color = 'rgba(255,255,255,0.9)';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!pantryCategoryFilter.includes(category)) {
-                        e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                        e.currentTarget.style.color = 'rgba(255,255,255,0.7)';
-                      }
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={pantryCategoryFilter.includes(category)}
-                      onChange={() => handleCategoryFilterChange(category)}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {/* All Items toggle */}
+                <label key="all" style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                  padding: '0.5rem 0.75rem', borderRadius: '0.5rem',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  background: pantryCategoryFilter.includes('all') ? 'linear-gradient(135deg, rgba(16,185,129,0.3), rgba(59,130,246,0.2))' : 'rgba(255,255,255,0.05)',
+                  color: pantryCategoryFilter.includes('all') ? 'white' : 'rgba(255,255,255,0.7)',
+                  fontSize: '0.75rem', fontWeight: pantryCategoryFilter.includes('all') ? 'bold' : 'normal', cursor: 'pointer'
+                }}>
+                  <input type="checkbox" checked={pantryCategoryFilter.includes('all')} onChange={() => handleCategoryFilterChange('all')} style={{ width: 16, height: 16, accentColor: '#10b981' }} />
+                  📦 All Items
+                </label>
+
+                {/* Grouped categories */}
+                {categoryGroups.map(group => (
+                  <div key={group.key} style={{ border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.03)' }}>
+                    <button
+                      onClick={() => setExpandedGroups(prev => ({ ...prev, [group.key]: !prev[group.key] }))}
                       style={{
-                        width: '16px',
-                        height: '16px',
-                        accentColor: '#10b981',
-                        cursor: 'pointer'
+                        width: '100%', textAlign: 'left', padding: '0.5rem 0.75rem', background: 'transparent', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between'
                       }}
-                    />
-                    {category === 'all' ? '📦 All Items' : 
-                     category === 'Pantry – Staples' ? '🥫 Staples' :
-                     category === 'Pantry – Oils, Vinegars & Condiments' ? '🫙 Oils & Condiments' :
-                     category === 'Pantry – Cereals' ? '🥣 Cereals' :
-                     category === 'Pantry – Pasta' ? '🍝 Pasta' :
-                     category === 'Pantry – Rice & Grains' ? '🌾 Rice & Grains' :
-                     category === 'Pantry – Baking & Misc. Dry Goods' ? '🧁 Baking & Misc' :
-                     category === 'Fridge' ? '❄️ Fridge' :
-                     category === 'Freezer' ? '🧊 Freezer' :
-                     category === 'Produce' ? '🥬 Produce' :
-                     category === 'Dairy' ? '🥛 Dairy' :
-                     category === 'Meat' ? '🥩 Meat' :
-                     category === 'Snacks' ? '🍿 Snacks' :
-                     category === 'Beverages' ? '🥤 Beverages' :
-                     category === 'CHOCOLATE' ? '❤️ CHOCOLATE' : category}
-                  </label>
+                    >
+                      <span>{group.emoji} {group.name}</span>
+                      <span style={{ opacity: 0.8 }}>{expandedGroups[group.key] ? '▲' : '▼'}</span>
+                    </button>
+                    {expandedGroups[group.key] && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0.5rem 0.75rem' }}>
+                        {group.sub.map(category => (
+                          <label key={category} style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 0.6rem', borderRadius: '0.5rem', border: '1px solid rgba(255,255,255,0.2)',
+                            background: pantryCategoryFilter.includes(category) ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(59, 130, 246, 0.2))' : 'rgba(255,255,255,0.05)',
+                            color: pantryCategoryFilter.includes(category) ? 'white' : 'rgba(255,255,255,0.7)', fontSize: '0.72rem', cursor: 'pointer'
+                          }}>
+                            <input type="checkbox" checked={pantryCategoryFilter.includes(category)} onChange={() => handleCategoryFilterChange(category)} style={{ width: 16, height: 16, accentColor: '#10b981' }} />
+                            {category}
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
             </div>
