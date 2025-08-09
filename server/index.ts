@@ -965,6 +965,7 @@ app.get('/api/predictive-restock', async (req, res) => {
 // GPT-powered recipes
 app.post('/api/recipes/gpt', async (req, res) => {
   try {
+    res.set({ 'Cache-Control': 'no-store' });
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: 'OpenAI API key not configured' });
@@ -973,8 +974,9 @@ app.post('/api/recipes/gpt', async (req, res) => {
     const { pantry } = req.body as { pantry: Array<{ name: string; quantity?: number; unit?: string; category?: string }>; };
     const items = (pantry || []).map(i => `${i.name}${i.quantity ? ` (${i.quantity} ${i.unit || ''})` : ''}${i.category ? ` – ${i.category}` : ''}`);
 
-    const system = 'You are a professional chef. Create approachable, delicious recipes from the provided pantry. Use only common techniques; avoid exotic ingredients not provided unless trivial (salt, pepper, oil, water).';
-    const user = `Pantry items:\n${items.join('\n')}\n\nTask: Propose exactly four recipes: one breakfast, one lunch, one dinner, and one dessert. For each, include: title, mealType (breakfast|lunch|dinner|dessert), shortDescription, ingredientsUsed (subset of pantry names), optionalMissing (short list), steps (5-8 numbered steps), cookTime (e.g., 20 minutes), servings (integer). Return strict JSON: { recipes: Recipe[] }`;
+    const system = 'You are a professional chef. Create approachable, delicious recipes from the provided pantry. Use only common techniques; avoid exotic ingredients not provided unless trivial (salt, pepper, oil, water). Always vary ideas across calls.';
+    const nonce = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const user = `Request ID: ${nonce}\nPantry items:\n${items.join('\n')}\n\nTask: Propose exactly four recipes: one breakfast, one lunch, one dinner, and one dessert. Each call should be different and creative. For each, include: title, mealType (breakfast|lunch|dinner|dessert), shortDescription, ingredientsUsed (subset of pantry names), optionalMissing (short list), steps (5-8 numbered steps), cookTime (e.g., 20 minutes), servings (integer). Return strict JSON: { recipes: Recipe[] }`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -988,7 +990,8 @@ app.post('/api/recipes/gpt', async (req, res) => {
           { role: 'system', content: system },
           { role: 'user', content: user }
         ],
-        temperature: 0.7,
+        temperature: 0.9,
+        top_p: 0.95,
         response_format: { type: 'json_object' }
       })
     });

@@ -3062,7 +3062,7 @@ chicken breast, 2 lbs`}
             </div>
             <div style={styles.quickStatCard}>
               <div style={{...styles.quickStatValue, color: '#fbbf24'}}>
-                {pantryItems.filter(item => item.currentCount <= item.minCount).length}
+                {pantryItems.filter(item => item.currentCount < item.minCount).length}
               </div>
               <div style={styles.quickStatLabel}>Running Low</div>
             </div>
