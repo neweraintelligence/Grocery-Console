@@ -204,7 +204,42 @@ app.get('/api/pantry', async (req, res) => {
         };
       });
 
-    res.json(pantryItems);
+    // TEMPORARY: Add test items to verify fraction display works
+    const testItems = [
+      {
+        id: '999',
+        name: 'TEST: Philadelphia Fraction',
+        category: 'TEST',
+        currentCount: 0.25,
+        minCount: 1,
+        unit: 'container',
+        lastUpdated: '2025-08-09',
+        notes: 'Testing ¼ display'
+      },
+      {
+        id: '998',
+        name: 'TEST: Butter Fraction',
+        category: 'TEST',
+        currentCount: 0.4,
+        minCount: 1,
+        unit: 'cup', 
+        lastUpdated: '2025-08-09',
+        notes: 'Testing ⅖ display'
+      },
+      {
+        id: '997',
+        name: 'TEST: Half Cup',
+        category: 'TEST',
+        currentCount: 0.5,
+        minCount: 1,
+        unit: 'cup',
+        lastUpdated: '2025-08-09', 
+        notes: 'Testing ½ display'
+      }
+    ];
+    
+    console.log('🧪 Adding test items with fractions for verification');
+    res.json([...pantryItems, ...testItems]);
   } catch (error) {
     console.error('Error fetching pantry items:', error);
     res.status(500).json({ error: 'Failed to fetch pantry items' });
