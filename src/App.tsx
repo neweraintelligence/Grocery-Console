@@ -3233,7 +3233,13 @@ chicken breast, 2 lbs`}
               📊 View Spreadsheet
             </button>
             <button
-              style={styles.weeksListBtn}
+              style={{
+                ...styles.weeksListBtn,
+                ...(predictiveRestockService.isFridayRestockTime() ? {
+                  boxShadow: '0 0 0 0 rgba(16,185,129,0.7)',
+                  animation: 'weeklyGlow 2s infinite'
+                } : {})
+              }}
               onClick={() => setShowWeeksListBox(true)}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-1px)';
@@ -4292,6 +4298,12 @@ chicken breast, 2 lbs`}
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.7; }
+        }
+
+        @keyframes weeklyGlow {
+          0% { box-shadow: 0 0 0 0 rgba(16,185,129,0.7); }
+          70% { box-shadow: 0 0 0 12px rgba(16,185,129,0); }
+          100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
         }
         
         button:hover {
