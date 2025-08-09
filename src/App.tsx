@@ -3681,7 +3681,7 @@ chicken breast, 2 lbs`}
                       </p>
                     </div>
                   ) : (
-                filteredPantryItems.map((item, index) => {
+                    filteredPantryItems.map((item, index) => {
                   // Debug specific items with decimal values
                   if (item.name.includes('Philadelphia') || item.name.includes('Butter')) {
                     console.log(`🔍 Card View Debug - ${item.name}: currentCount=${item.currentCount} (type: ${typeof item.currentCount})`);
@@ -3742,7 +3742,6 @@ chicken breast, 2 lbs`}
                                   • Expires: {new Date(item.expiryDate).toLocaleDateString()}
                                 </span>
                               )}
-                            </p>
                           </div>
                         </div>
                         <div style={isMobile ? styles.itemRightMobile : styles.itemRight}>
@@ -3940,7 +3939,7 @@ chicken breast, 2 lbs`}
                       </div>
                     </div>
                   );
-                })
+                    })
                   )}
                 </div>
               </div>
