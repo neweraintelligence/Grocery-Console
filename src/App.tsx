@@ -948,7 +948,7 @@ const PantryAnalytics = ({ pantryItems }: { pantryItems: PantryItem[] }) => {
                 gap: '0.75rem'
               }}>
                 <div style={{ 
-                  width: '120px', 
+                  width: '90px', 
                   fontSize: '0.875rem', 
                   color: 'white',
                   textOverflow: 'ellipsis',
