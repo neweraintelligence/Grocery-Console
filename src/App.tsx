@@ -3814,14 +3814,14 @@ chicken breast, 2 lbs`}
                           <div style={styles.itemDetails}>
                             <h3 style={styles.itemName}>{item.name}</h3>
                             <div style={styles.itemCategory}>
-                              <span style={{fontSize: '0.875rem', color: 'rgba(255,255,255,0.7)'}}>
-                                {getDescription()}
-                              </span>
                               <span style={{
                                 ...styles.itemBadge,
                                 ...(item.source === 'pantry' ? styles.itemBadgeSource : styles.itemBadgeManual)
                               }}>
                                 {item.source === 'pantry' ? '🏠 Pantry' : `📦 ${(item.category || 'Other').replace(/^Pantry\s*–\s*/, '').replace(/^Fridge\s*–\s*/, '').replace(/^Freezer\s*–\s*/, '')}`}
+                              </span>
+                              <span style={{fontSize: '0.875rem', color: 'rgba(255,255,255,0.7)'}}>
+                                {getDescription()}
                               </span>
                               {item.expiryDate && (
                                 <span style={{
