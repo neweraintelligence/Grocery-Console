@@ -439,7 +439,7 @@ const styles = {
   itemDetails: {
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: '0.5rem',
+    gap: '0.75rem',
   },
   itemName: {
     color: 'white',
@@ -3641,16 +3641,16 @@ chicken breast, 2 lbs`}
                   padding: '0.5rem',
                   borderRadius: '0.5rem',
                   border: '1px solid rgba(255,255,255,0.2)',
-                  background: 'rgba(255,255,255,0.1)',
+                  background: 'rgba(0,0,0,0.8)',
                   color: 'white',
                   fontSize: '0.75rem',
                   marginBottom: '1rem'
                 }}
               >
-                <option value="name">📝 Name (A-Z)</option>
-                <option value="status-critical">🚨 Status (Critical First)</option>
-                <option value="status-good">✅ Status (Good First)</option>
-                <option value="category">📂 Category</option>
+                <option value="name" style={{background: 'rgba(0,0,0,0.9)', color: 'white'}}>📝 Name (A-Z)</option>
+                <option value="status-critical" style={{background: 'rgba(0,0,0,0.9)', color: 'white'}}>🚨 Status (Critical First)</option>
+                <option value="status-good" style={{background: 'rgba(0,0,0,0.9)', color: 'white'}}>✅ Status (Good First)</option>
+                <option value="category" style={{background: 'rgba(0,0,0,0.9)', color: 'white'}}>📂 Category</option>
               </select>
               
               <div style={{
