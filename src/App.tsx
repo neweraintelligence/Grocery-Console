@@ -1267,22 +1267,10 @@ function App() {
     fetchShoppingList();
   }, []);
 
-  // Check for Friday restock time
+  // Disable auto-popup of Weeks List entirely; enable only via manual click
   useEffect(() => {
-    const checkFridayStatus = () => {
-      const isFridayTime = predictiveRestockService.isFridayRestockTime();
-      if (isFridayTime && !showWeeksListBox) {
-        setShowWeeksListBox(true);
-      }
-    };
-
-    checkFridayStatus();
-    
-    // Check every 5 minutes for Friday status
-    const interval = setInterval(checkFridayStatus, 5 * 60 * 1000);
-    
-    return () => clearInterval(interval);
-  }, [showWeeksListBox]);
+    // Intentionally left empty to avoid auto-opening the Weeks List
+  }, []);
 
   // Track window size for mobile responsiveness
   useEffect(() => {
