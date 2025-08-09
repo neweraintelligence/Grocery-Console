@@ -1448,253 +1448,43 @@ function App() {
   const generateRecipes = async () => {
     setLoadingRecipes(true);
     try {
-      // Check if we have any pantry items to work with
-      console.log('Checking pantry for recipe generation...');
+      const pantryPayload = pantryItems.map(i => ({
+        name: i.name,
+        quantity: i.currentCount,
+        unit: i.unit,
+        category: i.category
+      }));
 
-      // Get all available pantry ingredients with quantities > 0
-      const availableIngredients = pantryItems
-        .filter(item => item.currentCount > 0)
-        .map(item => item.name.toLowerCase().trim());
-
-      console.log('Available ingredients for recipes:', availableIngredients);
-
-      if (availableIngredients.length < 2) {
-        console.log('Not enough ingredients to generate recipes');
-        setRecipes([]);
-        return;
-      }
-
-      // Define recipe templates that can use various ingredient combinations
-      const flexibleRecipeTemplates = [
-        {
-          template: {
-            title: "Hearty Pantry Stir Fry",
-            description: "A delicious stir fry using whatever's available in your pantry",
-            cookTime: "20 minutes",
-            servings: 3,
-            difficulty: "Easy" as const,
-            cuisine: "Asian Fusion",
-            mealType: "dinner" as const,
-            minIngredients: 2
-          },
-          instruction: "Heat oil in a large pan, add ingredients in order of cooking time, season and serve hot"
-        },
-        {
-          template: {
-            title: "Creative Pantry Bowl",
-            description: "A nourishing bowl combining your favorite pantry staples",
-            cookTime: "25 minutes",
-            servings: 2,
-            difficulty: "Easy" as const,
-            cuisine: "Modern",
-            mealType: "lunch" as const,
-            minIngredients: 3
-          },
-          instruction: "Cook base ingredients, layer in bowl with toppings and dressings"
-        },
-        {
-          template: {
-            title: "Rustic Pantry Soup",
-            description: "Warming soup made with available pantry ingredients",
-            cookTime: "35 minutes",
-            servings: 4,
-            difficulty: "Easy" as const,
-            cuisine: "Comfort",
-            mealType: "dinner" as const,
-            minIngredients: 2
-          },
-          instruction: "Sauté aromatics, add liquids and main ingredients, simmer until tender"
-        },
-        {
-          template: {
-            title: "Quick Pantry Pasta",
-            description: "Simple pasta dish using what you have on hand",
-            cookTime: "15 minutes",
-            servings: 3,
-            difficulty: "Easy" as const,
-            cuisine: "Italian Inspired",
-            mealType: "dinner" as const,
-            minIngredients: 2
-          },
-          instruction: "Cook pasta, prepare sauce with available ingredients, combine and serve"
-        },
-        {
-          template: {
-            title: "Pantry Power Salad",
-            description: "Fresh salad incorporating pantry ingredients for substance",
-            cookTime: "15 minutes",
-            servings: 2,
-            difficulty: "Easy" as const,
-            cuisine: "Fresh",
-            mealType: "lunch" as const,
-            minIngredients: 3
-          },
-          instruction: "Prepare base, add pantry ingredients, toss with simple dressing"
-        },
-        {
-          template: {
-            title: "Savory Pantry Skillet",
-            description: "One-pan meal using available pantry treasures",
-            cookTime: "30 minutes",
-            servings: 4,
-            difficulty: "Medium" as const,
-            cuisine: "Home Style",
-            mealType: "dinner" as const,
-            minIngredients: 3
-          },
-          instruction: "Layer ingredients in skillet based on cooking times, cover and cook until done"
-        },
-        {
-          template: {
-            title: "Pantry Breakfast Hash",
-            description: "Hearty breakfast using morning-friendly pantry items",
-            cookTime: "20 minutes",
-            servings: 2,
-            difficulty: "Easy" as const,
-            cuisine: "American",
-            mealType: "breakfast" as const,
-            minIngredients: 2
-          },
-          instruction: "Cook base ingredients, add others gradually, season well"
-        },
-        {
-          template: {
-            title: "Creative Pantry Wrap",
-            description: "Portable meal using pantry ingredients in a wrap",
-            cookTime: "10 minutes",
-            servings: 1,
-            difficulty: "Easy" as const,
-            cuisine: "Fusion",
-            mealType: "lunch" as const,
-            minIngredients: 2
-          },
-          instruction: "Prepare filling ingredients, warm wrap, assemble and roll tightly"
-        }
-      ];
-
-      // Generate 6 unique recipes using random pantry ingredients
-      const viableRecipes: RecipeTemplate[] = [];
-      
-      for (let i = 0; i < 6 && i < flexibleRecipeTemplates.length; i++) {
-        // Randomly select a recipe template
-        const templateIndex = Math.floor(Math.random() * flexibleRecipeTemplates.length);
-        const selectedTemplate = flexibleRecipeTemplates[templateIndex];
-        
-        // Remove the selected template to avoid duplicates
-        flexibleRecipeTemplates.splice(templateIndex, 1);
-        
-        // Randomly select 3-5 ingredients from pantry
-        const numIngredients = Math.min(
-          Math.max(selectedTemplate.template.minIngredients, 3), 
-          Math.min(availableIngredients.length, 5)
-        );
-        
-        const shuffledIngredients = [...availableIngredients].sort(() => Math.random() - 0.5);
-        const selectedIngredients = shuffledIngredients.slice(0, numIngredients);
-        
-        // Create recipe with selected ingredients
-        viableRecipes.push({
-          title: selectedTemplate.template.title,
-          description: selectedTemplate.template.description + ` featuring ${selectedIngredients.slice(0, 2).join(' and ')}.`,
-          cookTime: selectedTemplate.template.cookTime,
-          servings: selectedTemplate.template.servings,
-          difficulty: selectedTemplate.template.difficulty,
-          cuisine: selectedTemplate.template.cuisine,
-          mealType: selectedTemplate.template.mealType,
-          requiredIngredients: selectedIngredients,
-          baseIngredients: selectedIngredients
-        });
-      }
-
-      console.log('Generated recipes using pantry ingredients:', viableRecipes.length);
-
-      if (viableRecipes.length === 0) {
-        setRecipes([]);
-        return;
-      }
-
-      // Create final recipe objects with instructions
-      const mockRecipes: Recipe[] = viableRecipes.map((template: RecipeTemplate, i: number) => {
-        // All ingredients are available since we selected them from the pantry
-        const available = template.baseIngredients;
-        
-        // No missing ingredients since we're using only pantry items
-        const missing: string[] = [];
-
-        // Generate cooking instructions based on the recipe type
-        const getInstructions = (title: string, ingredients: string[]) => {
-          if (title.includes('Stir Fry')) {
-            return [
-              "Heat oil in a large pan or wok over medium-high heat",
-              `Add ${ingredients.join(', ')} in order of cooking time needed`,
-              "Stir-fry for 5-8 minutes until heated through and well combined",
-              "Season with salt, pepper, and your favorite seasonings",
-              "Serve hot over rice or noodles if desired"
-            ];
-          } else if (title.includes('Bowl')) {
-            return [
-              `Prepare your main ingredients: ${ingredients.join(', ')}`,
-              "Cook any ingredients that need heating or cooking",
-              "Layer ingredients in a bowl starting with base items",
-              "Add toppings and seasonings to taste",
-              "Drizzle with olive oil or your favorite dressing"
-            ];
-          } else if (title.includes('Soup')) {
-            return [
-              "Heat a large pot over medium heat with a little oil",
-              `Add aromatic ingredients first, then add ${ingredients.join(', ')}`,
-              "Add enough broth or water to cover ingredients by 2 inches",
-              "Bring to a boil, then simmer for 20-25 minutes",
-              "Season with salt, pepper, and herbs to taste"
-            ];
-          } else if (title.includes('Pasta')) {
-            return [
-              "Cook pasta according to package directions",
-              `While pasta cooks, prepare sauce with ${ingredients.join(', ')}`,
-              "Drain pasta and reserve 1 cup pasta water",
-              "Combine pasta with sauce, adding pasta water as needed",
-              "Serve immediately with fresh herbs if available"
-            ];
-          } else if (title.includes('Salad')) {
-            return [
-              `Prepare and clean your ingredients: ${ingredients.join(', ')}`,
-              "Chop ingredients into bite-sized pieces",
-              "Combine in a large bowl",
-              "Drizzle with olive oil and vinegar or lemon juice",
-              "Toss well and season with salt and pepper"
-            ];
-          } else {
-            return [
-              `Gather your ingredients: ${ingredients.join(', ')}`,
-              "Prep all ingredients according to their cooking needs",
-              "Cook ingredients in order of cooking time required",
-              "Combine everything and season to taste",
-              "Serve hot and enjoy your creative pantry meal!"
-            ];
-          }
-        };
-
-        return {
-          id: `recipe-${Date.now()}-${i}`,
-          title: template.title,
-          description: template.description,
-          cookTime: template.cookTime,
-          servings: template.servings,
-          difficulty: template.difficulty,
-          cuisine: template.cuisine,
-          mealType: template.mealType,
-          ingredients: template.baseIngredients,
-          instructions: getInstructions(template.title, template.baseIngredients),
-          availableIngredients: available,
-          missingIngredients: missing
-        };
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/recipes/gpt`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pantry: pantryPayload })
       });
 
-      console.log('Generated recipes:', mockRecipes.length);
-      setRecipes(mockRecipes);
+      if (!response.ok) {
+        console.error('GPT recipe endpoint failed:', response.status);
+        setRecipes([]);
+      } else {
+        const data = await response.json();
+        const gptRecipes = (data?.recipes || []).slice(0, 4).map((r: any, idx: number) => ({
+          id: `gpt-${Date.now()}-${idx}`,
+          title: r.title || 'Untitled',
+          description: r.shortDescription || r.description || '',
+          cookTime: r.cookTime || '20 minutes',
+          servings: r.servings || 2,
+          difficulty: 'Easy',
+          cuisine: 'Chef',
+          mealType: (r.mealType || 'dinner') as any,
+          ingredients: r.ingredientsUsed || [],
+          instructions: r.steps || [],
+          availableIngredients: r.ingredientsUsed || [],
+          missingIngredients: r.optionalMissing || []
+        }));
+        setRecipes(gptRecipes);
+      }
     } catch (error) {
       console.error('Error generating recipes:', error);
-      alert('Failed to generate recipes. Please try again.');
+      setRecipes([]);
     } finally {
       setLoadingRecipes(false);
     }
