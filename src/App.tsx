@@ -1297,6 +1297,9 @@ function App() {
         const data = await response.json();
         console.log('🔍 Frontend: Pantry data received:', data);
         console.log('🔍 Frontend: First item details:', data[0] ? `ID: ${data[0].id}, Name: ${data[0].name}, Count: ${data[0].currentCount}` : 'No items');
+        // Debug decimal quantities
+        const decimalItems = data.filter(item => item.currentCount !== Math.floor(item.currentCount));
+        console.log('🔍 Frontend: Items with decimal quantities:', decimalItems.map(item => `${item.name}: ${item.currentCount}`));
         setPantryItems(Array.isArray(data) ? data : []);
       } else {
         console.error('Failed to fetch pantry items:', response.status);
@@ -3584,7 +3587,7 @@ chicken breast, 2 lbs`}
                                   fontWeight: 'bold',
                                   color: 'white'
                                 }}>
-                                  {item.currentCount} {console.log('Debug - currentCount for', item.name, ':', item.currentCount, typeof item.currentCount)}
+                                  {item.currentCount}
                                 </p>
                                 <p style={{
                                   margin: 0,
