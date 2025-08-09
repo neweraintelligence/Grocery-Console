@@ -375,6 +375,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    lineHeight: '1',
   },
   pantryBtn: {
     padding: '0.75rem 1.5rem',
@@ -386,6 +387,10 @@ const styles = {
     cursor: 'pointer',
     boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
     transition: 'all 0.2s ease',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    lineHeight: '1',
   },
   buttonGroup: {
     display: 'flex',
@@ -3248,7 +3253,7 @@ chicken breast, 2 lbs`}
               <div style={{...styles.quickStatValue, color: '#f87171'}}>
                 {pantryItems.filter(item => item.currentCount < item.minCount).length}
               </div>
-              <div style={styles.quickStatLabel}>Items below minimum</div>
+              <div style={styles.quickStatLabel}>Items Out of Stock</div>
             </div>
             <div 
               style={styles.quickStatCard}
@@ -3344,7 +3349,7 @@ chicken breast, 2 lbs`}
                   }}
                 >
                   <img src="/grocery icon 1.png" alt="Add Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
-                  Add Treasure!
+                  Add to List
                 </button>
                 {shoppingList.length > 0 && (
                   <button 
