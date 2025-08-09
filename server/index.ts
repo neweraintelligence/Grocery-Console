@@ -181,8 +181,8 @@ app.get('/api/groceries', async (req, res) => {
       id: (index + 2).toString(), // Row number as ID
       name: cleanTextData(row[0] || ''),
       category: cleanTextData(row[1] || ''),
-      quantity: parseInt(row[2]) || 1,
-      minCount: parseInt(row[3]) || 1,
+      quantity: parseFloat(row[2]) || 1,
+      minCount: parseFloat(row[3]) || 1,
       unit: cleanTextData(row[4] || ''),
       onList: row[5] === 'TRUE' || row[5] === true,
       notes: cleanTextData(row[6] || ''),
@@ -528,10 +528,10 @@ app.get('/api/shopping-list', async (req, res) => {
             name: cleanTextData(row[0] || ''),
             category: cleanTextData(row[1] || 'General'),
             source: 'grocery' as const,
-            quantity: parseInt(row[2]) || 1,
+            quantity: parseFloat(row[2]) || 1,
             unit: cleanTextData(row[6] || ''), // Column G is Notes (used for UOM)
             priority: 'Medium',
-            needed: parseInt(row[2]) || 1
+            needed: parseFloat(row[2]) || 1
           }
         };
       })
@@ -574,7 +574,7 @@ app.get('/api/recipes', async (req, res) => {
 
     const rows = pantryResponse.data.values || [];
     const availableItems = rows
-      .filter((row: any[]) => row[0] && row[0].trim() && parseInt(row[2]) > 0) // Items with stock > 0
+      .filter((row: any[]) => row[0] && row[0].trim() && parseFloat(row[2]) > 0) // Items with stock > 0
       .map((row: any[]) => row[0].toLowerCase().trim());
 
     if (availableItems.length === 0) {
@@ -700,7 +700,7 @@ app.get('/api/purchase-history', async (req, res) => {
         itemId: row[0] || '',
         itemName: row[1] || '',
         category: row[2] || '',
-        quantity: parseInt(row[3]) || 0,
+        quantity: parseFloat(row[3]) || 0,
         price: parseFloat(row[4]) || 0,
         store: row[5] || '',
         purchaseDate: row[6] || '',
@@ -796,8 +796,8 @@ app.get('/api/pantry-history', async (req, res) => {
         id: (index + 2).toString(),
         itemId: row[0] || '',
         itemName: row[1] || '',
-        previousCount: parseInt(row[2]) || 0,
-        currentCount: parseInt(row[3]) || 0,
+        previousCount: parseFloat(row[2]) || 0,
+        currentCount: parseFloat(row[3]) || 0,
         changeReason: row[4] || 'adjustment',
         date: row[5] || '',
         notes: row[6] || ''
@@ -884,8 +884,8 @@ app.get('/api/predictive-restock', async (req, res) => {
         id: (index + 2).toString(),
         name: row[0] || '',
         category: row[1] || '',
-        currentCount: parseInt(row[2]) || 0,
-        minCount: parseInt(row[3]) || 1,
+        currentCount: parseFloat(row[2]) || 0,
+        minCount: parseFloat(row[3]) || 1,
         unit: row[4] || 'units',
         lastUpdated: row[5] || '',
         notes: row[6] || ''

@@ -682,28 +682,40 @@ const PantryAnalytics = ({ pantryItems }: { pantryItems: PantryItem[] }) => {
   };
 
   const { highest, lowest, categories } = getAnalyticsData();
-  const dataToShow = showHighest ? highest : lowest;
+
+  // When sorting by category, aggregate by category totals for the bar view
+  const sortedCategories = React.useMemo(() => {
+    return [...categories].sort((a, b) => b.totalStock - a.totalStock);
+  }, [categories]);
+
+  const dataToShow: any[] = sortBy === 'category'
+    ? (showHighest ? sortedCategories.slice(0, 5) : [...sortedCategories].reverse().slice(0, 5))
+    : (showHighest ? highest : lowest);
 
   const getMaxValue = () => {
     if (sortBy === 'stock') {
       return Math.max(...pantryItems.map(item => item.currentCount));
     } else if (sortBy === 'ratio') {
       return Math.max(...pantryItems.map(item => item.minCount > 0 ? item.currentCount / item.minCount : item.currentCount));
+    } else if (sortBy === 'category') {
+      return Math.max(...categories.map(c => c.totalStock));
     }
     return 10;
   };
 
   const maxValue = getMaxValue();
 
-  const getValue = (item: PantryItem) => {
+  const getValue = (item: any) => {
     if (sortBy === 'stock') return item.currentCount;
     if (sortBy === 'ratio') return item.minCount > 0 ? item.currentCount / item.minCount : item.currentCount;
+    if (sortBy === 'category') return item.totalStock || 0;
     return item.currentCount;
   };
 
-  const getValueLabel = (item: PantryItem) => {
+  const getValueLabel = (item: any) => {
     if (sortBy === 'stock') return `${item.currentCount} ${item.unit}`;
     if (sortBy === 'ratio') return `${(getValue(item)).toFixed(1)}x`;
+    if (sortBy === 'category') return `${item.totalStock} total`;
     return `${item.currentCount} ${item.unit}`;
   };
 
@@ -788,12 +800,12 @@ const PantryAnalytics = ({ pantryItems }: { pantryItems: PantryItem[] }) => {
           marginBottom: '1rem',
           fontSize: '1rem'
         }}>
-          {showHighest ? 'Top 5 Items' : 'Bottom 5 Items'} 
-          {sortBy === 'ratio' ? ' (by Stock Ratio)' : sortBy === 'stock' ? ' (by Count)' : ' (by Category)'}
+          {showHighest ? 'Top 5' : 'Bottom 5'} {sortBy === 'category' ? 'Categories' : 'Items'}
+          {sortBy === 'ratio' ? ' (by Stock Ratio)' : sortBy === 'stock' ? ' (by Count)' : ''}
         </h4>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {dataToShow.map((item, index) => {
+          {dataToShow.map((item: any, index: number) => {
             const value = getValue(item);
             const percentage = maxValue > 0 ? (value / maxValue) * 100 : 0;
             
@@ -822,9 +834,11 @@ const PantryAnalytics = ({ pantryItems }: { pantryItems: PantryItem[] }) => {
                   overflow: 'hidden'
                 }}>
                   <div style={{
-                    background: value <= (item.minCount || 1) 
-                      ? 'linear-gradient(to right, rgba(239,68,68,0.8), rgba(220,38,38,0.8))'
-                      : 'linear-gradient(to right, rgba(34,197,94,0.8), rgba(22,163,74,0.8))',
+                    background: sortBy === 'category'
+                      ? 'linear-gradient(to right, rgba(168,85,247,0.8), rgba(139,92,246,0.8))'
+                      : value < (item.minCount || 1)
+                        ? 'linear-gradient(to right, rgba(239,68,68,0.8), rgba(220,38,38,0.8))'
+                        : 'linear-gradient(to right, rgba(34,197,94,0.8), rgba(22,163,74,0.8))',
                     height: '100%',
                     width: `${Math.max(5, percentage)}%`,
                     borderRadius: '0.25rem',
@@ -1579,8 +1593,8 @@ function App() {
   const handleQuantityUpdate = async () => {
     if (!editingItem || !newQuantity) return;
     
-    const quantity = parseInt(newQuantity);
-    if (isNaN(quantity) || quantity < 1) {
+    const quantity = parseFloat(newQuantity);
+    if (isNaN(quantity) || quantity <= 0) {
       alert('Please enter a valid quantity');
       return;
     }
@@ -1831,8 +1845,9 @@ function App() {
                   </label>
                   <input
                     type="number"
+                    step="0.1"
                     value={formData.quantity}
-                    onChange={(e) => setFormData({...formData, quantity: parseInt(e.target.value) || 1})}
+                    onChange={(e) => setFormData({...formData, quantity: parseFloat(e.target.value) || 1})}
                     style={{
                       padding: '1rem',
                       borderRadius: '0.75rem',
@@ -3998,10 +4013,11 @@ chicken breast, 2 lbs`}
               </label>
               <input
                 type="number"
+                step="0.1"
                 value={newQuantity}
                 onChange={(e) => setNewQuantity(e.target.value)}
                 placeholder="Enter total quantity"
-                min="1"
+                min="0.1"
                 style={{
                   width: '100%',
                   padding: '0.75rem',
