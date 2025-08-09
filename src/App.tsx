@@ -1424,6 +1424,7 @@ function App() {
         // Debug decimal quantities
         const decimalItems = data.filter((item: any) => item.currentCount !== Math.floor(item.currentCount));
         console.log('🔍 Frontend: Items with decimal quantities:', decimalItems.map((item: any) => `${item.name}: ${item.currentCount}`));
+        console.log('🔍 Frontend: All items with current counts:', data.map((item: any) => `${item.name}: ${item.currentCount}`).slice(0, 10));
         setPantryItems(Array.isArray(data) ? data : []);
       } else {
         console.error('Failed to fetch pantry items:', response.status);
