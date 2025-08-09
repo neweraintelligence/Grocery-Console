@@ -2301,8 +2301,9 @@ chicken breast, 2 lbs`}
                   </label>
                   <input
                     type="number"
+                    step="0.1"
                     value={formData.currentCount}
-                    onChange={(e) => setFormData({...formData, currentCount: parseInt(e.target.value) || 0})}
+                    onChange={(e) => setFormData({...formData, currentCount: parseFloat(e.target.value) || 0})}
                     style={{
                       padding: '1rem',
                       borderRadius: '0.75rem',
@@ -2319,8 +2320,9 @@ chicken breast, 2 lbs`}
                   </label>
                   <input
                     type="number"
+                    step="0.1"
                     value={formData.minCount}
-                    onChange={(e) => setFormData({...formData, minCount: parseInt(e.target.value) || 1})}
+                    onChange={(e) => setFormData({...formData, minCount: parseFloat(e.target.value) || 1})}
                     style={{
                       padding: '1rem',
                       borderRadius: '0.75rem',
@@ -2478,7 +2480,7 @@ chicken breast, 2 lbs`}
     const name = prompt('Enter item name (Impulse Buy):');
     if (!name || !name.trim()) return;
     const qtyStr = prompt('Enter quantity:', '1');
-    const qty = qtyStr ? parseInt(qtyStr) : 1;
+    const qty = qtyStr ? parseFloat(qtyStr) : 1;
     if (isNaN(qty) || qty <= 0) return;
     const unit = prompt('Enter unit (e.g., pcs, packs):', 'units') || 'units';
     const expiryDate = prompt('Enter expiry date (YYYY-MM-DD) or leave empty:', '') || '';
