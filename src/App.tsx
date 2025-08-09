@@ -414,18 +414,21 @@ const styles = {
     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
     cursor: 'pointer',
     position: 'relative' as const,
-    overflow: 'hidden',
+    overflow: 'visible',
   },
   itemContent: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
+    minWidth: 0, // Allow flex children to shrink
   },
   itemLeft: {
     display: 'flex',
     alignItems: 'center',
     gap: '1rem',
     marginRight: '1.5rem',
+    flex: 1, // Allow to grow but not compress controls
+    minWidth: 0, // Allow text to wrap properly
   },
   itemIcon: {
     width: '3.5rem',
@@ -468,8 +471,10 @@ const styles = {
   itemRight: {
     display: 'flex',
     alignItems: 'center',
-    gap: '2rem',
+    gap: '1.5rem',
     justifyContent: 'flex-end',
+    flexShrink: 0, // Prevent compression
+    minWidth: 'max-content', // Ensure minimum content width
   },
   itemRightMobile: {
     display: 'flex',
@@ -1061,6 +1066,7 @@ function App() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [hoveredTab, setHoveredTab] = useState<'shopping' | 'pantry' | null>(null);
   const [showRecipes, setShowRecipes] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
   const [showPantryReviewModal, setShowPantryReviewModal] = useState(false);
   const [reviewItems, setReviewItems] = useState<ShoppingListItem[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -3639,6 +3645,16 @@ chicken breast, 2 lbs`}
                   <img src="/kitchen icon 2.png" alt="Recipe Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
                   {showRecipes ? 'Hide Recipes' : 'Recipe Ideas'}
                 </button>
+                <button 
+                  style={{
+                    ...styles.addBtn,
+                    background: 'linear-gradient(135deg, rgba(59,130,246,0.8) 0%, rgba(37,99,235,0.8) 100%)',
+                    border: '2px solid rgba(59,130,246,0.4)',
+                  }}
+                  onClick={() => setShowAnalytics(!showAnalytics)}
+                >
+                  📊 {showAnalytics ? 'Hide Analytics' : 'Analytics'}
+                </button>
               </div>
             </div>
             
@@ -3736,9 +3752,8 @@ chicken breast, 2 lbs`}
               </select>
             </div>
             
-            <div style={{display: 'flex', gap: '2rem', minHeight: '600px'}}>
-              {/* Left Half - Inventory List */}
-              <div style={{flex: '1', maxWidth: '50%'}}>
+            {/* Inventory List - Full Width */}
+            <div style={{minHeight: '600px'}}>
                 <div style={styles.inventoryList}>
                   {filteredPantryItems.length === 0 ? (
                     <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
@@ -4055,12 +4070,6 @@ chicken breast, 2 lbs`}
                     })
                   )}
                 </div>
-              </div>
-              
-              {/* Right Half - Analytics */}
-              <div style={{flex: '1', maxWidth: '50%'}}>
-                <PantryAnalytics pantryItems={filteredPantryItems} />
-              </div>
             </div>
             
             {/* Recipe Section within Pantry Tab */}
@@ -4235,6 +4244,32 @@ chicken breast, 2 lbs`}
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Analytics Section within Pantry Tab */}
+        {showAnalytics && (
+          <div style={{
+            ...styles.card,
+            marginTop: '1rem',
+            background: 'linear-gradient(145deg, rgba(59,130,246,0.1), rgba(37,99,235,0.05))',
+            border: '1px solid rgba(59,130,246,0.3)'
+          }}>
+            <div style={styles.cardHeader}>
+              <div style={styles.cardTitle}>
+                <div style={styles.cardIcon}>
+                  📊
+                </div>
+                <div>
+                  <h2 style={styles.cardTitleText}>Pantry Analytics</h2>
+                  <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>Insights and trends from your pantry data! 📈✨</p>
+                </div>
+              </div>
+            </div>
+            
+            <div style={{padding: '1rem'}}>
+              <PantryAnalytics pantryItems={filteredPantryItems} />
+            </div>
           </div>
         )}
 
