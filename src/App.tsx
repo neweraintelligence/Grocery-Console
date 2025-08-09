@@ -3584,7 +3584,7 @@ chicken breast, 2 lbs`}
                                   fontWeight: 'bold',
                                   color: 'white'
                                 }}>
-                                  {item.currentCount}
+                                  {item.currentCount} {console.log('Debug - currentCount for', item.name, ':', item.currentCount, typeof item.currentCount)}
                                 </p>
                                 <p style={{
                                   margin: 0,
