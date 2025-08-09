@@ -87,6 +87,8 @@ app.get('/api/pantry', async (req, res) => {
     'Expires': '0',
     'Surrogate-Control': 'no-store',
   });
+  const maskedIdGet = (process.env.GOOGLE_SHEET_ID || '').slice(-6);
+  if (maskedIdGet) console.log(`📄 Using GOOGLE_SHEET_ID (...${maskedIdGet}) for GET`);
   try {
     if (!sheets || !process.env.GOOGLE_SHEET_ID) {
       console.log('❌ Google Sheets not configured');
@@ -108,7 +110,10 @@ app.get('/api/pantry', async (req, res) => {
 
     const rows = response.data.values || [];
     console.log(`Pantry GET: Found ${rows.length} rows in Pantry sheet`);
-    console.log(`Pantry rows:`, rows);
+    if (rows.length > 0) {
+      console.log('Pantry GET: first row:', rows[0]);
+      console.log('Pantry GET: last row:', rows[rows.length - 1]);
+    }
     
     // Map pantry items directly (no filtering needed since this is the dedicated pantry sheet)
     const pantryItems = rows
@@ -178,6 +183,8 @@ app.post('/api/pantry', async (req, res) => {
     }
 
     const { name, category, currentCount, minCount, unit, notes, expiryDate } = req.body;
+    const maskedIdPost = (process.env.GOOGLE_SHEET_ID || '').slice(-6);
+    if (maskedIdPost) console.log(`📄 Using GOOGLE_SHEET_ID (...${maskedIdPost}) for POST`);
     console.log(`Adding pantry item:`, { name, category, currentCount, minCount, unit, notes, expiryDate });
 
     // Ensure Pantry sheet exists; if missing, create with headers
