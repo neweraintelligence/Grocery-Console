@@ -3546,7 +3546,10 @@ chicken breast, 2 lbs`}
                               <button
                                 onClick={() => {
                                   console.log('🔽 Decrease button clicked for item:', item.id, item.name);
-                                  updateItemQuantity(item.id, Math.max(0, item.currentCount - 1), false);
+                                  // Smart decrement: use 0.25 for values < 1, otherwise use 1
+                                  const decrement = item.currentCount <= 1 ? 0.25 : 1;
+                                  const newValue = Math.max(0, item.currentCount - decrement);
+                                  updateItemQuantity(item.id, Math.round(newValue * 100) / 100, false);
                                 }}
                                 style={{
                                   width: '2rem',
@@ -3595,7 +3598,10 @@ chicken breast, 2 lbs`}
                               <button
                                 onClick={() => {
                                   console.log('🔼 Increase button clicked for item:', item.id, item.name);
-                                  updateItemQuantity(item.id, item.currentCount + 1, true);
+                                  // Smart increment: use 0.25 for values < 1, otherwise use 1  
+                                  const increment = item.currentCount < 1 ? 0.25 : 1;
+                                  const newValue = item.currentCount + increment;
+                                  updateItemQuantity(item.id, Math.round(newValue * 100) / 100, true);
                                 }}
                                 style={{
                                   width: '2rem',
