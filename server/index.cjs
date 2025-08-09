@@ -122,8 +122,8 @@ app.get('/api/pantry', async (req, res) => {
         id: (rows.indexOf(row) + 2).toString(), // Use actual row number as ID
         name: row[0] || '',
         category: row[1] || '',
-        currentCount: parseInt(row[2]) || 0,
-        minCount: parseInt(row[3]) || 1,
+        currentCount: parseFloat(row[2]) || 0,
+        minCount: parseFloat(row[3]) || 1,
         unit: row[4] || 'units',
         lastUpdated: row[5] || new Date().toLocaleDateString(), // Column F is Last Updated
         notes: row[6] || '' // Column G is Notes
