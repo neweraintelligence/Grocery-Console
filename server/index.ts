@@ -137,6 +137,8 @@ app.get('/api/pantry', async (req, res) => {
     }
 
     const rows = response.data.values || [];
+    console.log(`🔍 Full Pantry sheet data (first 10 rows):`, rows.slice(0, 10));
+    
     const pantryItems: GroceryItem[] = rows
       .filter((row: any[]) => row[0] && row[0].trim())
       .map((row: any[], index: number) => {
