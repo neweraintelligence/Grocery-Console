@@ -1412,17 +1412,18 @@ function App() {
       sub: [
         'Fridge – Dairy & Plant-Based Alternatives',
         'Fridge – Sauces & Condiments',
-        'Fridge – Pickled & Preserved'
+        'Fridge – Pickled & Preserved',
+        'Produce',
+        'Meat'
       ]
     },
     {
-      key: 'fresh',
-      name: 'Fresh & Cold',
-      emoji: '🥬',
+      key: 'freezer',
+      name: 'Freezer',
+      emoji: '❄️',
       sub: [
-        'Produce',
-        'Meat',
-        'Freezer'
+        'Freezer',
+        'Meat'
       ]
     }
   ] as const;
@@ -3416,16 +3417,21 @@ chicken breast, 2 lbs`}
                     </button>
                     {expandedGroups[group.key] && (
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0.5rem 0.75rem' }}>
-                        {group.sub.map(category => (
+                        {group.sub.map(category => {
+                          const labelText = group.key === 'fridge'
+                            ? category.replace(/^Fridge\s*–\s*/,'')
+                            : category;
+                          return (
                           <label key={category} style={{
                             display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 0.6rem', borderRadius: '0.5rem', border: '1px solid rgba(255,255,255,0.2)',
                             background: pantryCategoryFilter.includes(category) ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(59, 130, 246, 0.2))' : 'rgba(255,255,255,0.05)',
                             color: pantryCategoryFilter.includes(category) ? 'white' : 'rgba(255,255,255,0.7)', fontSize: '0.72rem', cursor: 'pointer'
                           }}>
                             <input type="checkbox" checked={pantryCategoryFilter.includes(category)} onChange={() => handleCategoryFilterChange(category)} style={{ width: 16, height: 16, accentColor: '#10b981' }} />
-                            {category}
+                            {labelText}
                           </label>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
                   </div>
