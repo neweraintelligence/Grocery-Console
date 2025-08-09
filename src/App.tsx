@@ -244,12 +244,25 @@ const styles = {
     gap: '1rem',
   },
   cardIcon: {
-    width: '4rem',
-    height: '4rem',
+    width: '5rem',
+    height: '5rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '2rem',
+    borderRadius: '1.5rem',
+    background: 'linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05))',
+    backdropFilter: 'blur(20px)',
+    border: '2px solid rgba(255,255,255,0.2)',
+    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3), 0 10px 30px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.1)',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    position: 'relative' as const,
+    overflow: 'hidden',
+  },
+  cardIconHover: {
+    transform: 'translateY(-3px) scale(1.05)',
+    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 15px 40px rgba(0,0,0,0.4), 0 0 30px rgba(255,255,255,0.15)',
+    border: '2px solid rgba(255,255,255,0.3)',
   },
   cardTitleText: {
     fontSize: '2rem',
@@ -3212,8 +3225,22 @@ chicken breast, 2 lbs`}
           <div style={styles.card}>
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
-                <div style={styles.cardIcon}>
-                  <img src="/grocery icon 1.png" alt="Grocery Icon" style={{width: '60px', height: '60px', objectFit: 'contain'}} />
+                <div 
+                  style={styles.cardIcon}
+                  onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.cardIconHover)}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = '';
+                    e.currentTarget.style.boxShadow = styles.cardIcon.boxShadow;
+                    e.currentTarget.style.border = styles.cardIcon.border;
+                  }}
+                >
+                  <img src="/grocery icon 1.png" alt="Grocery Icon" style={{
+                    width: '65px', 
+                    height: '65px', 
+                    objectFit: 'contain',
+                    borderRadius: '1rem',
+                    boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+                  }} />
                 </div>
                 <div>
                   <h2 style={styles.cardTitleText}>Laurie's Loot List</h2>
@@ -3419,8 +3446,22 @@ chicken breast, 2 lbs`}
           <div style={styles.card}>
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
-                <div style={styles.cardIcon}>
-                  <img src="/grocery icon 2.png" alt="Grocery Icon" style={{width: '60px', height: '60px', objectFit: 'contain'}} />
+                <div 
+                  style={styles.cardIcon}
+                  onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.cardIconHover)}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = '';
+                    e.currentTarget.style.boxShadow = styles.cardIcon.boxShadow;
+                    e.currentTarget.style.border = styles.cardIcon.border;
+                  }}
+                >
+                  <img src="/grocery icon 2.png" alt="Grocery Icon" style={{
+                    width: '65px', 
+                    height: '65px', 
+                    objectFit: 'contain',
+                    borderRadius: '1rem',
+                    boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+                  }} />
                 </div>
                 <div>
                   <h2 style={styles.cardTitleText}>Laurie's Secret Stash</h2>
