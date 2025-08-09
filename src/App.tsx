@@ -122,12 +122,20 @@ const styles = {
     gap: '1rem',
   },
   logoIcon: {
-    width: '4rem',
-    height: '4rem',
+    width: '5rem',
+    height: '5rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '1.5rem',
+    borderRadius: '1.5rem',
+    background: 'linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05))',
+    backdropFilter: 'blur(20px)',
+    border: '2px solid rgba(255,255,255,0.2)',
+    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3), 0 10px 30px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.1)',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    position: 'relative' as const,
+    overflow: 'hidden',
   },
   title: {
     fontSize: '2.5rem',
@@ -215,12 +223,14 @@ const styles = {
     },
   },
   card: {
-    backgroundColor: 'rgba(0,0,0,0.2)',
-    backdropFilter: 'blur(20px)',
-    borderRadius: '1.5rem',
-    border: '1px solid rgba(255,255,255,0.1)',
-    padding: '2rem',
-    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    backdropFilter: 'blur(25px)',
+    borderRadius: '2rem',
+    border: '2px solid rgba(255,255,255,0.15)',
+    padding: '2.5rem',
+    boxShadow: '0 30px 60px -15px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 30px rgba(255,255,255,0.05)',
+    position: 'relative' as const,
+    overflow: 'hidden',
   },
   cardHeader: {
     display: 'flex',
@@ -287,13 +297,13 @@ const styles = {
     gap: '1rem',
   },
   inventoryItem: {
-    background: 'linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))',
-    backdropFilter: 'blur(15px)',
-    borderRadius: '1.25rem',
-    padding: '1.25rem',
-    border: '1px solid rgba(255,255,255,0.15)',
-    borderLeft: '4px solid rgba(59,130,246,0.6)',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
+    background: 'linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04))',
+    backdropFilter: 'blur(20px)',
+    borderRadius: '1.5rem',
+    padding: '1.5rem',
+    border: '2px solid rgba(255,255,255,0.2)',
+    borderLeft: '5px solid rgba(59,130,246,0.8)',
+    boxShadow: '0 15px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.15), 0 0 20px rgba(59,130,246,0.1)',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     cursor: 'pointer',
     position: 'relative' as const,
@@ -462,14 +472,16 @@ const styles = {
     background: 'rgba(255,255,255,0.1)',
   },
   quickStatsCard: {
-    backgroundColor: 'rgba(0,0,0,0.2)',
-    backdropFilter: 'blur(20px)',
-    borderRadius: '1.5rem',
-    border: '1px solid rgba(255,255,255,0.15)',
-    padding: '1.5rem',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    backdropFilter: 'blur(25px)',
+    borderRadius: '2rem',
+    border: '2px solid rgba(255,255,255,0.2)',
+    padding: '2rem',
     marginBottom: '2rem',
-    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
-    background: 'linear-gradient(135deg, rgba(30, 58, 138, 0.6), rgba(59, 130, 246, 0.4))',
+    boxShadow: '0 30px 60px -15px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 40px rgba(59, 130, 246, 0.15)',
+    background: 'linear-gradient(135deg, rgba(30, 58, 138, 0.8) 0%, rgba(59, 130, 246, 0.6) 25%, rgba(147, 197, 253, 0.4) 75%, rgba(30, 58, 138, 0.8) 100%)',
+    position: 'relative' as const,
+    overflow: 'hidden',
   },
   quickStatsGrid: {
     display: 'grid',
@@ -478,7 +490,21 @@ const styles = {
   },
   quickStatCard: {
     textAlign: 'center' as const,
-    padding: '1rem',
+    padding: '1.5rem',
+    borderRadius: '1.5rem',
+    background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
+    backdropFilter: 'blur(15px)',
+    border: '1px solid rgba(255,255,255,0.2)',
+    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 8px 25px rgba(0,0,0,0.2)',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    position: 'relative' as const,
+    overflow: 'hidden',
+    cursor: 'pointer',
+  },
+  quickStatCardHover: {
+    transform: 'translateY(-5px) scale(1.02)',
+    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3), 0 15px 35px rgba(0,0,0,0.3), 0 0 30px rgba(59, 130, 246, 0.2)',
+    border: '1px solid rgba(255,255,255,0.3)',
   },
   quickStatValue: {
     fontSize: '2.5rem',
@@ -3027,7 +3053,13 @@ chicken breast, 2 lbs`}
         <div style={styles.headerContent}>
           <div style={styles.logoSection}>
             <div style={styles.logoIcon}>
-              <img src="/grocery scene 1.png" alt="Grocery Scene" style={{width: '90px', height: '90px', objectFit: 'contain'}} />
+              <img src="/grocery scene 1.png" alt="Grocery Scene" style={{
+                width: '95px', 
+                height: '95px', 
+                objectFit: 'contain',
+                borderRadius: '1rem',
+                boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+              }} />
             </div>
             <div style={{paddingLeft: '1.5rem'}}>
               <h1 style={styles.title}>Laurie's Legendary Kitchen</h1>
@@ -3077,23 +3109,55 @@ chicken breast, 2 lbs`}
       <div style={{...styles.main, paddingBottom: 0}}>
         <div style={styles.quickStatsCard}>
           <div style={styles.quickStatsGrid}>
-            <div style={styles.quickStatCard}>
+            <div 
+              style={styles.quickStatCard}
+              onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.quickStatCardHover)}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = '';
+                e.currentTarget.style.boxShadow = styles.quickStatCard.boxShadow;
+                e.currentTarget.style.border = styles.quickStatCard.border;
+              }}
+            >
               <div style={styles.quickStatValue}>{pantryItems.length}</div>
               <div style={styles.quickStatLabel}>In Pantry</div>
             </div>
-            <div style={styles.quickStatCard}>
+            <div 
+              style={styles.quickStatCard}
+              onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.quickStatCardHover)}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = '';
+                e.currentTarget.style.boxShadow = styles.quickStatCard.boxShadow;
+                e.currentTarget.style.border = styles.quickStatCard.border;
+              }}
+            >
               <div style={{...styles.quickStatValue, color: '#fbbf24'}}>
                 {pantryItems.filter(item => item.currentCount < item.minCount).length}
               </div>
               <div style={styles.quickStatLabel}>Running Low</div>
             </div>
-            <div style={styles.quickStatCard}>
+            <div 
+              style={styles.quickStatCard}
+              onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.quickStatCardHover)}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = '';
+                e.currentTarget.style.boxShadow = styles.quickStatCard.boxShadow;
+                e.currentTarget.style.border = styles.quickStatCard.border;
+              }}
+            >
               <div style={{...styles.quickStatValue, color: '#f87171'}}>
                 {pantryItems.filter(item => item.currentCount < item.minCount).length}
               </div>
               <div style={styles.quickStatLabel}>Items below minimum</div>
             </div>
-            <div style={styles.quickStatCard}>
+            <div 
+              style={styles.quickStatCard}
+              onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.quickStatCardHover)}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = '';
+                e.currentTarget.style.boxShadow = styles.quickStatCard.boxShadow;
+                e.currentTarget.style.border = styles.quickStatCard.border;
+              }}
+            >
               <div style={{...styles.quickStatValue, color: '#6ee7b7'}}>{shoppingList.length}</div>
               <div style={styles.quickStatLabel}>Need to Buy</div>
             </div>

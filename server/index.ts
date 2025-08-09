@@ -139,17 +139,28 @@ app.get('/api/pantry', async (req, res) => {
     const rows = response.data.values || [];
     const pantryItems: GroceryItem[] = rows
       .filter((row: any[]) => row[0] && row[0].trim())
-      .map((row: any[], index: number) => ({
-        id: (index + 2).toString(),
-        name: cleanTextData(row[0] || ''),
-        category: cleanTextData(row[1] || ''),
-        currentCount: parseFloat(row[2]) || 0,
-        minCount: parseFloat(row[3]) || 1,
-        unit: cleanTextData(row[4] || 'units'),
-        lastUpdated: row[5] || new Date().toLocaleDateString(),
-        notes: cleanTextData(row[6] || ''),
-        expiryDate: row[7] || ''
-      }));
+      .map((row: any[], index: number) => {
+        const itemName = cleanTextData(row[0] || '');
+        const rawCurrentCount = row[2];
+        const parsedCurrentCount = parseFloat(rawCurrentCount) || 0;
+        
+        // Debug specific items with decimal values
+        if (itemName.includes('Philadelphia') || itemName.includes('Butter')) {
+          console.log(`🔍 Backend Debug - ${itemName}: raw="${rawCurrentCount}" parsed=${parsedCurrentCount} (type: ${typeof parsedCurrentCount})`);
+        }
+        
+        return {
+          id: (index + 2).toString(),
+          name: itemName,
+          category: cleanTextData(row[1] || ''),
+          currentCount: parsedCurrentCount,
+          minCount: parseFloat(row[3]) || 1,
+          unit: cleanTextData(row[4] || 'units'),
+          lastUpdated: row[5] || new Date().toLocaleDateString(),
+          notes: cleanTextData(row[6] || ''),
+          expiryDate: row[7] || ''
+        };
+      });
 
     res.json(pantryItems);
   } catch (error) {
