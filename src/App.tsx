@@ -3484,6 +3484,11 @@ chicken breast, 2 lbs`}
                     </div>
                   ) : (
                 filteredPantryItems.map((item, index) => {
+                  // Debug specific items with decimal values
+                  if (item.name.includes('Philadelphia') || item.name.includes('Butter')) {
+                    console.log(`🔍 Card View Debug - ${item.name}: currentCount=${item.currentCount} (type: ${typeof item.currentCount})`);
+                  }
+                  
                   const getStatusStyle = () => {
                     if (item.currentCount === 0) return styles.statusOut;
                     if (item.currentCount < item.minCount) return styles.statusLow;
