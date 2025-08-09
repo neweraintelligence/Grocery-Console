@@ -3378,7 +3378,8 @@ chicken breast, 2 lbs`}
           display: 'flex', 
           gap: '0.5rem', 
           marginBottom: '1.5rem',
-          flexWrap: 'wrap'
+          flexWrap: 'wrap',
+          justifyContent: 'center'
         }}>
           <button 
             style={styles.addBtn}
