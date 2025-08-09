@@ -653,6 +653,55 @@ app.get('/api/recipes', async (req, res) => {
   }
 });
 
+// GPT-powered recipes endpoint (proxy to OpenAI)
+app.post('/api/recipes/gpt', async (req, res) => {
+  try {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'OpenAI API key not configured' });
+    }
+
+    const body = req.body || {};
+    const pantry = Array.isArray(body.pantry) ? body.pantry : [];
+    const items = pantry.map(i => `${i.name}${i.quantity ? ` (${i.quantity} ${i.unit || ''})` : ''}${i.category ? ` – ${i.category}` : ''}`);
+
+    const system = 'You are a professional chef. Create approachable, delicious recipes from the provided pantry. Use only common techniques; avoid exotic ingredients not provided unless trivial (salt, pepper, oil, water).';
+    const user = `Pantry items:\n${items.join('\n')}\n\nTask: Propose exactly four recipes: one breakfast, one lunch, one dinner, and one dessert. For each, include: title, mealType (breakfast|lunch|dinner|dessert), shortDescription, ingredientsUsed (subset of pantry names), optionalMissing (short list), steps (5-8 numbered steps), cookTime (e.g., 20 minutes), servings (integer). Return strict JSON: { "recipes": Recipe[] }`;
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: system },
+          { role: 'user', content: user }
+        ],
+        temperature: 0.7,
+        response_format: { type: 'json_object' }
+      })
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      console.error('OpenAI error:', text);
+      return res.status(500).json({ error: 'OpenAI request failed' });
+    }
+
+    const data = await response.json();
+    const content = (data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '{}';
+    let parsed;
+    try { parsed = JSON.parse(content); } catch (_e) { parsed = { recipes: [] }; }
+    res.json(parsed);
+  } catch (err) {
+    console.error('GPT recipes error:', err);
+    res.status(500).json({ error: 'Failed to generate recipes' });
+  }
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ 
