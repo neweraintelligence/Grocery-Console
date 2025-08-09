@@ -3373,7 +3373,50 @@ chicken breast, 2 lbs`}
           </button>
         </div>
 
-        {/* Analytics Section - Full Width Above All Tab Content */}
+        {/* Toggle Buttons - Always Accessible Below Tabs */}
+        <div style={{ 
+          display: 'flex', 
+          gap: '0.5rem', 
+          marginBottom: '1.5rem',
+          flexWrap: 'wrap'
+        }}>
+          <button 
+            style={styles.addBtn}
+            onClick={() => {
+              setModalType('pantry');
+              setShowAddModal(true);
+            }}
+          >
+            <img src="/grocery icon 2.png" alt="Add Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+            Top Up Stash!
+          </button>
+          <button 
+            style={{
+              ...styles.addBtn,
+              background: 'linear-gradient(135deg, rgba(168,85,247,0.8) 0%, rgba(139,92,246,0.8) 100%)',
+              border: '2px solid rgba(168,85,247,0.4)',
+            }}
+            onClick={() => {
+              setShowRecipes(!showRecipes);
+              if (!showRecipes) generateRecipes();
+            }}
+          >
+            <img src="/kitchen icon 2.png" alt="Recipe Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+            {showRecipes ? 'Hide Recipes' : 'Recipe Ideas'}
+          </button>
+          <button 
+            style={{
+              ...styles.addBtn,
+              background: 'linear-gradient(135deg, rgba(59,130,246,0.8) 0%, rgba(37,99,235,0.8) 100%)',
+              border: '2px solid rgba(59,130,246,0.4)',
+            }}
+            onClick={() => setShowAnalytics(!showAnalytics)}
+          >
+            📊 {showAnalytics ? 'Hide Analytics' : 'Analytics'}
+          </button>
+        </div>
+
+        {/* Analytics Section - Full Width Above All Tab Content */
         {showAnalytics && (
           <div style={{
             ...styles.card,
@@ -3890,42 +3933,6 @@ chicken breast, 2 lbs`}
                   <h2 style={styles.cardTitleText}>Laurie's Secret Stash</h2>
                   <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>Your culinary arsenal at a glance! 🍴✨</p>
                 </div>
-              </div>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button 
-                  style={styles.addBtn}
-                  onClick={() => {
-                    setModalType('pantry');
-                    setShowAddModal(true);
-                  }}
-                >
-                  <img src="/grocery icon 2.png" alt="Add Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
-                  Top Up Stash!
-                </button>
-                <button 
-                  style={{
-                    ...styles.addBtn,
-                    background: 'linear-gradient(135deg, rgba(168,85,247,0.8) 0%, rgba(139,92,246,0.8) 100%)',
-                    border: '2px solid rgba(168,85,247,0.4)',
-                  }}
-                  onClick={() => {
-                    setShowRecipes(!showRecipes);
-                    if (!showRecipes) generateRecipes();
-                  }}
-                >
-                  <img src="/kitchen icon 2.png" alt="Recipe Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
-                  {showRecipes ? 'Hide Recipes' : 'Recipe Ideas'}
-                </button>
-                <button 
-                  style={{
-                    ...styles.addBtn,
-                    background: 'linear-gradient(135deg, rgba(59,130,246,0.8) 0%, rgba(37,99,235,0.8) 100%)',
-                    border: '2px solid rgba(59,130,246,0.4)',
-                  }}
-                  onClick={() => setShowAnalytics(!showAnalytics)}
-                >
-                  📊 {showAnalytics ? 'Hide Analytics' : 'Analytics'}
-                </button>
               </div>
             </div>
             
