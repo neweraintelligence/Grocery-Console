@@ -2029,6 +2029,7 @@ function App() {
                     border: '2px solid rgba(255,215,0,0.4)',
                     backgroundColor: 'rgba(139,69,19,0.8)',
                     color: 'white',
+                    fontSize: '1rem',
                     width: '100%'
                   }}
                 />
