@@ -1430,8 +1430,7 @@ function App() {
     fetchPantryItems();
     fetchGroceryItems();
     fetchShoppingList();
-    // Ensure page starts at top
-    window.scrollTo(0, 0);
+    // Auto-scroll to top disabled - let user control their own scrolling
   }, []);
 
   // Disable auto-popup of Weeks List entirely; enable only via manual click
