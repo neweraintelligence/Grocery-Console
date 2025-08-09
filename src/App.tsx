@@ -3412,7 +3412,7 @@ chicken breast, 2 lbs`}
             }}
             onClick={() => setShowAnalytics(!showAnalytics)}
           >
-            📊 {showAnalytics ? 'Hide Analytics' : 'Analytics'}
+            {showAnalytics ? 'Hide Analytics' : 'Analytics'}
           </button>
         </div>
 
