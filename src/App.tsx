@@ -3730,19 +3730,31 @@ chicken breast, 2 lbs`}
             
             <div style={{padding: '1rem'}}>
               {recipes.length === 0 ? (
-                <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
-                  <img src="/cupboard image 1.png" alt="Recipe Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
-                  <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem', marginBottom: '1rem'}}>
-                    🍽️ {pantryItems.filter(item => item.currentCount > 0).length === 0 
-                      ? "Add some ingredients to your pantry first!" 
-                      : "Not enough ingredients for complete recipes"}
-                  </p>
-                  <p style={{color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem'}}>
-                    {pantryItems.filter(item => item.currentCount > 0).length === 0 
-                      ? "Stock up your pantry, then click 'Get New Recipes' to discover dishes you can make!"
-                      : "Try adding more ingredients to your pantry for more recipe options. We only suggest recipes you can actually make!"}
-                  </p>
-                </div>
+                loadingRecipes ? (
+                  <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
+                    <img src="/cupboard image 1.png" alt="Recipe Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
+                    <p style={{color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem', marginBottom: '0.5rem'}}>
+                      👩‍🍳 Hang on while the AI chefs cook something up for you!
+                    </p>
+                    <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem'}}>
+                      We’re crafting breakfast, lunch, dinner, and dessert ideas from your pantry.
+                    </p>
+                  </div>
+                ) : (
+                  <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
+                    <img src="/cupboard image 1.png" alt="Recipe Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
+                    <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem', marginBottom: '1rem'}}>
+                      🍽️ {pantryItems.filter(item => item.currentCount > 0).length === 0 
+                        ? "Add some ingredients to your pantry first!" 
+                        : "Not enough ingredients for complete recipes"}
+                    </p>
+                    <p style={{color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem'}}>
+                      {pantryItems.filter(item => item.currentCount > 0).length === 0 
+                        ? "Stock up your pantry, then click 'Get New Recipes' to discover dishes you can make!"
+                        : "Try adding more ingredients to your pantry for more recipe options. We only suggest recipes you can actually make!"}
+                    </p>
+                  </div>
+                )
               ) : (
                 <div style={{
                   display: 'grid',
