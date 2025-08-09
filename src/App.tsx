@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { WeeksListBox } from './components/WeeksListBox';
-import { predictiveRestockService } from './services/predictiveRestock';
 
 // TypeScript interfaces for proper typing
 interface PantryItem {
