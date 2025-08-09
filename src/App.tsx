@@ -3250,7 +3250,7 @@ chicken breast, 2 lbs`}
               }}
             >
               <div style={{...styles.quickStatValue, color: '#f87171'}}>
-                {pantryItems.filter(item => item.currentCount < item.minCount).length}
+                {pantryItems.filter(item => item.currentCount === 0).length}
               </div>
               <div style={styles.quickStatLabel}>Items Out of Stock</div>
             </div>
@@ -3713,8 +3713,26 @@ chicken breast, 2 lbs`}
                           </div>
                           <div style={styles.itemDetails}>
                             <h3 style={styles.itemName}>{item.name}</h3>
-                            <p style={styles.itemCategory}>
-                              {item.category} • Last updated {item.lastUpdated}
+                            <div style={styles.itemCategory}>
+                              <span style={{
+                                background: 'rgba(59, 130, 246, 0.2)',
+                                color: '#93c5fd',
+                                padding: '0.125rem 0.5rem',
+                                borderRadius: '0.75rem',
+                                fontSize: '0.75rem',
+                                fontWeight: '500',
+                                border: '1px solid rgba(59, 130, 246, 0.3)'
+                              }}>
+                                📦 {item.category.replace(/^Pantry\s*–\s*/, '').replace(/^Fridge\s*–\s*/, '').replace(/^Freezer\s*–\s*/, '')}
+                              </span>
+                              <span style={{
+                                color: 'rgba(255,255,255,0.5)',
+                                fontSize: '0.7rem',
+                                fontStyle: 'italic'
+                              }}>
+                                ⏰ {item.lastUpdated}
+                              </span>
+                            </div>
                               {item.expiryDate && (
                                 <span style={{
                                   color: '#fbbf24',
