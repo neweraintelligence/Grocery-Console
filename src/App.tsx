@@ -3385,8 +3385,11 @@ chicken breast, 2 lbs`}
           <button 
             style={{
               ...styles.addBtn,
-              background: 'linear-gradient(135deg, rgba(34,197,94,0.8) 0%, rgba(22,163,74,0.8) 100%)',
-              border: '2px solid rgba(34,197,94,0.4)',
+              background: `linear-gradient(135deg, rgba(34,197,94,0.4) 0%, rgba(22,163,74,0.5) 100%), 
+                           repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px)`,
+              border: '2px solid rgba(34,197,94,0.3)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.2)',
+              textShadow: '0 1px 1px rgba(0,0,0,0.3)',
             }}
             onClick={() => {
               setModalType('pantry');
@@ -3399,8 +3402,11 @@ chicken breast, 2 lbs`}
           <button 
             style={{
               ...styles.addBtn,
-              background: 'linear-gradient(135deg, rgba(168,85,247,0.8) 0%, rgba(139,92,246,0.8) 100%)',
-              border: '2px solid rgba(168,85,247,0.4)',
+              background: `linear-gradient(135deg, rgba(168,85,247,0.4) 0%, rgba(139,92,246,0.5) 100%), 
+                           repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px)`,
+              border: '2px solid rgba(168,85,247,0.3)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.2)',
+              textShadow: '0 1px 1px rgba(0,0,0,0.3)',
             }}
             onClick={() => {
               setShowRecipes(!showRecipes);
@@ -3413,8 +3419,11 @@ chicken breast, 2 lbs`}
           <button 
             style={{
               ...styles.addBtn,
-              background: 'linear-gradient(135deg, rgba(59,130,246,0.8) 0%, rgba(37,99,235,0.8) 100%)',
-              border: '2px solid rgba(59,130,246,0.4)',
+              background: `linear-gradient(135deg, rgba(59,130,246,0.4) 0%, rgba(37,99,235,0.5) 100%), 
+                           repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px)`,
+              border: '2px solid rgba(59,130,246,0.3)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.2)',
+              textShadow: '0 1px 1px rgba(0,0,0,0.3)',
             }}
             onClick={() => setShowAnalytics(!showAnalytics)}
           >
