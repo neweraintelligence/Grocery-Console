@@ -1552,7 +1552,7 @@ function App() {
         'Pantry – Baking & Misc. Dry Goods',
         'Snacks',
         'Beverages',
-        'CHOCOLATE'
+        '💖 CHOCOLATE'
       ]
     },
     {
@@ -1572,7 +1572,6 @@ function App() {
       name: 'Freezer',
       emoji: '❄️',
       sub: [
-        'Freezer',
         'Meat'
       ]
     }
@@ -3224,8 +3223,8 @@ chicken breast, 2 lbs`}
                 e.currentTarget.style.border = styles.quickStatCard.border;
               }}
             >
-              <div style={styles.quickStatValue}>{pantryItems.length}</div>
-              <div style={styles.quickStatLabel}>In Pantry</div>
+              <div style={{...styles.quickStatValue, color: '#6ee7b7'}}>{shoppingList.length}</div>
+              <div style={styles.quickStatLabel}>On List</div>
             </div>
             <div 
               style={styles.quickStatCard}
@@ -3264,8 +3263,8 @@ chicken breast, 2 lbs`}
                 e.currentTarget.style.border = styles.quickStatCard.border;
               }}
             >
-              <div style={{...styles.quickStatValue, color: '#6ee7b7'}}>{shoppingList.length}</div>
-              <div style={styles.quickStatLabel}>Need to Buy</div>
+              <div style={styles.quickStatValue}>{pantryItems.length}</div>
+              <div style={styles.quickStatLabel}>In Pantry</div>
             </div>
           </div>
         </div>
@@ -3677,7 +3676,7 @@ chicken breast, 2 lbs`}
                              pantryCategoryFilter.includes('Meat') ? 'Meat' :
                              pantryCategoryFilter.includes('Snacks') ? 'Snacks' :
                              pantryCategoryFilter.includes('Beverages') ? 'Beverages' :
-                             pantryCategoryFilter.includes('CHOCOLATE') ? 'CHOCOLATE' : 'selected categories'}`
+                             pantryCategoryFilter.includes('💖 CHOCOLATE') ? '💖 CHOCOLATE' : 'selected categories'}`
                         }
                       </p>
                     </div>
