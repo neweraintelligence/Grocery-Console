@@ -3417,8 +3417,7 @@ chicken breast, 2 lbs`}
         </div>
 
         {/* Analytics Section - Full Width Above All Tab Content */
-        {showAnalytics && (
-          <div style={{
+        {showAnalytics && <div style={{
             ...styles.card,
             marginBottom: '1.5rem',
             background: 'linear-gradient(145deg, rgba(59,130,246,0.1), rgba(37,99,235,0.05))',
@@ -3440,7 +3439,7 @@ chicken breast, 2 lbs`}
               <PantryAnalytics pantryItems={filteredPantryItems} />
             </div>
           </div>
-        )}
+        }
 
         {/* Recipes Section - Full Width Above All Tab Content */}
         {showRecipes && (
