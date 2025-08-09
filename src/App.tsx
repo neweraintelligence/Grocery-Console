@@ -3822,7 +3822,7 @@ chicken breast, 2 lbs`}
                                 ...styles.itemBadge,
                                 ...(item.source === 'pantry' ? styles.itemBadgeSource : styles.itemBadgeManual)
                               }}>
-                                {item.source === 'pantry' ? '🏠 Pantry' : '✋ Manual'}
+                                {item.source === 'pantry' ? '🏠 Pantry' : `📦 ${(item.category || 'Other').replace(/^Pantry\s*–\s*/, '').replace(/^Fridge\s*–\s*/, '').replace(/^Freezer\s*–\s*/, '')}`}
                               </span>
                               {item.expiryDate && (
                                 <span style={{
