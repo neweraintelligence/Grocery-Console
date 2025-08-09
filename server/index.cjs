@@ -220,12 +220,24 @@ app.post('/api/pantry', async (req, res) => {
       expiryDate || ''
     ]];
 
-    console.log('📝 Attempting to write to Pantry sheet range: Pantry!A:H');
-    const result = await sheets.spreadsheets.values.append({
+    // Find next empty row in column A and write exactly there
+    const colAResp = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Pantry!A1:H1',
+      range: 'Pantry!A:A',
+    });
+    const colAValues = colAResp.data.values || [];
+    let lastNonEmpty = 1; // header
+    colAValues.forEach((row, idx) => {
+      if (row && row[0] && String(row[0]).trim()) lastNonEmpty = idx + 1;
+    });
+    const nextRow = lastNonEmpty + 1;
+    const targetRange = `Pantry!A${nextRow}:H${nextRow}`;
+    console.log('🧭 Next empty row in column A:', nextRow, 'Target range:', targetRange);
+
+    const result = await sheets.spreadsheets.values.update({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID,
+      range: targetRange,
       valueInputOption: 'USER_ENTERED',
-      insertDataOption: 'INSERT_ROWS',
       resource: { values }
     });
 

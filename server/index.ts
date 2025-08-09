@@ -227,7 +227,7 @@ app.post('/api/pantry', async (req, res) => {
     console.log('📝 Column mapping: A=%s, B=%s, C=%s, D=%s, E=%s, F=%s, G=%s, H=%s', 
       values[0][0], values[0][1], values[0][2], values[0][3], values[0][4], values[0][5], values[0][6], values[0][7]);
 
-    console.log('📝 Attempting to write to Pantry sheet range: Pantry!A:H');
+    console.log('📝 Ensuring Pantry sheet exists and locating next empty row in column A');
 
     // Ensure Pantry sheet exists; if missing, create header row first
     try {
@@ -249,11 +249,24 @@ app.post('/api/pantry', async (req, res) => {
       });
     }
 
-    const result = await sheets.spreadsheets.values.append({
+    // Find next empty row in column A
+    const colAResp = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'Pantry!A1:H1',
+      range: 'Pantry!A:A',
+    });
+    const colAValues: any[] = colAResp.data.values || [];
+    let lastNonEmpty = 1; // header at row 1
+    colAValues.forEach((row: any[], idx: number) => {
+      if (row && row[0] && String(row[0]).trim()) lastNonEmpty = idx + 1;
+    });
+    const nextRow = lastNonEmpty + 1;
+    const targetRange = `Pantry!A${nextRow}:H${nextRow}`;
+    console.log('🧭 Next empty row in column A:', nextRow, 'Target range:', targetRange);
+
+    const result = await sheets.spreadsheets.values.update({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID,
+      range: targetRange,
       valueInputOption: 'USER_ENTERED',
-      insertDataOption: 'INSERT_ROWS',
       resource: { values }
     });
     
