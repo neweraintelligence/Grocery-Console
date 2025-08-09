@@ -4566,443 +4566,6 @@ chicken breast, 2 lbs`}
               </div>
             </div>
             
-            {/* Recipe Section within Pantry Tab */}
-            {showRecipes && (
-              <div style={{
-                ...styles.card,
-                marginTop: '1rem',
-                background: 'linear-gradient(145deg, rgba(168,85,247,0.1), rgba(139,92,246,0.05))',
-                border: '1px solid rgba(168,85,247,0.3)'
-              }}>
-                <div style={styles.cardHeader}>
-                  <div style={styles.cardTitle}>
-                    <div style={styles.cardIcon}>
-                      <img src="/cupboard image 1.png" alt="Recipe Icon" style={{width: '60px', height: '60px', objectFit: 'contain'}} />
-                    </div>
-                    <div>
-                      <h2 style={styles.cardTitleText}>Recipe Inspiration</h2>
-                      <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>Delicious ideas based on your pantry ingredients! 👨‍🍳✨</p>
-                    </div>
-                  </div>
-                  <button 
-                    style={{
-                      ...styles.addBtn,
-                      background: loadingRecipes 
-                        ? 'linear-gradient(to right, rgba(120,120,120,0.4), rgba(140,140,140,0.3))'
-                        : 'linear-gradient(to right, rgba(168,85,247,0.4), rgba(139,92,246,0.4))',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                    onClick={generateRecipes}
-                    disabled={loadingRecipes}
-                  >
-                    <img src="/cupboard image 1.png" alt="Refresh Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
-                    {loadingRecipes ? 'Finding Recipes...' : 'Get New Recipes'}
-                  </button>
-                </div>
-                
-                <div style={{padding: '1rem'}}>
-                  {recipes.length === 0 ? (
-                    loadingRecipes ? (
-                      <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
-                        <img src="/cupboard image 1.png" alt="Recipe Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
-                        <p style={{color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem', marginBottom: '0.5rem'}}>
-                          👩‍🍳 Hang on while the AI chefs cook something up for you!
-                        </p>
-                        <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem'}}>
-                          We're crafting breakfast, lunch, dinner, and dessert ideas from your pantry.
-                        </p>
-                      </div>
-                    ) : (
-                      <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
-                        <img src="/cupboard image 1.png" alt="Recipe Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
-                        <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem', marginBottom: '1rem'}}>
-                          🍽️ {pantryItems.filter(item => item.currentCount > 0).length === 0 
-                            ? "Add some ingredients to your pantry first!" 
-                            : "Not enough ingredients for complete recipes"}
-                        </p>
-                        <p style={{color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem'}}>
-                          {pantryItems.filter(item => item.currentCount > 0).length === 0 
-                            ? "Stock up your pantry, then click 'Get New Recipes' to discover dishes you can make!"
-                            : "Try adding more ingredients to your pantry for more recipe options. We only suggest recipes you can actually make!"}
-                        </p>
-                      </div>
-                    )
-                  ) : (
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-                      gap: '1.5rem'
-                    }}>
-                      {recipes
-                        .sort((a, b) => {
-                          const mealOrder = { breakfast: 1, lunch: 2, dinner: 3, dessert: 4 };
-                          return mealOrder[a.mealType] - mealOrder[b.mealType];
-                        })
-                        .map((recipe) => (
-                        <div key={recipe.id} style={{
-                          background: 'linear-gradient(145deg, rgba(168,85,247,0.1), rgba(139,92,246,0.05))',
-                          borderRadius: '1rem',
-                          border: '1px solid rgba(168,85,247,0.3)',
-                          padding: '1.5rem',
-                          backdropFilter: 'blur(10px)'
-                        }}>
-                          {/* Recipe Header */}
-                          <div style={{ marginBottom: '1rem' }}>
-                            <h3 style={{color: 'white', fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem'}}>
-                              {recipe.title}
-                            </h3>
-                            <p style={{color: 'rgba(255,255,255,0.7)', fontSize: '0.875rem', lineHeight: '1.4', marginBottom: '0.75rem'}}>
-                              {recipe.description}
-                            </p>
-                            
-                            {/* Recipe Meta */}
-                            <div style={{ display: 'flex', gap: '1rem', fontSize: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-                              <span style={{
-                                background: recipe.mealType === 'breakfast' 
-                                  ? 'rgba(251,191,36,0.3)' 
-                                  : recipe.mealType === 'lunch'
-                                  ? 'rgba(34,197,94,0.3)'
-                                  : recipe.mealType === 'dinner'
-                                  ? 'rgba(239,68,68,0.3)'
-                                  : 'rgba(168,85,247,0.3)',
-                                color: recipe.mealType === 'breakfast' 
-                                  ? 'rgba(251,191,36,1)' 
-                                  : recipe.mealType === 'lunch'
-                                  ? 'rgba(34,197,94,1)'
-                                  : recipe.mealType === 'dinner'
-                                  ? 'rgba(239,68,68,1)'
-                                  : 'rgba(168,85,247,1)',
-                                padding: '0.25rem 0.5rem',
-                                borderRadius: '0.25rem',
-                                fontWeight: 'bold'
-                              }}>
-                                {recipe.mealType.charAt(0).toUpperCase() + recipe.mealType.slice(1)}
-                              </span>
-                              <span style={{color: 'rgba(255,255,255,0.7)'}}>
-                                🕒 {recipe.cookTime}
-                              </span>
-                              <span style={{color: 'rgba(255,255,255,0.7)'}}>
-                                👥 {recipe.servings} servings
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Recipe Content - Ingredients & Instructions */}
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            {/* Ingredients */}
-                            <div>
-                              <h4 style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.875rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                                🥘 Ingredients:
-                              </h4>
-                              <ul style={{ margin: 0, paddingLeft: '1rem', fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)', lineHeight: '1.4' }}>
-                                {recipe.ingredients.slice(0, 6).map((ingredient, i) => (
-                                  <li key={i} style={{ marginBottom: '0.25rem' }}>
-                                    {ingredient}
-                                  </li>
-                                ))}
-                                {recipe.ingredients.length > 6 && (
-                                  <li style={{ color: 'rgba(255,255,255,0.5)', fontStyle: 'italic', fontSize: '0.7rem' }}>
-                                    ... and {recipe.ingredients.length - 6} more
-                                  </li>
-                                )}
-                              </ul>
-                            </div>
-
-                            {/* Instructions Preview */}
-                            <div>
-                              <h4 style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.875rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                                📝 Instructions:
-                              </h4>
-                              <div style={{ fontSize: '0.75rem' }}>
-                                {recipe.instructions.slice(0, 3).map((step, i) => (
-                                  <p key={i} style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '0.5rem', lineHeight: '1.3' }}>
-                                    <span style={{ color: 'rgba(168,85,247,0.8)', fontWeight: 'bold' }}>
-                                      {i + 1}.
-                                    </span> {step}
-                                  </p>
-                                ))}
-                                {recipe.instructions.length > 3 && (
-                                  <p style={{ color: 'rgba(255,255,255,0.5)', fontStyle: 'italic', fontSize: '0.7rem' }}>
-                                    ... {recipe.instructions.length - 3} more steps
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Analytics Section within Pantry Tab */}
-        {showAnalytics && (
-          <div style={{
-            ...styles.card,
-            marginTop: '1rem',
-            background: 'linear-gradient(145deg, rgba(59,130,246,0.1), rgba(37,99,235,0.05))',
-            border: '1px solid rgba(59,130,246,0.3)'
-          }}>
-            <div style={styles.cardHeader}>
-              <div style={styles.cardTitle}>
-                <div style={styles.cardIcon}>
-                  📊
-                </div>
-                <div>
-                  <h2 style={styles.cardTitleText}>Pantry Analytics</h2>
-                  <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>Insights and trends from your pantry data! 📈✨</p>
-                </div>
-              </div>
-            </div>
-            
-            <div style={{padding: '1rem'}}>
-              <PantryAnalytics pantryItems={filteredPantryItems} />
-            </div>
-          </div>
-        )}
-
-        {/* Old Recipes Tab Content - Now Removed */}
-        {false && (
-          <div style={styles.card}>
-            <div style={styles.cardHeader}>
-              <div style={styles.cardTitle}>
-                <div style={styles.cardIcon}>
-                  <img src="/cupboard image 1.png" alt="Recipe Icon" style={{width: '60px', height: '60px', objectFit: 'contain'}} />
-                </div>
-                <div>
-                  <h2 style={styles.cardTitleText}>Recipe Inspiration</h2>
-                  <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>Delicious ideas based on your pantry ingredients! 👨‍🍳✨</p>
-                </div>
-              </div>
-              <button 
-                style={{
-                  ...styles.addBtn,
-                  background: loadingRecipes 
-                    ? 'linear-gradient(to right, rgba(120,120,120,0.4), rgba(140,140,140,0.3))'
-                    : 'linear-gradient(to right, rgba(168,85,247,0.4), rgba(139,92,246,0.4))',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-                onClick={generateRecipes}
-                disabled={loadingRecipes}
-              >
-                <img src="/cupboard image 1.png" alt="Refresh Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
-                {loadingRecipes ? 'Finding Recipes...' : 'Get New Recipes'}
-              </button>
-            </div>
-            
-            <div style={{padding: '1rem'}}>
-              {recipes.length === 0 ? (
-                loadingRecipes ? (
-                  <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
-                    <img src="/cupboard image 1.png" alt="Recipe Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
-                    <p style={{color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem', marginBottom: '0.5rem'}}>
-                      👩‍🍳 Hang on while the AI chefs cook something up for you!
-                    </p>
-                    <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem'}}>
-                      We're crafting breakfast, lunch, dinner, and dessert ideas from your pantry.
-                    </p>
-                  </div>
-                ) : (
-                  <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
-                    <img src="/cupboard image 1.png" alt="Recipe Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
-                    <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem', marginBottom: '1rem'}}>
-                      🍽️ {pantryItems.filter(item => item.currentCount > 0).length === 0 
-                        ? "Add some ingredients to your pantry first!" 
-                        : "Not enough ingredients for complete recipes"}
-                    </p>
-                    <p style={{color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem'}}>
-                      {pantryItems.filter(item => item.currentCount > 0).length === 0 
-                        ? "Stock up your pantry, then click 'Get New Recipes' to discover dishes you can make!"
-                        : "Try adding more ingredients to your pantry for more recipe options. We only suggest recipes you can actually make!"}
-                    </p>
-                  </div>
-                )
-              ) : (
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-                  gap: '1.5rem'
-                }}>
-                  {recipes
-                    .sort((a, b) => {
-                      const mealOrder = { breakfast: 1, lunch: 2, dinner: 3, dessert: 4 };
-                      return mealOrder[a.mealType] - mealOrder[b.mealType];
-                    })
-                    .map((recipe) => (
-                    <div key={recipe.id} style={{
-                      background: 'linear-gradient(145deg, rgba(168,85,247,0.1), rgba(139,92,246,0.05))',
-                      borderRadius: '1rem',
-                      border: '1px solid rgba(168,85,247,0.3)',
-                      padding: '1.5rem',
-                      backdropFilter: 'blur(10px)'
-                    }}>
-                      {/* Recipe Header */}
-                      <div style={{ marginBottom: '1rem' }}>
-                        <h3 style={{
-                          color: 'white',
-                          fontSize: '1.2rem',
-                          fontWeight: 'bold',
-                          marginBottom: '0.5rem'
-                        }}>
-                          {recipe.title}
-                        </h3>
-                        <p style={{
-                          color: 'rgba(255,255,255,0.7)',
-                          fontSize: '0.875rem',
-                          lineHeight: '1.4',
-                          marginBottom: '0.75rem'
-                        }}>
-                          {recipe.description}
-                        </p>
-                        
-                        {/* Recipe Meta */}
-                        <div style={{
-                          display: 'flex',
-                          gap: '1rem',
-                          fontSize: '0.75rem',
-                          color: 'rgba(255,255,255,0.6)'
-                        }}>
-                          <span>⏱️ {recipe.cookTime}</span>
-                          <span>👥 {recipe.servings} servings</span>
-                          <span>📊 {recipe.difficulty}</span>
-                          <span>🌍 {recipe.cuisine}</span>
-                          <span style={{
-                            background: 'rgba(168,85,247,0.3)',
-                            color: 'rgba(168,85,247,1)',
-                            padding: '0.125rem 0.375rem',
-                            borderRadius: '0.25rem',
-                            fontWeight: 'bold'
-                          }}>
-                            {recipe.mealType === 'breakfast' ? '🌅 Breakfast' :
-                             recipe.mealType === 'lunch' ? '🌞 Lunch' :
-                             recipe.mealType === 'dinner' ? '🌙 Dinner' :
-                             '🍰 Dessert'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Ingredient Availability */}
-                      <div style={{ marginBottom: '1rem' }}>
-                        <div style={{
-                          display: 'flex',
-                          gap: '0.5rem',
-                          fontSize: '0.75rem',
-                          marginBottom: '0.5rem'
-                        }}>
-                          {recipe.availableIngredients.length > 0 && (
-                            <span style={{
-                              background: 'rgba(34,197,94,0.3)',
-                              color: 'rgba(34,197,94,1)',
-                              padding: '0.25rem 0.5rem',
-                              borderRadius: '0.25rem',
-                              fontWeight: 'bold'
-                            }}>
-                              ✅ {recipe.availableIngredients.length} available
-                            </span>
-                          )}
-                          {recipe.missingIngredients.length > 0 && (
-                            <span style={{
-                              background: 'rgba(239,68,68,0.3)',
-                              color: 'rgba(239,68,68,1)',
-                              padding: '0.25rem 0.5rem',
-                              borderRadius: '0.25rem',
-                              fontWeight: 'bold'
-                            }}>
-                              🛒 {recipe.missingIngredients.length} needed
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Ingredients List */}
-                      <div style={{ marginBottom: '1rem' }}>
-                        <h4 style={{
-                          color: 'rgba(255,255,255,0.9)',
-                          fontSize: '0.875rem',
-                          marginBottom: '0.5rem',
-                          fontWeight: 'bold'
-                        }}>
-                          🥘 Ingredients:
-                        </h4>
-                        <ul style={{
-                          listStyle: 'none',
-                          padding: 0,
-                          margin: 0,
-                          fontSize: '0.75rem'
-                        }}>
-                          {recipe.ingredients.slice(0, 6).map((ingredient, i) => (
-                            <li key={i} style={{
-                              color: 'rgba(255,255,255,0.7)',
-                              marginBottom: '0.25rem',
-                              paddingLeft: '1rem',
-                              position: 'relative'
-                            }}>
-                              <span style={{
-                                position: 'absolute',
-                                left: 0,
-                                color: 'rgba(168,85,247,0.8)'
-                              }}>•</span>
-                              {ingredient}
-                            </li>
-                          ))}
-                          {recipe.ingredients.length > 6 && (
-                            <li style={{
-                              color: 'rgba(255,255,255,0.5)',
-                              fontStyle: 'italic',
-                              fontSize: '0.7rem'
-                            }}>
-                              ... and {recipe.ingredients.length - 6} more
-                            </li>
-                          )}
-                        </ul>
-                      </div>
-
-                      {/* Instructions Preview */}
-                      <div>
-                        <h4 style={{
-                          color: 'rgba(255,255,255,0.9)',
-                          fontSize: '0.875rem',
-                          marginBottom: '0.5rem',
-                          fontWeight: 'bold'
-                        }}>
-                          📝 Instructions:
-                        </h4>
-                        <div style={{ fontSize: '0.75rem' }}>
-                          {recipe.instructions.slice(0, 3).map((step, i) => (
-                            <p key={i} style={{
-                              color: 'rgba(255,255,255,0.7)',
-                              marginBottom: '0.5rem',
-                              lineHeight: '1.3'
-                            }}>
-                              <span style={{ color: 'rgba(168,85,247,0.8)', fontWeight: 'bold' }}>
-                                {i + 1}.
-                              </span> {step}
-                            </p>
-                          ))}
-                          {recipe.instructions.length > 3 && (
-                            <p style={{
-                              color: 'rgba(255,255,255,0.5)',
-                              fontStyle: 'italic',
-                              fontSize: '0.7rem'
-                            }}>
-                              ... {recipe.instructions.length - 3} more steps
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
           </div>
         )}
       </main>
@@ -5028,94 +4591,71 @@ chicken breast, 2 lbs`}
           padding: '1rem'
         }}>
           <div style={{
-            background: 'linear-gradient(145deg, #1e3a8a 0%, #1e40af 25%, #2563eb 50%, #1d4ed8 75%, #1e3a8a 100%)',
+            background: 'linear-gradient(135deg, rgba(16,185,129,0.95) 0%, rgba(5,150,105,0.95) 25%, rgba(4,120,87,0.95) 75%, rgba(6,78,59,0.95) 100%)',
+            backdropFilter: 'blur(20px)',
+            borderRadius: '2rem',
+            border: '3px solid rgba(16,185,129,0.6)',
             padding: '2rem',
-            borderRadius: '1rem',
-            width: '90%',
+            width: '95%',
             maxWidth: '400px',
-            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
-            border: '1px solid rgba(255,255,255,0.1)'
+            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
+            position: 'relative'
           }}>
-            <div style={{
-              background: 'linear-gradient(45deg, #60a5fa, #3b82f6)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              fontSize: '1.5rem',
-              fontWeight: 'bold',
-              marginBottom: '1.5rem',
-              fontFamily: "'Fredoka', system-ui, sans-serif"
-            }}>
+            <h2 style={{color: 'white', marginBottom: '1.5rem', fontFamily: "'Fredoka', system-ui, sans-serif"}}>
               Edit Quantity
-            </div>
+            </h2>
             
-            <div style={{marginBottom: '1rem'}}>
-              <p style={{color: 'white', marginBottom: '0.5rem'}}>
-                {editingItem.name}
-              </p>
-              <label style={{
-                display: 'block',
-                color: 'rgba(255,255,255,0.8)',
-                fontSize: '0.875rem',
-                marginBottom: '0.5rem'
-              }}>
-                Total Amount Needed:
+            <div style={{marginBottom: '1.5rem'}}>
+              <label style={{color: 'rgba(255,255,255,0.8)', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block'}}>
+                Current Stock:
               </label>
               <input
                 type="number"
-                step="0.1"
-                value={newQuantity}
-                onChange={(e) => setNewQuantity(e.target.value)}
-                placeholder="Enter total quantity"
-                min="0.1"
+                step="0.25"
+                min="0"
+                value={editingItem.currentCount}
+                onChange={(e) => setEditingItem({...editingItem, currentCount: parseFloat(e.target.value) || 0})}
                 style={{
                   width: '100%',
                   padding: '0.75rem',
                   borderRadius: '0.5rem',
-                  border: 'none',
-                  backgroundColor: 'rgba(30, 58, 138, 0.6)',
+                  border: '2px solid rgba(16,185,129,0.3)',
+                  background: 'rgba(255,255,255,0.1)',
                   color: 'white',
                   fontSize: '1rem',
                   outline: 'none'
                 }}
               />
-              <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.75rem', marginTop: '0.25rem'}}>
-                UOM: {editingItem.unit || 'No unit specified'}
-              </p>
             </div>
 
-            <div style={{display: 'flex', gap: '1rem'}}>
+            <div style={{display: 'flex', gap: '1rem', justifyContent: 'flex-end'}}>
               <button
-                type="button"
-                onClick={() => {
-                  setShowQuantityModal(false);
-                  setEditingItem(null);
-                  setNewQuantity('');
-                }}
+                onClick={() => setShowQuantityModal(false)}
                 style={{
-                  flex: 1,
-                  padding: '0.75rem',
+                  padding: '0.75rem 1.5rem',
                   borderRadius: '0.5rem',
-                  border: 'none',
-                  backgroundColor: 'rgba(30, 58, 138, 0.6)',
-                  color: 'rgba(255,255,255,0.8)',
-                  cursor: 'pointer',
-                  fontSize: '1rem'
+                  border: '2px solid rgba(255,255,255,0.3)',
+                  background: 'rgba(255,255,255,0.1)',
+                  color: 'white',
+                  fontSize: '0.875rem',
+                  cursor: 'pointer'
                 }}
               >
                 Cancel
               </button>
               <button
-                onClick={handleQuantityUpdate}
+                onClick={() => {
+                  updateItemQuantity(editingItem.id, editingItem.currentCount, false);
+                  setShowQuantityModal(false);
+                }}
                 style={{
-                  flex: 1,
-                  padding: '0.75rem',
+                  padding: '0.75rem 1.5rem',
                   borderRadius: '0.5rem',
-                  border: 'none',
-                  background: 'linear-gradient(to right, #3b82f6, #60a5fa)',
+                  border: '2px solid rgba(16,185,129,0.4)',
+                  background: 'linear-gradient(135deg, rgba(16,185,129,0.8) 0%, rgba(5,150,105,0.8) 100%)',
                   color: 'white',
-                  cursor: 'pointer',
-                  fontSize: '1rem',
-                  fontWeight: '600'
+                  fontSize: '0.875rem',
+                  cursor: 'pointer'
                 }}
               >
                 Update
@@ -5125,67 +4665,37 @@ chicken breast, 2 lbs`}
         </div>
       )}
 
-      {/* Photo Analyzer Modal */}
-      <PhotoAnalyzerModal />
+      {/* Weeks List Modal */}
+      {showWeeksListBox && (
+        <WeeksListBox 
+          isOpen={showWeeksListBox} 
+          onClose={() => setShowWeeksListBox(false)} 
+        />
+      )}
 
-      {/* Weeks List Box Modal */}
-      <WeeksListBox 
-        pantryItems={shoppingList}
-        isVisible={showWeeksListBox}
-        onClose={() => setShowWeeksListBox(false)}
-      />
+      {/* Photo Analysis Modal */}
+      {showPhotoAnalysis && (
+        <PhotoAnalysisModal 
+          detectedItems={detectedItems}
+          onClose={() => {
+            setShowPhotoAnalysis(false);
+            setDetectedItems([]);
+          }}
+          onAddItems={(items) => {
+            // Add items logic here
+            setShowPhotoAnalysis(false);
+            setDetectedItems([]);
+          }}
+        />
+      )}
 
+      {/* App styles */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
-        
-        * {
-          box-sizing: border-box;
+        .mobile-hidden {
+          display: block;
         }
         
-        body {
-          margin: 0;
-          font-family: 'Inter', system-ui, sans-serif;
-        }
-        
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.7; }
-        }
-        
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        [style*="inventoryItem"] {
-          animation: fadeInUp 0.6s ease-out;
-        }
-        
-        button:hover {
-          transform: translateY(-1px) scale(1.02);
-          box-shadow: 0 12px 24px rgba(0,0,0,0.3), 0 0 20px rgba(16,185,129,0.2);
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        [style*="inventoryItem"]:hover {
-          background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(59,130,246,0.08), rgba(139,92,246,0.05)) !important;
-          transform: translateY(-2px) scale(1.01);
-          box-shadow: 0 12px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.12), 0 0 0 1px rgba(255,255,255,0.08), 0 0 30px rgba(16,185,129,0.15) !important;
-          border: '1px solid rgba(255,255,255,0.18)' !important;
-        }
-        
-        /* Ensure consistent status badge styling */
-        div[style*="statusBadge"] {
-          white-space: nowrap !important;
-          overflow: hidden !important;
-          text-overflow: ellipsis !important;
-          min-width: 90px !important;
+        .button-max-width {
           max-width: 120px !important;
         }
         
@@ -5200,5 +4710,3 @@ chicken breast, 2 lbs`}
 }
 
 export default App;
-// Force rebuild - Sat, Aug  9, 2025  6:17:00 AM
-/* Trigger Render redeploy - partial quantities + navigation fixes */
