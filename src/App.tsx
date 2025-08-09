@@ -1406,6 +1406,9 @@ function App() {
     'Pantry – Pasta',
     'Pantry – Rice & Grains',
     'Pantry – Baking & Misc. Dry Goods',
+    'Fridge – Dairy & Plant-Based Alternatives',
+    'Fridge – Sauces & Condiments',
+    'Fridge – Pickled & Preserved',
     'Fridge',
     'Freezer',
     'Produce',
@@ -3389,7 +3392,8 @@ chicken breast, 2 lbs`}
                   const getStatusStyle = () => {
                     if (item.source === 'pantry') {
                       if (item.currentCount === 0) return styles.statusOut;
-                      return styles.statusLow;
+                      if (item.currentCount < (item.minCount || 0)) return styles.statusLow;
+                      return styles.statusGood;
                     }
                     const priority = item.priority?.toLowerCase();
                     if (priority === 'high') return styles.statusOut;
@@ -3399,7 +3403,9 @@ chicken breast, 2 lbs`}
                   
                   const getStatusText = () => {
                     if (item.source === 'pantry') {
-                      return item.currentCount === 0 ? 'Out' : 'Low';
+                      if (item.currentCount === 0) return 'Out';
+                      if (item.currentCount < (item.minCount || 0)) return 'Low';
+                      return 'Okay';
                     }
                     const priority = item.priority?.toString() || 'Medium';
                     if (priority === 'High') return 'High';
@@ -3679,14 +3685,14 @@ chicken breast, 2 lbs`}
                 filteredPantryItems.map((item, index) => {
                   const getStatusStyle = () => {
                     if (item.currentCount === 0) return styles.statusOut;
-                    if (item.currentCount <= item.minCount) return styles.statusLow;
+                    if (item.currentCount < item.minCount) return styles.statusLow;
                     return styles.statusGood;
                   };
                   
                   const getStatusText = () => {
                     if (item.currentCount === 0) return 'Out';
-                    if (item.currentCount <= item.minCount) return 'Low';
-                    return 'Good';
+                    if (item.currentCount < item.minCount) return 'Low';
+                    return 'Okay';
                   };
                   
                   const getItemIcon = () => {
