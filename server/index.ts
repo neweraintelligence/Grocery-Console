@@ -20,18 +20,31 @@ app.use(helmet());
 app.use(compression());
 app.use(morgan('combined'));
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:5174', 
-    'http://localhost:5175',
-    'http://localhost:5178',
-    'https://grocery-dashboard-frontend.onrender.com',
-    process.env.FRONTEND_URL || ''
-  ].filter(Boolean),
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'http://localhost:5174', 
+      'http://localhost:5175',
+      'http://localhost:5178',
+      'https://grocery-dashboard-frontend.onrender.com',
+      process.env.FRONTEND_URL || ''
+    ].filter(Boolean);
+    
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET','HEAD','PUT','PATCH','POST','DELETE','OPTIONS'],
   allowedHeaders: ['Content-Type','Authorization','X-Requested-With','Accept','Origin'],
-  exposedHeaders: ['Content-Length','X-Kuma-Revision']
+  exposedHeaders: ['Content-Length','X-Kuma-Revision'],
+  optionsSuccessStatus: 200
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -291,10 +304,6 @@ app.get('/api/groceries', async (req, res) => {
       Pragma: 'no-cache',
       Expires: '0',
       'Surrogate-Control': 'no-store',
-      'Access-Control-Allow-Origin': req.headers.origin || '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin',
-      'Access-Control-Allow-Credentials': 'true'
     });
     if (!sheets || !process.env.GOOGLE_SHEET_ID) {
       return res.status(500).json({ error: 'Google Sheets not configured' });
@@ -572,10 +581,6 @@ app.get('/api/shopping-list', async (req, res) => {
       Pragma: 'no-cache',
       Expires: '0',
       'Surrogate-Control': 'no-store',
-      'Access-Control-Allow-Origin': req.headers.origin || '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin',
-      'Access-Control-Allow-Credentials': 'true'
     });
     if (!sheets || !process.env.GOOGLE_SHEET_ID) {
       return res.status(500).json({ error: 'Google Sheets not configured' });
