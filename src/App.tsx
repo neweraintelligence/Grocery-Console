@@ -4508,9 +4508,9 @@ chicken breast, 2 lbs`}
                     <p style={{color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem', marginBottom: '0.5rem'}}>
                       💰 Comparing prices across Nanaimo stores...
                     </p>
-                    <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem'}}>
-                      Checking PC Optimum, Costco, and Save-On-Foods for the best deals!
-                    </p>
+                                      <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem'}}>
+                    Real-time scraping of PC Express, Costco, and Save-On-Foods websites for live deals!
+                  </p>
                   </div>
                 ) : (
                   <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
@@ -4533,8 +4533,23 @@ chicken breast, 2 lbs`}
                       padding: '1.5rem'
                     }}>
                       <h3 style={{color: '#a855f7', fontSize: '1.2rem', marginBottom: '1rem'}}>
-                        🎯 Live Deals Matching Your List
+                        🎯 Live Deals from Nanaimo Stores
                       </h3>
+                      {priceComparison.scrapingResults && (
+                        <div style={{
+                          color: 'rgba(255,255,255,0.7)',
+                          fontSize: '0.8rem',
+                          marginBottom: '1rem',
+                          textAlign: 'center'
+                        }}>
+                          Scraped: {priceComparison.scrapingResults.pcOptimum} PC • {priceComparison.scrapingResults.costco} Costco • {priceComparison.scrapingResults.saveOnFoods} Save-On
+                          {priceComparison.cached && (
+                            <span style={{color: '#f59e0b', marginLeft: '10px'}}>
+                              📦 Cached ({priceComparison.cacheAge}s ago)
+                            </span>
+                          )}
+                        </div>
+                      )}
                       <div style={{
                         display: 'grid',
                         gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',

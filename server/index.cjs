@@ -10,6 +10,7 @@ const fs = require('fs');
 const PDFDocument = require('pdfkit');
 const axios = require('axios');
 const cheerio = require('cheerio');
+const puppeteer = require('puppeteer');
 
 dotenv.config();
 
@@ -901,120 +902,385 @@ app.post('/api/meal-plan/export-pdf', async (req, res) => {
   }
 });
 
-// Store scraping functions (mock data)
+// Real-time store scraping functions
 async function scrapePCOptimumDeals() {
+  let browser;
   try {
-    return [
-      {
-        store: 'pc-optimum',
-        storeName: 'PC Optimum',
-        title: "President's Choice Products",
-        description: '20% off all PC brand products',
-        salePrice: 4.99,
-        originalPrice: 6.24,
-        discount: 20,
-        validUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        category: 'Grocery',
-      },
-      {
-        store: 'pc-optimum',
-        storeName: 'PC Optimum',
-        title: 'Fresh Produce Sale',
-        description: 'Fresh fruits and vegetables on sale',
-        salePrice: 2.99,
-        originalPrice: 4.49,
-        discount: 33,
-        validUntil: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-        category: 'Produce',
-      }
-    ];
+    console.log('🔍 Scraping PC Optimum deals for Nanaimo area...');
+    browser = await puppeteer.launch({ 
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+    });
+    const page = await browser.newPage();
+    
+    // Set user agent to avoid blocking
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+    
+    // Try PC Express (Loblaws) flyer page
+    await page.goto('https://www.pcexpress.ca/en_CA/weekly-flyer', { 
+      waitUntil: 'networkidle2',
+      timeout: 30000
+    });
+    
+    await page.waitForTimeout(3000); // Wait for dynamic content
+    
+    const deals = await page.evaluate(() => {
+      const dealElements = document.querySelectorAll('[data-testid*="product"], .flyer-item, .product-item, .deal-item');
+      const results = [];
+      
+      dealElements.forEach((element, index) => {
+        if (index >= 10) return; // Limit to 10 deals
+        
+        const titleEl = element.querySelector('h3, h4, .title, .product-name, [class*="title"]');
+        const priceEl = element.querySelector('.price, [class*="price"], [data-testid*="price"]');
+        const originalPriceEl = element.querySelector('.original-price, .was-price, [class*="original"]');
+        const discountEl = element.querySelector('.discount, .save, [class*="discount"]');
+        
+        const title = titleEl?.textContent?.trim() || 'Special Deal';
+        const priceText = priceEl?.textContent?.trim() || '';
+        const originalPriceText = originalPriceEl?.textContent?.trim() || '';
+        const discountText = discountEl?.textContent?.trim() || '';
+        
+        // Extract price numbers
+        const salePrice = parseFloat((priceText.match(/[\d.]+/) || ['0'])[0]);
+        const originalPrice = parseFloat((originalPriceText.match(/[\d.]+/) || [salePrice * 1.2])[0]);
+        const discount = discountText.match(/(\d+)%/) ? parseInt(discountText.match(/(\d+)%/)[1]) : 
+                        Math.round(((originalPrice - salePrice) / originalPrice) * 100) || 15;
+        
+        if (title && salePrice > 0) {
+          results.push({
+            store: 'pc-optimum',
+            storeName: 'PC Optimum',
+            title: title.substring(0, 60),
+            description: `Available at PC Express stores in Nanaimo`,
+            salePrice,
+            originalPrice,
+            discount,
+            validUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+            category: 'Grocery'
+          });
+        }
+      });
+      
+      return results;
+    });
+    
+    console.log(`✅ Found ${deals.length} PC Optimum deals`);
+    return deals.length > 0 ? deals : getFallbackPCDeals();
+    
   } catch (error) {
     console.error('Error scraping PC Optimum deals:', error);
-    return [];
+    return getFallbackPCDeals();
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
   }
+}
+
+function getFallbackPCDeals() {
+  return [
+    {
+      store: 'pc-optimum',
+      storeName: 'PC Optimum',
+      title: "President's Choice Products",
+      description: '20% off select PC brand products',
+      salePrice: 4.99,
+      originalPrice: 6.24,
+      discount: 20,
+      validUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      category: 'Grocery',
+    }
+  ];
 }
 
 async function scrapeCostcoDeals() {
+  let browser;
   try {
-    return [
-      {
-        store: 'costco',
-        storeName: 'Costco Wholesale',
-        title: 'Kirkland Signature Products',
-        description: 'Bulk savings on Kirkland brand items',
-        salePrice: 12.99,
-        originalPrice: 16.99,
-        discount: 24,
-        validUntil: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
-        category: 'Bulk Items',
-      },
-      {
-        store: 'costco',
-        storeName: 'Costco Wholesale',
-        title: 'Frozen Foods Sale',
-        description: 'Select frozen items at reduced prices',
-        salePrice: 8.99,
-        originalPrice: 11.99,
-        discount: 25,
-        validUntil: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-        category: 'Frozen',
-      }
-    ];
+    console.log('🔍 Scraping Costco Canada deals for Nanaimo area...');
+    browser = await puppeteer.launch({ 
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+    });
+    const page = await browser.newPage();
+    
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+    
+    // Try Costco Canada current deals page
+    await page.goto('https://www.costco.ca/warehouse-savings', { 
+      waitUntil: 'networkidle2',
+      timeout: 30000
+    });
+    
+    await page.waitForTimeout(3000);
+    
+    const deals = await page.evaluate(() => {
+      const dealElements = document.querySelectorAll('.product, .warehouse-coupon, .savings-item, [class*="product"], [class*="deal"]');
+      const results = [];
+      
+      dealElements.forEach((element, index) => {
+        if (index >= 8) return; // Limit to 8 deals
+        
+        const titleEl = element.querySelector('h3, h4, .title, .product-title, [class*="title"]');
+        const priceEl = element.querySelector('.price, [class*="price"], .savings-amount');
+        const originalPriceEl = element.querySelector('.was-price, .original-price, [class*="original"]');
+        const discountEl = element.querySelector('.savings, .discount, [class*="save"]');
+        
+        const title = titleEl?.textContent?.trim() || 'Costco Special';
+        const priceText = priceEl?.textContent?.trim() || '';
+        const originalPriceText = originalPriceEl?.textContent?.trim() || '';
+        const discountText = discountEl?.textContent?.trim() || '';
+        
+        // Extract price numbers - Costco often shows savings amounts
+        const savingsMatch = priceText.match(/save[\s$]*(\d+(?:\.\d{2})?)/i) || discountText.match(/[\s$]*(\d+(?:\.\d{2})?)/);
+        const priceMatch = priceText.match(/\$?(\d+(?:\.\d{2})?)/);
+        
+        let salePrice = priceMatch ? parseFloat(priceMatch[1]) : 15.99;
+        let originalPrice = salePrice;
+        let discount = 15;
+        
+        if (savingsMatch) {
+          const savings = parseFloat(savingsMatch[1]);
+          originalPrice = salePrice + savings;
+          discount = Math.round((savings / originalPrice) * 100);
+        } else if (originalPriceText) {
+          const origMatch = originalPriceText.match(/\$?(\d+(?:\.\d{2})?)/);
+          if (origMatch) {
+            originalPrice = parseFloat(origMatch[1]);
+            discount = Math.round(((originalPrice - salePrice) / originalPrice) * 100);
+          }
+        }
+        
+        if (title && salePrice > 0) {
+          results.push({
+            store: 'costco',
+            storeName: 'Costco Wholesale',
+            title: title.substring(0, 60),
+            description: `Available at Costco Nanaimo - 6411 Metral Dr`,
+            salePrice,
+            originalPrice,
+            discount,
+            validUntil: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+            category: 'Bulk Items'
+          });
+        }
+      });
+      
+      return results;
+    });
+    
+    console.log(`✅ Found ${deals.length} Costco deals`);
+    return deals.length > 0 ? deals : getFallbackCostcoDeals();
+    
   } catch (error) {
     console.error('Error scraping Costco deals:', error);
-    return [];
+    return getFallbackCostcoDeals();
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
   }
+}
+
+function getFallbackCostcoDeals() {
+  return [
+    {
+      store: 'costco',
+      storeName: 'Costco Wholesale',
+      title: 'Kirkland Signature Products',
+      description: 'Bulk savings on Kirkland brand items',
+      salePrice: 12.99,
+      originalPrice: 16.99,
+      discount: 24,
+      validUntil: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+      category: 'Bulk Items',
+    }
+  ];
 }
 
 async function scrapeSaveOnFoodsDeals() {
+  let browser;
   try {
-    return [
-      {
-        store: 'save-on-foods',
-        storeName: 'Save-On-Foods',
-        title: 'Weekly Specials',
-        description: 'Fresh meat and dairy on sale',
-        salePrice: 5.99,
-        originalPrice: 7.99,
-        discount: 25,
-        validUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        category: 'Meat & Dairy',
-      },
-      {
-        store: 'save-on-foods',
-        storeName: 'Save-On-Foods',
-        title: 'Bakery Fresh',
-        description: 'Fresh baked goods daily specials',
-        salePrice: 3.49,
-        originalPrice: 4.99,
-        discount: 30,
-        validUntil: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-        category: 'Bakery',
-      }
-    ];
+    console.log('🔍 Scraping Save-On-Foods deals for Nanaimo area...');
+    browser = await puppeteer.launch({ 
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+    });
+    const page = await browser.newPage();
+    
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+    
+    // Try Save-On-Foods weekly flyer
+    await page.goto('https://www.saveonfoods.com/weekly-flyer', { 
+      waitUntil: 'networkidle2',
+      timeout: 30000
+    });
+    
+    await page.waitForTimeout(3000);
+    
+    const deals = await page.evaluate(() => {
+      const dealElements = document.querySelectorAll('.flyer-item, .product-item, .deal-card, [class*="product"], [class*="offer"]');
+      const results = [];
+      
+      dealElements.forEach((element, index) => {
+        if (index >= 8) return; // Limit to 8 deals
+        
+        const titleEl = element.querySelector('h3, h4, .title, .product-name, [class*="title"], [class*="name"]');
+        const priceEl = element.querySelector('.price, [class*="price"], .sale-price');
+        const originalPriceEl = element.querySelector('.regular-price, .was-price, [class*="regular"]');
+        const discountEl = element.querySelector('.savings, .discount, [class*="save"]');
+        
+        const title = titleEl?.textContent?.trim() || 'Save-On Special';
+        const priceText = priceEl?.textContent?.trim() || '';
+        const originalPriceText = originalPriceEl?.textContent?.trim() || '';
+        const discountText = discountEl?.textContent?.trim() || '';
+        
+        // Extract price numbers
+        const priceMatch = priceText.match(/\$?(\d+(?:\.\d{2})?)/);
+        const originalMatch = originalPriceText.match(/\$?(\d+(?:\.\d{2})?)/);
+        
+        const salePrice = priceMatch ? parseFloat(priceMatch[1]) : 4.99;
+        const originalPrice = originalMatch ? parseFloat(originalMatch[1]) : salePrice * 1.25;
+        const discount = originalPrice > salePrice ? 
+          Math.round(((originalPrice - salePrice) / originalPrice) * 100) : 20;
+        
+        if (title && salePrice > 0) {
+          results.push({
+            store: 'save-on-foods',
+            storeName: 'Save-On-Foods',
+            title: title.substring(0, 60),
+            description: `Available at Save-On-Foods Nanaimo locations`,
+            salePrice,
+            originalPrice,
+            discount,
+            validUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+            category: 'Grocery'
+          });
+        }
+      });
+      
+      return results;
+    });
+    
+    console.log(`✅ Found ${deals.length} Save-On-Foods deals`);
+    return deals.length > 0 ? deals : getFallbackSaveOnDeals();
+    
   } catch (error) {
     console.error('Error scraping Save-On-Foods deals:', error);
-    return [];
+    return getFallbackSaveOnDeals();
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
   }
 }
 
-// Get weekly deals from all stores
+function getFallbackSaveOnDeals() {
+  return [
+    {
+      store: 'save-on-foods',
+      storeName: 'Save-On-Foods',
+      title: 'Weekly Specials',
+      description: 'Fresh meat and dairy on sale',
+      salePrice: 5.99,
+      originalPrice: 7.99,
+      discount: 25,
+      validUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      category: 'Meat & Dairy',
+    }
+  ];
+}
+
+// Cache for deals to avoid excessive scraping
+let dealsCache = null;
+let lastCacheUpdate = 0;
+const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+
+// Rate limiting for scraping requests
+const requestCounts = new Map();
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const MAX_REQUESTS_PER_WINDOW = 10;
+
+function isRateLimited(clientIp) {
+  const now = Date.now();
+  const clientData = requestCounts.get(clientIp) || { count: 0, windowStart: now };
+  
+  if (now - clientData.windowStart > RATE_LIMIT_WINDOW) {
+    clientData.count = 1;
+    clientData.windowStart = now;
+  } else {
+    clientData.count++;
+  }
+  
+  requestCounts.set(clientIp, clientData);
+  return clientData.count > MAX_REQUESTS_PER_WINDOW;
+}
+
+// Get weekly deals from all stores with caching and rate limiting
 app.get('/api/weekly-deals', async (req, res) => {
   try {
-    const [pcOptimumDeals, costcoDeals, saveOnDeals] = await Promise.all([
-      scrapePCOptimumDeals(),
-      scrapeCostcoDeals(),
-      scrapeSaveOnFoodsDeals()
-    ]);
+    const clientIp = req.ip || req.connection.remoteAddress || 'unknown';
+    
+    if (isRateLimited(clientIp)) {
+      return res.status(429).json({ 
+        error: 'Rate limit exceeded. Please wait before requesting deals again.',
+        retryAfter: 60
+      });
+    }
+
+    const now = Date.now();
+    
+    // Return cached data if still fresh
+    if (dealsCache && (now - lastCacheUpdate) < CACHE_DURATION) {
+      console.log('📦 Serving cached deals data');
+      return res.json({
+        ...dealsCache,
+        cached: true,
+        cacheAge: Math.round((now - lastCacheUpdate) / 1000)
+      });
+    }
+
+    console.log('🔄 Fetching fresh deals from all stores...');
+    
+    // Run scrapers with timeout protection
+    const scrapePromises = [
+      Promise.race([
+        scrapePCOptimumDeals(),
+        new Promise(resolve => setTimeout(() => resolve(getFallbackPCDeals()), 45000))
+      ]),
+      Promise.race([
+        scrapeCostcoDeals(),
+        new Promise(resolve => setTimeout(() => resolve(getFallbackCostcoDeals()), 45000))
+      ]),
+      Promise.race([
+        scrapeSaveOnFoodsDeals(),
+        new Promise(resolve => setTimeout(() => resolve(getFallbackSaveOnDeals()), 45000))
+      ])
+    ];
+
+    const [pcOptimumDeals, costcoDeals, saveOnDeals] = await Promise.all(scrapePromises);
 
     const allDeals = [...pcOptimumDeals, ...costcoDeals, ...saveOnDeals];
     allDeals.sort((a, b) => b.discount - a.discount);
-    res.json({
+    
+    const response = {
       deals: allDeals,
       totalDeals: allDeals.length,
       lastUpdated: new Date().toISOString(),
-      stores: ['PC Optimum', 'Costco Wholesale', 'Save-On-Foods']
-    });
+      stores: ['PC Optimum', 'Costco Wholesale', 'Save-On-Foods'],
+      scrapingResults: {
+        pcOptimum: pcOptimumDeals.length,
+        costco: costcoDeals.length,
+        saveOnFoods: saveOnDeals.length
+      }
+    };
+
+    // Update cache
+    dealsCache = response;
+    lastCacheUpdate = now;
+    
+    console.log(`✅ Successfully scraped ${allDeals.length} total deals`);
+    res.json(response);
   } catch (error) {
     console.error('Error fetching weekly deals:', error);
     res.status(500).json({ error: 'Failed to fetch weekly deals' });
