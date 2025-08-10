@@ -3491,7 +3491,7 @@ chicken breast, 2 lbs`}
               </button>
             </div>
             
-            <div style={{padding: '1rem'}}>
+            <div style={{padding: '0.5rem'}}>
               {recipes.length === 0 ? (
                 loadingRecipes ? (
                   <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
@@ -3521,15 +3521,19 @@ chicken breast, 2 lbs`}
               ) : (
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-                  gap: '1.5rem'
+                  gridTemplateColumns: 'repeat(2, 1fr)',
+                  gridTemplateRows: 'repeat(2, 1fr)',
+                  gap: '1.5rem',
+                  maxWidth: '100%'
                 }}>
                   {recipes.map((recipe, index) => (
                     <div key={index} style={{
                       ...styles.card,
                       background: 'linear-gradient(145deg, rgba(168,85,247,0.1), rgba(139,92,246,0.05))',
                       border: '1px solid rgba(168,85,247,0.3)',
-                      padding: '1.5rem'
+                      padding: '1.5rem',
+                      width: '100%',
+                      minHeight: '300px'
                     }}>
                       <div style={{
                         display: 'flex',
