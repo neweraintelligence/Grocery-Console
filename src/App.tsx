@@ -796,6 +796,46 @@ const styles = {
   },
 };
 
+// Lightweight SVG spinner that doesn't require external CSS
+const Spinner: React.FC<{ size?: number; color?: string; style?: React.CSSProperties }> = ({
+  size = 16,
+  color = '#ffffff',
+  style = {}
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 50 50"
+    style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 6, ...style }}
+  >
+    <circle
+      cx="25"
+      cy="25"
+      r="20"
+      fill="none"
+      stroke={color}
+      strokeWidth="5"
+      strokeOpacity="0.2"
+    />
+    <path
+      fill="none"
+      stroke={color}
+      strokeWidth="5"
+      d="M25 5 a20 20 0 0 1 0 40"
+      strokeLinecap="round"
+    >
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        from="0 25 25"
+        to="360 25 25"
+        dur="1s"
+        repeatCount="indefinite"
+      />
+    </path>
+  </svg>
+);
+
 // PantryAnalytics Component
 const PantryAnalytics = ({ pantryItems }: { pantryItems: PantryItem[] }) => {
   const [sortBy, setSortBy] = useState<'stock' | 'category' | 'ratio'>('stock');
@@ -3764,7 +3804,9 @@ chicken breast, 2 lbs`}
                 onClick={generateRecipes}
                 disabled={loadingRecipes}
               >
-                <img src="/cupboard image 1.png" alt="Refresh Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+                {loadingRecipes ? <Spinner size={16} color="#ffffff" /> : (
+                  <img src="/cupboard image 1.png" alt="Refresh Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+                )}
                 {loadingRecipes ? 'Finding Recipes...' : 'Get New Recipes'}
               </button>
             </div>
@@ -3773,7 +3815,7 @@ chicken breast, 2 lbs`}
               {recipes.length === 0 ? (
                 loadingRecipes ? (
                   <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
-                    <img src="/cupboard image 1.png" alt="Recipe Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
+                    <Spinner size={28} color="#14b8a6" style={{ marginRight: 0 }} />
                     <p style={{color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem', marginBottom: '0.5rem'}}>
                       👩‍🍳 Hang on while the AI chefs cook something up for you!
                     </p>
@@ -4015,7 +4057,9 @@ chicken breast, 2 lbs`}
                   onClick={generateMealPlan}
                   disabled={loadingMealPlan}
                 >
-                  <img src="/cupboard image 1.png" alt="Generate Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+                  {loadingMealPlan ? <Spinner size={16} color="#ffffff" /> : (
+                    <img src="/cupboard image 1.png" alt="Generate Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+                  )}
                   {loadingMealPlan ? 'Generating...' : 'Generate New Plan'}
                 </button>
                 {mealPlan && (
@@ -4049,7 +4093,7 @@ chicken breast, 2 lbs`}
               {!mealPlan ? (
                 loadingMealPlan ? (
                   <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
-                    <img src="/cupboard image 1.png" alt="Meal Plan Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
+                    <Spinner size={28} color="#a855f7" style={{ marginRight: 0 }} />
                     <p style={{color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem', marginBottom: '0.5rem'}}>
                       👩‍🍳 Creating your personalized weekly meal plan...
                     </p>
