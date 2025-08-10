@@ -4280,8 +4280,9 @@ chicken breast, 2 lbs`}
                     <button 
                       style={{
                         ...styles.addBtn,
-                        background: 'linear-gradient(135deg, rgba(245,158,11,0.4) 0%, rgba(217,119,6,0.35) 100%)',
-                        border: '2px solid rgba(245,158,11,0.3)',
+                        // Match neutral styling of siblings
+                        background: styles.addBtn.background,
+                        border: styles.addBtn.border,
                         fontSize: '0.9rem'
                       }}
                       onClick={() => {
