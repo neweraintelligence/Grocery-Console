@@ -3523,8 +3523,9 @@ chicken breast, 2 lbs`}
                   display: 'grid',
                   gridTemplateColumns: 'repeat(2, 1fr)',
                   gridTemplateRows: 'repeat(2, 1fr)',
-                  gap: '1.5rem',
-                  maxWidth: '100%'
+                  gap: '2rem',
+                  width: '100%',
+                  boxSizing: 'border-box'
                 }}>
                   {recipes.map((recipe, index) => (
                     <div key={index} style={{
@@ -3532,8 +3533,9 @@ chicken breast, 2 lbs`}
                       background: 'linear-gradient(145deg, rgba(168,85,247,0.1), rgba(139,92,246,0.05))',
                       border: '1px solid rgba(168,85,247,0.3)',
                       padding: '1.5rem',
-                      width: '100%',
-                      minHeight: '300px'
+                      minHeight: '300px',
+                      boxSizing: 'border-box',
+                      overflow: 'hidden'
                     }}>
                       <div style={{
                         display: 'flex',
