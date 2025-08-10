@@ -1036,7 +1036,7 @@ const PantryAnalytics = ({ pantryItems }: { pantryItems: PantryItem[] }) => {
                 }}>
                   <div style={{
                     background: sortBy === 'category'
-                      ? 'linear-gradient(to right, rgba(168,85,247,0.8), rgba(139,92,246,0.8))'
+                      ? 'linear-gradient(to right, rgba(100,116,139,0.8), rgba(71,85,105,0.8))'
                       : value < (item.minCount || 1)
                         ? 'linear-gradient(to right, rgba(239,68,68,0.8), rgba(220,38,38,0.8))'
                         : 'linear-gradient(to right, rgba(34,197,94,0.8), rgba(22,163,74,0.8))',
@@ -1865,6 +1865,10 @@ function App() {
       const mondayDate = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 1));
       const weekOf = mondayDate.toISOString().split('T')[0];
 
+      // Create AbortController for timeout handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
+
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/meal-plan/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1872,8 +1876,11 @@ function App() {
           pantry: pantryPayload, 
           dietaryPreferences,
           weekOf 
-        })
+        }),
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         console.error('Meal plan endpoint failed:', response.status);
@@ -3720,8 +3727,8 @@ chicken breast, 2 lbs`}
           <button 
             style={{
               ...styles.addBtn,
-              background: 'linear-gradient(135deg, rgba(168,85,247,0.4) 0%, rgba(139,92,246,0.35) 100%)',
-              border: '2px solid rgba(168,85,247,0.3)',
+              background: 'linear-gradient(135deg, rgba(100,116,139,0.4) 0%, rgba(71,85,105,0.35) 100%)',
+              border: '2px solid rgba(100,116,139,0.3)',
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.2)',
               textShadow: '0 1px 1px rgba(0,0,0,0.3)',
             }}
@@ -3850,8 +3857,8 @@ chicken breast, 2 lbs`}
                   {recipes.map((recipe, index) => (
                     <div key={index} style={{
                       ...styles.card,
-                      background: 'linear-gradient(145deg, rgba(168,85,247,0.1), rgba(139,92,246,0.05))',
-                      border: '1px solid rgba(168,85,247,0.3)',
+                      background: 'linear-gradient(145deg, rgba(100,116,139,0.1), rgba(71,85,105,0.05))',
+                      border: '1px solid rgba(100,116,139,0.3)',
                       padding: '1.5rem',
                       minHeight: '300px',
                       boxSizing: 'border-box',
@@ -3864,7 +3871,7 @@ chicken breast, 2 lbs`}
                         marginBottom: '1rem'
                       }}>
                         <div style={{
-                          background: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(139,92,246,0.1))',
+                          background: 'linear-gradient(135deg, rgba(100,116,139,0.2), rgba(71,85,105,0.1))',
                           borderRadius: '50%',
                           width: '60px',
                           height: '60px',
@@ -3895,35 +3902,35 @@ chicken breast, 2 lbs`}
                             flexWrap: 'wrap'
                           }}>
                             <span style={{
-                              background: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(139,92,246,0.1))',
-                              color: '#c084fc',
+                              background: 'linear-gradient(135deg, rgba(100,116,139,0.2), rgba(71,85,105,0.1))',
+                              color: '#94a3b8',
                               padding: '0.25rem 0.75rem',
                               borderRadius: '0.75rem',
                               fontSize: '0.75rem',
                               fontWeight: '500',
-                              border: '1px solid rgba(168,85,247,0.3)'
+                              border: '1px solid rgba(100,116,139,0.3)'
                             }}>
                               ⏱️ {recipe.cookTime}
                             </span>
                             <span style={{
-                              background: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(139,92,246,0.1))',
-                              color: '#c084fc',
+                              background: 'linear-gradient(135deg, rgba(100,116,139,0.2), rgba(71,85,105,0.1))',
+                              color: '#94a3b8',
                               padding: '0.25rem 0.75rem',
                               borderRadius: '0.75rem',
                               fontSize: '0.75rem',
                               fontWeight: '500',
-                              border: '1px solid rgba(168,85,247,0.3)'
+                              border: '1px solid rgba(100,116,139,0.3)'
                             }}>
                               👥 {recipe.servings} servings
                             </span>
                             <span style={{
-                              background: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(139,92,246,0.1))',
-                              color: '#c084fc',
+                              background: 'linear-gradient(135deg, rgba(100,116,139,0.2), rgba(71,85,105,0.1))',
+                              color: '#94a3b8',
                               padding: '0.25rem 0.75rem',
                               borderRadius: '0.75rem',
                               fontSize: '0.75rem',
                               fontWeight: '500',
-                              border: '1px solid rgba(168,85,247,0.3)'
+                              border: '1px solid rgba(100,116,139,0.3)'
                             }}>
                               🎯 {recipe.difficulty}
                             </span>
@@ -3949,9 +3956,9 @@ chicken breast, 2 lbs`}
                               alignItems: 'center',
                               gap: '0.5rem',
                               padding: '0.5rem',
-                              background: 'rgba(168,85,247,0.1)',
+                              background: 'rgba(100,116,139,0.1)',
                               borderRadius: '0.5rem',
-                              border: '1px solid rgba(168,85,247,0.2)'
+                              border: '1px solid rgba(100,116,139,0.2)'
                             }}>
                               <span style={{
                                 color: recipe.availableIngredients.includes(ingredient) ? '#10b981' : '#f59e0b',
@@ -3987,12 +3994,12 @@ chicken breast, 2 lbs`}
                               display: 'flex',
                               gap: '0.75rem',
                               padding: '0.75rem',
-                              background: 'rgba(168,85,247,0.05)',
+                              background: 'rgba(100,116,139,0.05)',
                               borderRadius: '0.5rem',
-                              border: '1px solid rgba(168,85,247,0.1)'
+                              border: '1px solid rgba(100,116,139,0.1)'
                             }}>
                               <span style={{
-                                background: 'linear-gradient(135deg, rgba(168,85,247,0.3), rgba(139,92,246,0.2))',
+                                background: 'linear-gradient(135deg, rgba(100,116,139,0.3), rgba(71,85,105,0.2))',
                                 color: 'white',
                                 borderRadius: '50%',
                                 width: '24px',
@@ -4030,8 +4037,8 @@ chicken breast, 2 lbs`}
           <div style={{
             ...styles.card,
             marginBottom: '1.5rem',
-            background: 'linear-gradient(145deg, rgba(168,85,247,0.1), rgba(139,92,246,0.05))',
-            border: '1px solid rgba(168,85,247,0.3)'
+            background: 'linear-gradient(145deg, rgba(100,116,139,0.1), rgba(139,92,246,0.05))',
+            border: '1px solid rgba(100,116,139,0.3)'
           }}>
             <div style={styles.cardHeader}>
               <div style={styles.cardTitle}>
@@ -4049,7 +4056,7 @@ chicken breast, 2 lbs`}
                     ...styles.addBtn,
                     background: loadingMealPlan 
                       ? 'linear-gradient(to right, rgba(120,120,120,0.4), rgba(140,140,120,0.3))'
-                      : 'linear-gradient(to right, rgba(168,85,247,0.8), rgba(139,92,246,0.7))',
+                      : 'linear-gradient(to right, rgba(100,116,139,0.8), rgba(71,85,105,0.7))',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center'
@@ -4116,14 +4123,14 @@ chicken breast, 2 lbs`}
                 )
               ) : (
                 <div style={{
-                  background: 'linear-gradient(145deg, rgba(168,85,247,0.05), rgba(139,92,246,0.02))',
-                  border: '1px solid rgba(168,85,247,0.2)',
+                  background: 'linear-gradient(145deg, rgba(100,116,139,0.05), rgba(139,92,246,0.02))',
+                  border: '1px solid rgba(100,116,139,0.2)',
                   borderRadius: '1rem',
                   padding: '2rem',
                   width: '100%'
                 }}>
                   <div style={{marginBottom: '2rem'}}>
-                    <h3 style={{color: '#c084fc', fontSize: '1.4rem', marginBottom: '1rem', textAlign: 'center'}}>
+                    <h3 style={{color: '#94a3b8', fontSize: '1.4rem', marginBottom: '1rem', textAlign: 'center'}}>
                       Weekly Meal Plan - {mealPlan.weekOf}
                     </h3>
                     {mealPlan.dietaryPreferences?.length > 0 && (
@@ -4148,13 +4155,13 @@ chicken breast, 2 lbs`}
                       const dayMeals = (mealPlan.meals || []).filter((meal: any) => meal.day === day);
                       return (
                         <div key={day} style={{
-                          background: 'rgba(168,85,247,0.1)',
-                          border: '1px solid rgba(168,85,247,0.2)',
+                          background: 'rgba(100,116,139,0.1)',
+                          border: '1px solid rgba(100,116,139,0.2)',
                           borderRadius: '0.75rem',
                           padding: '1rem',
                           minHeight: '300px'
                         }}>
-                          <h4 style={{color: '#c084fc', fontSize: '1rem', marginBottom: '0.75rem', textAlign: 'center'}}>
+                          <h4 style={{color: '#94a3b8', fontSize: '1rem', marginBottom: '0.75rem', textAlign: 'center'}}>
                             {day}
                           </h4>
                           {['breakfast', 'lunch', 'dinner'].map(mealType => {
@@ -4162,7 +4169,7 @@ chicken breast, 2 lbs`}
                             return (
                               <div key={mealType} style={{marginBottom: '0.75rem'}}>
                                 <div style={{
-                                  color: '#a855f7',
+                                  color: '#64748b',
                                   fontSize: '0.8rem',
                                   fontWeight: 'bold',
                                   marginBottom: '0.25rem'
@@ -4171,7 +4178,7 @@ chicken breast, 2 lbs`}
                                 </div>
                                 {meal ? (
                                   <div style={{
-                                    background: 'rgba(168,85,247,0.15)',
+                                    background: 'rgba(100,116,139,0.15)',
                                     padding: '0.5rem',
                                     borderRadius: '0.5rem',
                                     fontSize: '0.75rem'
@@ -4527,12 +4534,12 @@ chicken breast, 2 lbs`}
                   {/* Weekly Deals (Live data only) */}
                   {priceComparison.deals && priceComparison.deals.length > 0 && (
                     <div style={{
-                      background: 'rgba(168,85,247,0.1)',
-                      border: '1px solid rgba(168,85,247,0.3)',
+                      background: 'rgba(100,116,139,0.1)',
+                      border: '1px solid rgba(100,116,139,0.3)',
                       borderRadius: '0.75rem',
                       padding: '1.5rem'
                     }}>
-                      <h3 style={{color: '#a855f7', fontSize: '1.2rem', marginBottom: '1rem'}}>
+                      <h3 style={{color: '#64748b', fontSize: '1.2rem', marginBottom: '1rem'}}>
                         🎯 Live Deals from Nanaimo Stores
                       </h3>
                       {priceComparison.scrapingResults && (
@@ -4557,10 +4564,10 @@ chicken breast, 2 lbs`}
                       }}>
                         {priceComparison.deals.slice(0, 12).map((deal: any, index: number) => (
                           <div key={index} style={{
-                            background: 'rgba(168,85,247,0.15)',
+                            background: 'rgba(100,116,139,0.15)',
                             padding: '1rem',
                             borderRadius: '0.5rem',
-                            border: '1px solid rgba(168,85,247,0.2)'
+                            border: '1px solid rgba(100,116,139,0.2)'
                           }}>
                             <div style={{
                               display: 'flex',
@@ -4568,7 +4575,7 @@ chicken breast, 2 lbs`}
                               alignItems: 'center',
                               marginBottom: '0.5rem'
                             }}>
-                              <div style={{color: '#a855f7', fontSize: '0.9rem', fontWeight: 'bold'}}>
+                              <div style={{color: '#64748b', fontSize: '0.9rem', fontWeight: 'bold'}}>
                                 {deal.storeName}
                               </div>
                               <div style={{
