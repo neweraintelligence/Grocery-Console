@@ -4524,185 +4524,8 @@ chicken breast, 2 lbs`}
                 )
               ) : (
                 <div>
-                  {/* Budget Summary */}
-                  <div style={{
-                    background: 'linear-gradient(145deg, rgba(34,197,94,0.1), rgba(22,163,74,0.05))',
-                    border: '1px solid rgba(34,197,94,0.3)',
-                    borderRadius: '1rem',
-                    padding: '1.5rem',
-                    marginBottom: '2rem'
-                  }}>
-                    <h3 style={{color: '#34d399', fontSize: '1.3rem', marginBottom: '1rem', textAlign: 'center'}}>
-                      💰 Budget Summary
-                    </h3>
-                    <div style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                      gap: '1rem',
-                      textAlign: 'center'
-                    }}>
-                      <div style={{
-                        background: 'rgba(34,197,94,0.15)',
-                        padding: '1rem',
-                        borderRadius: '0.75rem',
-                        border: '1px solid rgba(34,197,94,0.2)'
-                      }}>
-                        <div style={{color: '#34d399', fontSize: '1.8rem', fontWeight: 'bold'}}>
-                          ${priceComparison.budget?.projectedTotal || 0}
-                        </div>
-                        <div style={{color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem'}}>Best Price Total</div>
-                      </div>
-                      <div style={{
-                        background: 'rgba(245,158,11,0.15)',
-                        padding: '1rem',
-                        borderRadius: '0.75rem',
-                        border: '1px solid rgba(245,158,11,0.2)'
-                      }}>
-                        <div style={{color: '#f59e0b', fontSize: '1.8rem', fontWeight: 'bold'}}>
-                          ${priceComparison.budget?.savings || 0}
-                        </div>
-                        <div style={{color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem'}}>Total Savings</div>
-                      </div>
-                      <div style={{
-                        background: 'rgba(168,85,247,0.15)',
-                        padding: '1rem',
-                        borderRadius: '0.75rem',
-                        border: '1px solid rgba(168,85,247,0.2)'
-                      }}>
-                        <div style={{color: '#a855f7', fontSize: '1.2rem', fontWeight: 'bold'}}>
-                          {priceComparison.budget?.recommendedStore || 'Save-On-Foods'}
-                        </div>
-                        <div style={{color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem'}}>Best Overall Store</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Price Comparison Items */}
-                  <div style={{marginBottom: '2rem'}}>
-                    <h3 style={{color: '#f59e0b', fontSize: '1.2rem', marginBottom: '1rem'}}>
-                      📊 Price Breakdown by Item
-                    </h3>
-                    {priceComparison.priceComparisons?.map((item: any, index: number) => (
-                      <div key={index} style={{
-                        background: 'rgba(245,158,11,0.1)',
-                        border: '1px solid rgba(245,158,11,0.2)',
-                        borderRadius: '0.75rem',
-                        padding: '1.5rem',
-                        marginBottom: '1rem'
-                      }}>
-                        <div style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          marginBottom: '1rem'
-                        }}>
-                          <h4 style={{color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem', margin: 0}}>
-                            {item.itemName}
-                          </h4>
-                          <div style={{
-                            background: 'linear-gradient(135deg, rgba(34,197,94,0.2), rgba(22,163,74,0.1))',
-                            color: '#34d399',
-                            padding: '0.5rem 1rem',
-                            borderRadius: '1rem',
-                            fontSize: '0.9rem',
-                            fontWeight: 'bold',
-                            border: '1px solid rgba(34,197,94,0.3)'
-                          }}>
-                            Best: ${item.lowestPrice?.price || 0} at {item.lowestPrice?.storeName}
-                          </div>
-                        </div>
-                        
-                        <div style={{
-                          display: 'grid',
-                          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                          gap: '1rem'
-                        }}>
-                          {item.stores?.map((store: any, storeIndex: number) => (
-                            <div key={storeIndex} style={{
-                              background: store.price === item.lowestPrice?.price 
-                                ? 'rgba(34,197,94,0.15)' 
-                                : 'rgba(245,158,11,0.1)',
-                              padding: '1rem',
-                              borderRadius: '0.5rem',
-                              border: store.price === item.lowestPrice?.price 
-                                ? '2px solid rgba(34,197,94,0.4)' 
-                                : '1px solid rgba(245,158,11,0.2)'
-                            }}>
-                              <div style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                marginBottom: '0.5rem'
-                              }}>
-                                <div style={{color: 'rgba(255,255,255,0.9)', fontWeight: 'bold'}}>
-                                  {store.storeName}
-                                </div>
-                                {store.price === item.lowestPrice?.price && (
-                                  <div style={{
-                                    background: 'linear-gradient(135deg, rgba(34,197,94,0.3), rgba(22,163,74,0.2))',
-                                    color: '#34d399',
-                                    padding: '0.25rem 0.5rem',
-                                    borderRadius: '0.5rem',
-                                    fontSize: '0.75rem',
-                                    fontWeight: 'bold'
-                                  }}>
-                                    BEST PRICE
-                                  </div>
-                                )}
-                              </div>
-                              <div style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center'
-                              }}>
-                                <div>
-                                  <div style={{color: 'rgba(255,255,255,0.8)', fontSize: '1.2rem', fontWeight: 'bold'}}>
-                                    ${store.price}
-                                    {store.originalPrice && (
-                                      <span style={{
-                                        textDecoration: 'line-through',
-                                        color: 'rgba(255,255,255,0.5)',
-                                        fontSize: '0.9rem',
-                                        marginLeft: '0.5rem'
-                                      }}>
-                                        ${store.originalPrice}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem'}}>
-                                    per {store.unit}
-                                  </div>
-                                </div>
-                                <div style={{textAlign: 'right'}}>
-                                  <div style={{
-                                    color: store.availability === 'in-stock' ? '#34d399' : 
-                                           store.availability === 'limited' ? '#f59e0b' : '#ef4444',
-                                    fontSize: '0.8rem',
-                                    fontWeight: 'bold'
-                                  }}>
-                                    {store.availability === 'in-stock' ? '✅ In Stock' : 
-                                     store.availability === 'limited' ? '⚠️ Limited' : '❌ Out of Stock'}
-                                  </div>
-                                  {store.deals && store.deals.length > 0 && (
-                                    <div style={{
-                                      color: '#f59e0b',
-                                      fontSize: '0.75rem',
-                                      marginTop: '0.25rem'
-                                    }}>
-                                      🎯 {store.deals.join(', ')}
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Weekly Deals */}
-                  {weeklyDeals.length > 0 && (
+                  {/* Weekly Deals (Live data only) */}
+                  {priceComparison.deals && priceComparison.deals.length > 0 && (
                     <div style={{
                       background: 'rgba(168,85,247,0.1)',
                       border: '1px solid rgba(168,85,247,0.3)',
@@ -4710,14 +4533,14 @@ chicken breast, 2 lbs`}
                       padding: '1.5rem'
                     }}>
                       <h3 style={{color: '#a855f7', fontSize: '1.2rem', marginBottom: '1rem'}}>
-                        🎯 Weekly Deals in Nanaimo
+                        🎯 Live Deals Matching Your List
                       </h3>
                       <div style={{
                         display: 'grid',
                         gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
                         gap: '1rem'
                       }}>
-                        {weeklyDeals.slice(0, 6).map((deal, index) => (
+                        {priceComparison.deals.slice(0, 12).map((deal: any, index: number) => (
                           <div key={index} style={{
                             background: 'rgba(168,85,247,0.15)',
                             padding: '1rem',

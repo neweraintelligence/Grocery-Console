@@ -1028,90 +1028,26 @@ app.post('/api/price-comparison', async (req, res) => {
     const items = Array.isArray(body.items) ? body.items : [];
     if (!items.length) return res.status(400).json({ error: 'No items provided for price comparison' });
 
-    const priceComparisons = [];
-    let totalCurrentBest = 0;
-    let totalLowest = 0;
+    // Live-only: reuse weekly deals scrapers and filter by provided item names (fuzzy contains)
+    const [pcOptimumDeals, costcoDeals, saveOnDeals] = await Promise.all([
+      scrapePCOptimumDeals(),
+      scrapeCostcoDeals(),
+      scrapeSaveOnFoodsDeals()
+    ]);
+    const allDeals = [...pcOptimumDeals, ...costcoDeals, ...saveOnDeals];
 
-    for (const item of items) {
-      const storePrices = [
-        {
-          store: 'pc-optimum',
-          storeName: 'PC Optimum',
-          price: Math.round((Math.random() * 5 + 2) * 100) / 100,
-          unit: item.unit || 'each',
-          availability: 'in-stock',
-          lastUpdated: new Date().toISOString(),
-          deals: Math.random() > 0.7 ? ['20% off PC brand'] : []
-        },
-        {
-          store: 'costco',
-          storeName: 'Costco Wholesale',
-          price: Math.round((Math.random() * 8 + 3) * 100) / 100,
-          unit: item.unit || 'bulk',
-          availability: Math.random() > 0.1 ? 'in-stock' : 'limited',
-          lastUpdated: new Date().toISOString(),
-          deals: Math.random() > 0.8 ? ['Bulk discount'] : []
-        },
-        {
-          store: 'save-on-foods',
-          storeName: 'Save-On-Foods',
-          price: Math.round((Math.random() * 6 + 2.5) * 100) / 100,
-          unit: item.unit || 'each',
-          availability: 'in-stock',
-          lastUpdated: new Date().toISOString(),
-          deals: Math.random() > 0.6 ? ['Weekly special'] : []
-        }
-      ];
-
-      storePrices.forEach(store => {
-        if (store.deals && store.deals.length > 0) {
-          store.originalPrice = store.price;
-          store.price = Math.round(store.price * 0.8 * 100) / 100;
-          store.discount = Math.round(((store.originalPrice - store.price) / store.originalPrice) * 100);
-        }
-      });
-
-      const lowestPrice = storePrices.reduce((min, store) => (store.price < min.price ? store : min));
-      const averagePrice = storePrices.reduce((sum, store) => sum + store.price, 0) / storePrices.length;
-      const bestDeals = storePrices.filter(store => store.deals && store.deals.length > 0);
-
-      totalCurrentBest += storePrices[0].price;
-      totalLowest += lowestPrice.price;
-
-      priceComparisons.push({
-        itemName: item.name,
-        searchTerm: (item.name || '').toLowerCase(),
-        stores: storePrices,
-        lowestPrice,
-        averagePrice: Math.round(averagePrice * 100) / 100,
-        bestDeals,
-        lastUpdated: new Date().toISOString()
-      });
-    }
-
-    const budget = {
-      currentTotal: Math.round(totalCurrentBest * 100) / 100,
-      projectedTotal: Math.round(totalLowest * 100) / 100,
-      savings: Math.round((totalCurrentBest - totalLowest) * 100) / 100,
-      overBudget: false,
-      recommendedStore: 'Save-On-Foods',
-      itemBreakdown: priceComparisons.map(comp => ({
-        itemName: comp.itemName,
-        recommendedStore: comp.lowestPrice.storeName,
-        price: comp.lowestPrice.price,
-        savings: Math.round((comp.averagePrice - comp.lowestPrice.price) * 100) / 100
-      }))
-    };
+    const lowered = items.map(i => String(i.name || '').toLowerCase()).filter(Boolean);
+    const deals = allDeals.filter(d => {
+      if (!lowered.length) return true;
+      const text = `${d.title} ${d.description}`.toLowerCase();
+      return lowered.some(term => text.includes(term));
+    });
 
     res.json({
-      priceComparisons,
-      budget,
-      summary: {
-        totalItems: items.length,
-        averageSavings: Math.round((budget.savings / Math.max(items.length, 1)) * 100) / 100,
-        bestOverallStore: budget.recommendedStore,
-        lastUpdated: new Date().toISOString()
-      }
+      deals,
+      totalDeals: deals.length,
+      lastUpdated: new Date().toISOString(),
+      stores: ['PC Optimum', 'Costco Wholesale', 'Save-On-Foods']
     });
   } catch (error) {
     console.error('Error comparing prices:', error);
