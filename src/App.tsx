@@ -1098,6 +1098,73 @@ function App() {
   const [pantryBulkMode, setPantryBulkMode] = useState(false);
   const [pantryBulkText, setPantryBulkText] = useState('');
 
+  // Normalize meal plan responses from the API/LLM to a consistent shape
+  const normalizeMealPlanResponse = (raw: any) => {
+    if (!raw) return null;
+
+    const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const normalizeDay = (input: any): string => {
+      if (!input && input !== 0) return '';
+      const str = String(input).trim();
+      // Numeric day handling: 1..7 => Mon..Sun, 0..6 => Sun..Sat
+      const num = Number(str);
+      if (!Number.isNaN(num)) {
+        if (num >= 1 && num <= 7) return dayNames[num - 1];
+        if (num >= 0 && num <= 6) return dayNames[(num + 6) % 7];
+      }
+      const lower = str.toLowerCase();
+      const idx = dayNames.findIndex(d => d.toLowerCase().startsWith(lower.slice(0, 3)));
+      return idx >= 0 ? dayNames[idx] : str;
+    };
+
+    const rawMeals = Array.isArray(raw.meals)
+      ? raw.meals
+      : Array.isArray(raw.mealPlan)
+        ? raw.mealPlan
+        : Array.isArray(raw.plan)
+          ? raw.plan
+          : [];
+
+    const meals = rawMeals.map((m: any) => {
+      const mealTypeRaw = (m?.mealType || m?.meal_type || m?.type || '').toString().toLowerCase();
+      const mealType = ['breakfast', 'lunch', 'dinner'].includes(mealTypeRaw)
+        ? mealTypeRaw
+        : mealTypeRaw.includes('break')
+          ? 'breakfast'
+          : mealTypeRaw.includes('lunch')
+            ? 'lunch'
+            : 'dinner';
+
+      return {
+        day: normalizeDay(m?.day ?? m?.Day ?? m?.date ?? ''),
+        mealType,
+        recipeName: m?.recipeName || m?.title || m?.name || 'Untitled',
+        ingredients: m?.ingredients || m?.ingredientList || [],
+        instructions: m?.instructions || m?.steps || [],
+        servings: Number(m?.servings || m?.serves || 2),
+        cookTime: m?.cookTime || m?.time || '20 minutes',
+        difficulty: m?.difficulty || 'Easy',
+        availableIngredients: m?.availableIngredients || m?.ingredientsUsed || m?.available || [],
+        missingIngredients: m?.missingIngredients || m?.missing || m?.ingredientsMissing || [],
+        nutritionInfo: m?.nutritionInfo || m?.nutrition || null
+      };
+    });
+
+    const shoppingList = Array.isArray(raw.shoppingList) && raw.shoppingList.length > 0
+      ? raw.shoppingList
+      : Array.from(new Set(meals.flatMap((m: any) => Array.isArray(m.missingIngredients) ? m.missingIngredients : [])));
+
+    return {
+      id: raw.id || `plan-${Date.now()}`,
+      weekOf: raw.weekOf || raw.week_of || raw.startDate || raw.start_date || new Date().toISOString().split('T')[0],
+      createdDate: raw.createdDate || new Date().toISOString(),
+      dietaryPreferences: raw.dietaryPreferences || raw.preferences || [],
+      meals,
+      shoppingList,
+      totalEstimatedCost: raw.totalEstimatedCost || Math.round(shoppingList.length * 3.5)
+    };
+  };
+
   // AI categorization function
   const categorizeItem = (itemName: string): string => {
     const name = itemName.toLowerCase();
@@ -1450,6 +1517,20 @@ function App() {
     // Auto-scroll to top disabled - let user control their own scrolling
   }, []);
 
+  // Prevent browser from auto-restoring scroll position on load/navigation
+  useEffect(() => {
+    try {
+      const historyObj: any = window.history as any;
+      const prev = historyObj.scrollRestoration;
+      if (typeof prev !== 'undefined') {
+        historyObj.scrollRestoration = 'manual';
+        return () => {
+          historyObj.scrollRestoration = prev;
+        };
+      }
+    } catch {}
+  }, []);
+
   // Disable auto-popup of Weeks List entirely; enable only via manual click
   useEffect(() => {
     // Intentionally left empty to avoid auto-opening the Weeks List
@@ -1759,7 +1840,7 @@ function App() {
         setMealPlan(null);
       } else {
         const data = await response.json();
-        setMealPlan(data);
+        setMealPlan(normalizeMealPlanResponse(data));
       }
     } catch (error) {
       console.error('Error generating meal plan:', error);
@@ -4872,7 +4953,7 @@ chicken breast, 2 lbs`}
                                           color: 'white',
                                           fontSize: '0.7rem'
                                         }}
-                                        autoFocus
+                                        // Remove autoFocus to avoid scroll jump on open
                                       />
                                       <button
                                         onClick={() => handleExpiryDateUpdate(item.id, newExpiryDate)}
