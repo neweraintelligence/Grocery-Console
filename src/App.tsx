@@ -1073,6 +1073,17 @@ function App() {
   const [reviewItems, setReviewItems] = useState<ShoppingListItem[]>([]);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loadingRecipes, setLoadingRecipes] = useState(false);
+  const [showMealPlan, setShowMealPlan] = useState(false);
+  const [mealPlan, setMealPlan] = useState<any>(null);
+  const [loadingMealPlan, setLoadingMealPlan] = useState(false);
+  const [dietaryPreferences, setDietaryPreferences] = useState<any>({
+    restrictions: [],
+    allergies: [],
+    dislikes: [],
+    preferences: [],
+    calorieGoal: 2000,
+    servingSize: 2
+  });
   const [pantryCategoryFilter, setPantryCategoryFilter] = useState<string[]>(['all']);
   const [pantrySortBy, setPantrySortBy] = useState<'name' | 'status-critical' | 'status-good' | 'category'>('name');
   const [showWeeksListBox, setShowWeeksListBox] = useState(false);
@@ -1710,6 +1721,90 @@ function App() {
       setRecipes([]);
     } finally {
       setLoadingRecipes(false);
+    }
+  };
+
+  const generateMealPlan = async () => {
+    setLoadingMealPlan(true);
+    try {
+      const pantryPayload = pantryItems.map(i => ({
+        name: i.name,
+        quantity: i.currentCount,
+        unit: i.unit,
+        category: i.category
+      }));
+
+      const currentDate = new Date();
+      const mondayDate = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay() + 1));
+      const weekOf = mondayDate.toISOString().split('T')[0];
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/meal-plan/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          pantry: pantryPayload, 
+          dietaryPreferences,
+          weekOf 
+        })
+      });
+
+      if (!response.ok) {
+        console.error('Meal plan endpoint failed:', response.status);
+        setMealPlan(null);
+      } else {
+        const data = await response.json();
+        setMealPlan(data);
+      }
+    } catch (error) {
+      console.error('Error generating meal plan:', error);
+      setMealPlan(null);
+    } finally {
+      setLoadingMealPlan(false);
+    }
+  };
+
+  const addMealPlanToShoppingList = async () => {
+    if (!mealPlan || !mealPlan.shoppingList) return;
+    
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/meal-plan/add-to-shopping-list`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ingredients: mealPlan.shoppingList })
+      });
+
+      if (response.ok) {
+        alert(`Added ${mealPlan.shoppingList.length} ingredients to your shopping list!`);
+        fetchShoppingList(); // Refresh shopping list
+      }
+    } catch (error) {
+      console.error('Error adding to shopping list:', error);
+    }
+  };
+
+  const exportMealPlanPDF = async () => {
+    if (!mealPlan) return;
+    
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/meal-plan/export-pdf`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mealPlan })
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `meal-plan-${mealPlan.weekOf}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
     }
   };
 
@@ -3418,6 +3513,22 @@ chicken breast, 2 lbs`}
           <button 
             style={{
               ...styles.addBtn,
+              background: 'linear-gradient(135deg, rgba(168,85,247,0.8) 0%, rgba(139,92,246,0.7) 100%)',
+              border: '2px solid rgba(168,85,247,0.6)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.2)',
+              textShadow: '0 1px 1px rgba(0,0,0,0.3)',
+            }}
+            onClick={() => {
+              setShowMealPlan(!showMealPlan);
+              if (!showMealPlan) generateMealPlan();
+            }}
+          >
+            <img src="/cupboard image 1.png" alt="Meal Plan Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+            {showMealPlan ? 'Hide Meal Plan' : 'Meal Planning'}
+          </button>
+          <button 
+            style={{
+              ...styles.addBtn,
               background: `linear-gradient(135deg, rgba(59,130,246,0.4) 0%, rgba(37,99,235,0.5) 100%), 
                            repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px)`,
               border: '2px solid rgba(59,130,246,0.3)',
@@ -3699,6 +3810,216 @@ chicken breast, 2 lbs`}
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Meal Planning Section - Full Width Above All Tab Content */}
+        {showMealPlan && (
+          <div style={{
+            ...styles.card,
+            marginBottom: '1.5rem',
+            background: 'linear-gradient(145deg, rgba(168,85,247,0.1), rgba(139,92,246,0.05))',
+            border: '1px solid rgba(168,85,247,0.3)'
+          }}>
+            <div style={styles.cardHeader}>
+              <div style={styles.cardTitle}>
+                <div style={styles.cardIcon}>
+                  <img src="/cupboard image 1.png" alt="Meal Plan Icon" style={{width: '60px', height: '60px', objectFit: 'contain'}} />
+                </div>
+                <div>
+                  <h2 style={styles.cardTitleText}>AI Meal Planning</h2>
+                  <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>Weekly meal plans from your pantry ingredients! 📅🍽️</p>
+                </div>
+              </div>
+              <div style={{display: 'flex', gap: '0.5rem', alignItems: 'center'}}>
+                <button 
+                  style={{
+                    ...styles.addBtn,
+                    background: loadingMealPlan 
+                      ? 'linear-gradient(to right, rgba(120,120,120,0.4), rgba(140,140,120,0.3))'
+                      : 'linear-gradient(to right, rgba(168,85,247,0.8), rgba(139,92,246,0.7))',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  onClick={generateMealPlan}
+                  disabled={loadingMealPlan}
+                >
+                  <img src="/cupboard image 1.png" alt="Generate Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+                  {loadingMealPlan ? 'Generating...' : 'Generate New Plan'}
+                </button>
+                {mealPlan && (
+                  <>
+                    <button 
+                      style={{
+                        ...styles.addBtn,
+                        background: 'linear-gradient(to right, rgba(34,197,94,0.8), rgba(22,163,74,0.7))',
+                        fontSize: '0.85rem'
+                      }}
+                      onClick={addMealPlanToShoppingList}
+                    >
+                      📋 Add to Shopping List
+                    </button>
+                    <button 
+                      style={{
+                        ...styles.addBtn,
+                        background: 'linear-gradient(to right, rgba(239,68,68,0.8), rgba(220,38,38,0.7))',
+                        fontSize: '0.85rem'
+                      }}
+                      onClick={exportMealPlanPDF}
+                    >
+                      📄 Export PDF
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+            
+            <div style={{padding: '0.5rem'}}>
+              {!mealPlan ? (
+                loadingMealPlan ? (
+                  <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
+                    <img src="/cupboard image 1.png" alt="Meal Plan Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
+                    <p style={{color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem', marginBottom: '0.5rem'}}>
+                      👩‍🍳 Creating your personalized weekly meal plan...
+                    </p>
+                    <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem'}}>
+                      Analyzing your pantry and dietary preferences to craft the perfect week of meals!
+                    </p>
+                  </div>
+                ) : (
+                  <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
+                    <img src="/cupboard image 1.png" alt="Meal Plan Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
+                    <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem', marginBottom: '1rem'}}>
+                      🍽️ {pantryItems.filter(item => item.currentCount > 0).length === 0 
+                        ? "Add ingredients to your pantry first!" 
+                        : "Ready to plan your week?"}
+                    </p>
+                    <p style={{color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem'}}>
+                      Click "Generate New Plan" to create a personalized weekly meal plan using your pantry ingredients!
+                    </p>
+                  </div>
+                )
+              ) : (
+                <div style={{
+                  background: 'linear-gradient(145deg, rgba(168,85,247,0.05), rgba(139,92,246,0.02))',
+                  border: '1px solid rgba(168,85,247,0.2)',
+                  borderRadius: '1rem',
+                  padding: '2rem',
+                  width: '100%'
+                }}>
+                  <div style={{marginBottom: '2rem'}}>
+                    <h3 style={{color: '#c084fc', fontSize: '1.4rem', marginBottom: '1rem', textAlign: 'center'}}>
+                      Weekly Meal Plan - {mealPlan.weekOf}
+                    </h3>
+                    {mealPlan.dietaryPreferences?.length > 0 && (
+                      <p style={{color: 'rgba(255,255,255,0.7)', textAlign: 'center', marginBottom: '1rem'}}>
+                        Dietary preferences: {mealPlan.dietaryPreferences.join(', ')}
+                      </p>
+                    )}
+                    {mealPlan.totalEstimatedCost && (
+                      <p style={{color: '#34d399', textAlign: 'center', fontSize: '1.1rem', marginBottom: '1rem'}}>
+                        Estimated shopping cost: ${mealPlan.totalEstimatedCost}
+                      </p>
+                    )}
+                  </div>
+
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(7, 1fr)',
+                    gap: '1rem',
+                    marginBottom: '2rem'
+                  }}>
+                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => {
+                      const dayMeals = (mealPlan.meals || []).filter((meal: any) => meal.day === day);
+                      return (
+                        <div key={day} style={{
+                          background: 'rgba(168,85,247,0.1)',
+                          border: '1px solid rgba(168,85,247,0.2)',
+                          borderRadius: '0.75rem',
+                          padding: '1rem',
+                          minHeight: '300px'
+                        }}>
+                          <h4 style={{color: '#c084fc', fontSize: '1rem', marginBottom: '0.75rem', textAlign: 'center'}}>
+                            {day}
+                          </h4>
+                          {['breakfast', 'lunch', 'dinner'].map(mealType => {
+                            const meal = dayMeals.find((m: any) => m.mealType === mealType);
+                            return (
+                              <div key={mealType} style={{marginBottom: '0.75rem'}}>
+                                <div style={{
+                                  color: '#a855f7',
+                                  fontSize: '0.8rem',
+                                  fontWeight: 'bold',
+                                  marginBottom: '0.25rem'
+                                }}>
+                                  {mealType === 'breakfast' ? '🌅' : mealType === 'lunch' ? '🌞' : '🌙'} {mealType.charAt(0).toUpperCase() + mealType.slice(1)}
+                                </div>
+                                {meal ? (
+                                  <div style={{
+                                    background: 'rgba(168,85,247,0.15)',
+                                    padding: '0.5rem',
+                                    borderRadius: '0.5rem',
+                                    fontSize: '0.75rem'
+                                  }}>
+                                    <div style={{color: 'rgba(255,255,255,0.9)', fontWeight: '500', marginBottom: '0.25rem'}}>
+                                      {meal.recipeName}
+                                    </div>
+                                    <div style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.7rem'}}>
+                                      ⏱️ {meal.cookTime} | 👥 {meal.servings}
+                                    </div>
+                                    {meal.nutritionInfo && (
+                                      <div style={{color: 'rgba(255,255,255,0.5)', fontSize: '0.65rem', marginTop: '0.25rem'}}>
+                                        📊 {meal.nutritionInfo.calories || 0} cal
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <div style={{color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem', fontStyle: 'italic'}}>
+                                    No meal planned
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {mealPlan.shoppingList?.length > 0 && (
+                    <div style={{
+                      background: 'rgba(34,197,94,0.1)',
+                      border: '1px solid rgba(34,197,94,0.3)',
+                      borderRadius: '0.75rem',
+                      padding: '1.5rem'
+                    }}>
+                      <h4 style={{color: '#34d399', fontSize: '1.2rem', marginBottom: '1rem'}}>
+                        📋 Shopping List ({mealPlan.shoppingList.length} items)
+                      </h4>
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                        gap: '0.5rem'
+                      }}>
+                        {mealPlan.shoppingList.map((item: string, index: number) => (
+                          <div key={index} style={{
+                            background: 'rgba(34,197,94,0.15)',
+                            padding: '0.5rem 0.75rem',
+                            borderRadius: '0.5rem',
+                            color: 'rgba(255,255,255,0.8)',
+                            fontSize: '0.85rem',
+                            border: '1px solid rgba(34,197,94,0.2)'
+                          }}>
+                            • {item}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

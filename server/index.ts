@@ -8,6 +8,7 @@ import { google } from 'googleapis';
 import fetch from 'node-fetch';
 import path from 'path';
 import fs from 'fs';
+import PDFDocument from 'pdfkit';
 
 dotenv.config();
 
@@ -118,6 +119,46 @@ interface PantryHistoryItem {
   changeReason: 'consumption' | 'purchase' | 'adjustment' | 'spoilage';
   date: string;
   notes?: string;
+}
+
+// Meal plan interfaces
+interface MealPlanItem {
+  id: string;
+  day: string;
+  mealType: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+  recipeName: string;
+  ingredients: string[];
+  instructions: string[];
+  servings: number;
+  cookTime: string;
+  difficulty: string;
+  availableIngredients: string[];
+  missingIngredients: string[];
+  nutritionInfo?: {
+    calories?: number;
+    protein?: number;
+    carbs?: number;
+    fat?: number;
+  };
+}
+
+interface WeeklyMealPlan {
+  id: string;
+  weekOf: string;
+  createdDate: string;
+  dietaryPreferences: string[];
+  meals: MealPlanItem[];
+  shoppingList: string[];
+  totalEstimatedCost?: number;
+}
+
+interface DietaryPreferences {
+  restrictions: string[]; // vegetarian, vegan, gluten-free, dairy-free, etc.
+  allergies: string[];
+  dislikes: string[];
+  preferences: string[]; // low-carb, high-protein, mediterranean, etc.
+  calorieGoal?: number;
+  servingSize?: number;
 }
 
 // API Routes
@@ -1148,6 +1189,392 @@ app.post('/api/recipes/gpt', async (req, res) => {
   } catch (err) {
     console.error('GPT recipes error:', err);
     res.status(500).json({ error: 'Failed to generate recipes' });
+  }
+});
+
+// Generate weekly meal plan
+app.post('/api/meal-plan/generate', async (req, res) => {
+  try {
+    res.set({ 'Cache-Control': 'no-store' });
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'OpenAI API key not configured' });
+    }
+
+    const { pantry, dietaryPreferences, weekOf } = req.body as { 
+      pantry: Array<{ name: string; quantity?: number; unit?: string; category?: string }>; 
+      dietaryPreferences: DietaryPreferences;
+      weekOf: string;
+    };
+
+    // Get pantry items formatted for AI
+    const availableItems = (pantry || []).map(i => 
+      `${i.name}${i.quantity ? ` (${i.quantity} ${i.unit || ''})` : ''}${i.category ? ` – ${i.category}` : ''}`
+    );
+
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const mealTypes = ['breakfast', 'lunch', 'dinner'];
+    
+    // Build dietary constraints string
+    const constraints = [];
+    if (dietaryPreferences.restrictions?.length) {
+      constraints.push(`Dietary restrictions: ${dietaryPreferences.restrictions.join(', ')}`);
+    }
+    if (dietaryPreferences.allergies?.length) {
+      constraints.push(`Allergies: ${dietaryPreferences.allergies.join(', ')}`);
+    }
+    if (dietaryPreferences.dislikes?.length) {
+      constraints.push(`Dislikes: ${dietaryPreferences.dislikes.join(', ')}`);
+    }
+    if (dietaryPreferences.preferences?.length) {
+      constraints.push(`Preferences: ${dietaryPreferences.preferences.join(', ')}`);
+    }
+    if (dietaryPreferences.calorieGoal) {
+      constraints.push(`Target: ~${dietaryPreferences.calorieGoal} calories/day`);
+    }
+
+    const system = `You are a professional nutritionist and meal planner. Create balanced, delicious weekly meal plans using available pantry ingredients. Prioritize using on-hand items while ensuring nutritional variety. Be creative and practical.`;
+    
+    const nonce = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const user = `Request ID: ${nonce}
+Week of: ${weekOf}
+Available pantry items:
+${availableItems.join('\n')}
+
+${constraints.length ? `Dietary requirements:\n${constraints.join('\n')}` : ''}
+
+Task: Create a complete 7-day meal plan (21 meals total: breakfast, lunch, dinner for each day). For each meal, include:
+- day: "${days[0]}" through "${days[6]}"
+- mealType: "breakfast", "lunch", or "dinner"
+- recipeName: Clear, appealing name
+- ingredients: List of ingredients with quantities
+- instructions: Step-by-step cooking instructions (5-8 steps)
+- servings: Number of servings (integer)
+- cookTime: Time needed (e.g., "25 minutes")
+- difficulty: "Easy", "Medium", or "Advanced"
+- availableIngredients: Items from pantry list that are used
+- missingIngredients: Items needed that aren't in pantry
+- nutritionInfo: Estimated calories, protein(g), carbs(g), fat(g)
+
+Prioritize using pantry ingredients. Create variety across days. Return strict JSON: { "mealPlan": MealPlanItem[] }`;
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: system },
+          { role: 'user', content: user }
+        ],
+        temperature: 0.7,
+        top_p: 0.9,
+        response_format: { type: 'json_object' }
+      })
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      console.error('OpenAI error:', text);
+      return res.status(500).json({ error: 'OpenAI request failed' });
+    }
+
+    const data: any = await response.json();
+    const content = (data as any).choices?.[0]?.message?.content || '{}';
+    let parsed;
+    try { 
+      parsed = JSON.parse(content); 
+    } catch { 
+      parsed = { mealPlan: [] }; 
+    }
+
+    // Generate shopping list from missing ingredients
+    const allMissingIngredients = new Set<string>();
+    (parsed.mealPlan || []).forEach((meal: any) => {
+      (meal.missingIngredients || []).forEach((ingredient: string) => {
+        allMissingIngredients.add(ingredient);
+      });
+    });
+
+    const weeklyPlan: WeeklyMealPlan = {
+      id: `plan-${Date.now()}`,
+      weekOf,
+      createdDate: new Date().toISOString(),
+      dietaryPreferences: [
+        ...(dietaryPreferences.restrictions || []),
+        ...(dietaryPreferences.preferences || [])
+      ],
+      meals: parsed.mealPlan || [],
+      shoppingList: Array.from(allMissingIngredients),
+      totalEstimatedCost: Math.round(Array.from(allMissingIngredients).length * 3.5) // Rough estimate
+    };
+
+    res.json(weeklyPlan);
+  } catch (err) {
+    console.error('Meal plan generation error:', err);
+    res.status(500).json({ error: 'Failed to generate meal plan' });
+  }
+});
+
+// Save dietary preferences
+app.post('/api/dietary-preferences', async (req, res) => {
+  try {
+    if (!sheets || !process.env.GOOGLE_SHEET_ID) {
+      return res.status(500).json({ error: 'Google Sheets not configured' });
+    }
+
+    const preferences = req.body as DietaryPreferences;
+    const timestamp = new Date().toISOString().split('T')[0];
+
+    // Ensure Dietary Preferences sheet exists
+    try {
+      await sheets.spreadsheets.values.get({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'Dietary Preferences!A1:A1',
+      });
+    } catch (error) {
+      // Create sheet with headers
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'Dietary Preferences!A1:G1',
+        valueInputOption: 'USER_ENTERED',
+        resource: {
+          values: [['Restrictions', 'Allergies', 'Dislikes', 'Preferences', 'Calorie Goal', 'Serving Size', 'Last Updated']]
+        }
+      });
+    }
+
+    // Clear existing preferences and add new ones
+    await sheets.spreadsheets.values.clear({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID,
+      range: 'Dietary Preferences!A2:G2',
+    });
+
+    const values = [[
+      (preferences.restrictions || []).join(', '),
+      (preferences.allergies || []).join(', '),
+      (preferences.dislikes || []).join(', '),
+      (preferences.preferences || []).join(', '),
+      preferences.calorieGoal || '',
+      preferences.servingSize || '',
+      timestamp
+    ]];
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID,
+      range: 'Dietary Preferences!A2:G2',
+      valueInputOption: 'USER_ENTERED',
+      resource: { values }
+    });
+
+    res.json({ message: 'Dietary preferences saved successfully' });
+  } catch (error) {
+    console.error('Error saving dietary preferences:', error);
+    res.status(500).json({ error: 'Failed to save dietary preferences' });
+  }
+});
+
+// Get dietary preferences
+app.get('/api/dietary-preferences', async (req, res) => {
+  try {
+    if (!sheets || !process.env.GOOGLE_SHEET_ID) {
+      return res.status(500).json({ error: 'Google Sheets not configured' });
+    }
+
+    let response;
+    try {
+      response = await sheets.spreadsheets.values.get({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: 'Dietary Preferences!A2:G2',
+      });
+    } catch (error) {
+      // Return default preferences if sheet doesn't exist
+      return res.json({
+        restrictions: [],
+        allergies: [],
+        dislikes: [],
+        preferences: [],
+        calorieGoal: 2000,
+        servingSize: 2
+      });
+    }
+
+    const rows = response.data.values || [];
+    if (rows.length === 0) {
+      return res.json({
+        restrictions: [],
+        allergies: [],
+        dislikes: [],
+        preferences: [],
+        calorieGoal: 2000,
+        servingSize: 2
+      });
+    }
+
+    const row = rows[0];
+    const preferences: DietaryPreferences = {
+      restrictions: row[0] ? row[0].split(',').map((s: string) => s.trim()).filter(Boolean) : [],
+      allergies: row[1] ? row[1].split(',').map((s: string) => s.trim()).filter(Boolean) : [],
+      dislikes: row[2] ? row[2].split(',').map((s: string) => s.trim()).filter(Boolean) : [],
+      preferences: row[3] ? row[3].split(',').map((s: string) => s.trim()).filter(Boolean) : [],
+      calorieGoal: row[4] ? parseInt(row[4]) : 2000,
+      servingSize: row[5] ? parseInt(row[5]) : 2
+    };
+
+    res.json(preferences);
+  } catch (error) {
+    console.error('Error fetching dietary preferences:', error);
+    res.status(500).json({ error: 'Failed to fetch dietary preferences' });
+  }
+});
+
+// Add missing ingredients to shopping list
+app.post('/api/meal-plan/add-to-shopping-list', async (req, res) => {
+  try {
+    if (!sheets || !process.env.GOOGLE_SHEET_ID) {
+      return res.status(500).json({ error: 'Google Sheets not configured' });
+    }
+
+    const { ingredients } = req.body as { ingredients: string[] };
+    const timestamp = new Date().toISOString().split('T')[0];
+
+    // Add each ingredient to the grocery list
+    const values = ingredients.map(ingredient => [
+      ingredient.trim(),
+      'Meal Plan', // category
+      1, // quantity
+      1, // minCount
+      'item', // unit
+      'TRUE', // onList
+      'Added from meal plan', // notes
+      timestamp, // addedDate
+      'FALSE' // completed
+    ]);
+
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID,
+      range: 'Grocery List!A:I',
+      valueInputOption: 'USER_ENTERED',
+      resource: { values }
+    });
+
+    res.json({ 
+      message: `Added ${ingredients.length} ingredients to shopping list`,
+      added: ingredients.length 
+    });
+  } catch (error) {
+    console.error('Error adding ingredients to shopping list:', error);
+    res.status(500).json({ error: 'Failed to add ingredients to shopping list' });
+  }
+});
+
+// Export meal plan as PDF
+app.post('/api/meal-plan/export-pdf', async (req, res) => {
+  try {
+    const { mealPlan } = req.body as { mealPlan: WeeklyMealPlan };
+    
+    // Create PDF document
+    const doc = new PDFDocument({ margin: 50 });
+    
+    // Set response headers for PDF
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="meal-plan-${mealPlan.weekOf}.pdf"`);
+    
+    // Pipe the PDF to the response
+    doc.pipe(res);
+    
+    // Add title
+    doc.fontSize(24).fillColor('#2563eb').text('Weekly Meal Plan', { align: 'center' });
+    doc.fontSize(16).fillColor('#6b7280').text(`Week of ${mealPlan.weekOf}`, { align: 'center' });
+    doc.moveDown(2);
+    
+    // Add dietary preferences if any
+    if (mealPlan.dietaryPreferences.length > 0) {
+      doc.fontSize(14).fillColor('#374151').text('Dietary Preferences:', { continued: true });
+      doc.fillColor('#6b7280').text(` ${mealPlan.dietaryPreferences.join(', ')}`);
+      doc.moveDown();
+    }
+    
+    // Group meals by day
+    const mealsByDay = mealPlan.meals.reduce((acc, meal) => {
+      if (!acc[meal.day]) acc[meal.day] = {};
+      acc[meal.day][meal.mealType] = meal;
+      return acc;
+    }, {} as Record<string, Record<string, MealPlanItem>>);
+    
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const mealTypes = ['breakfast', 'lunch', 'dinner'];
+    
+    // Add each day
+    for (const day of days) {
+      if (doc.y > 700) doc.addPage();
+      
+      doc.fontSize(18).fillColor('#1f2937').text(day, { underline: true });
+      doc.moveDown(0.5);
+      
+      for (const mealType of mealTypes) {
+        const meal = mealsByDay[day]?.[mealType];
+        if (!meal) continue;
+        
+        if (doc.y > 650) doc.addPage();
+        
+        // Meal title
+        doc.fontSize(14).fillColor('#4f46e5').text(`${mealType.charAt(0).toUpperCase() + mealType.slice(1)}: ${meal.recipeName}`);
+        
+        // Meal details
+        doc.fontSize(10).fillColor('#6b7280')
+          .text(`⏱️ ${meal.cookTime} | 👥 ${meal.servings} servings | 🔧 ${meal.difficulty}`, { indent: 20 });
+        
+        // Nutrition info if available
+        if (meal.nutritionInfo) {
+          doc.text(`📊 ${meal.nutritionInfo.calories || 0} cal, ${meal.nutritionInfo.protein || 0}g protein, ${meal.nutritionInfo.carbs || 0}g carbs, ${meal.nutritionInfo.fat || 0}g fat`, { indent: 20 });
+        }
+        
+        // Ingredients
+        doc.fontSize(11).fillColor('#374151').text('Ingredients:', { indent: 20 });
+        meal.ingredients.forEach(ingredient => {
+          const isAvailable = meal.availableIngredients.includes(ingredient);
+          doc.fillColor(isAvailable ? '#059669' : '#dc2626')
+            .text(`• ${ingredient}${isAvailable ? ' ✓' : ' (need to buy)'}`, { indent: 40 });
+        });
+        
+        // Instructions
+        doc.fillColor('#374151').text('Instructions:', { indent: 20 });
+        meal.instructions.forEach((instruction, index) => {
+          doc.fillColor('#4b5563').text(`${index + 1}. ${instruction}`, { indent: 40 });
+        });
+        
+        doc.moveDown();
+      }
+      doc.moveDown();
+    }
+    
+    // Add shopping list
+    if (mealPlan.shoppingList.length > 0) {
+      doc.addPage();
+      doc.fontSize(18).fillColor('#1f2937').text('Shopping List', { underline: true });
+      doc.moveDown();
+      
+      doc.fontSize(12).fillColor('#374151');
+      mealPlan.shoppingList.forEach((item, index) => {
+        doc.text(`${index + 1}. ${item}`, { indent: 20 });
+      });
+      
+      if (mealPlan.totalEstimatedCost) {
+        doc.moveDown();
+        doc.fontSize(14).fillColor('#059669').text(`Estimated Cost: $${mealPlan.totalEstimatedCost}`);
+      }
+    }
+    
+    // Finalize the PDF
+    doc.end();
+    
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    res.status(500).json({ error: 'Failed to generate PDF' });
   }
 });
 
