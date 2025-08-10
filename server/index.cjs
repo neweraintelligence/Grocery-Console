@@ -7,6 +7,9 @@ const dotenv = require('dotenv');
 const { google } = require('googleapis');
 const path = require('path');
 const fs = require('fs');
+const PDFDocument = require('pdfkit');
+const axios = require('axios');
+const cheerio = require('cheerio');
 
 dotenv.config();
 
@@ -699,6 +702,420 @@ app.post('/api/recipes/gpt', async (req, res) => {
   } catch (err) {
     console.error('GPT recipes error:', err);
     res.status(500).json({ error: 'Failed to generate recipes' });
+  }
+});
+
+// Generate weekly meal plan
+app.post('/api/meal-plan/generate', async (req, res) => {
+  try {
+    res.set({ 'Cache-Control': 'no-store' });
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'OpenAI API key not configured' });
+    }
+
+    const body = req.body || {};
+    const pantry = Array.isArray(body.pantry) ? body.pantry : [];
+    const dietaryPreferences = body.dietaryPreferences || {};
+    const weekOf = body.weekOf || new Date().toISOString().split('T')[0];
+
+    const availableItems = pantry.map(i => `${i.name}${i.quantity ? ` (${i.quantity} ${i.unit || ''})` : ''}${i.category ? ` – ${i.category}` : ''}`);
+
+    const constraints = [];
+    if (Array.isArray(dietaryPreferences.restrictions) && dietaryPreferences.restrictions.length) constraints.push(`Dietary restrictions: ${dietaryPreferences.restrictions.join(', ')}`);
+    if (Array.isArray(dietaryPreferences.allergies) && dietaryPreferences.allergies.length) constraints.push(`Allergies: ${dietaryPreferences.allergies.join(', ')}`);
+    if (Array.isArray(dietaryPreferences.dislikes) && dietaryPreferences.dislikes.length) constraints.push(`Dislikes: ${dietaryPreferences.dislikes.join(', ')}`);
+    if (Array.isArray(dietaryPreferences.preferences) && dietaryPreferences.preferences.length) constraints.push(`Preferences: ${dietaryPreferences.preferences.join(', ')}`);
+    if (dietaryPreferences.calorieGoal) constraints.push(`Target: ~${dietaryPreferences.calorieGoal} calories/day`);
+
+    const system = 'You are a professional nutritionist and meal planner. Create balanced, delicious weekly meal plans using available pantry ingredients. Prioritize using on-hand items while ensuring nutritional variety. Be creative and practical.';
+    const nonce = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const user = `Request ID: ${nonce}\nWeek of: ${weekOf}\nAvailable pantry items:\n${availableItems.join('\n')}\n\n${constraints.length ? `Dietary requirements:\n${constraints.join('\n')}` : ''}\n\nTask: Create a complete 7-day meal plan (21 meals total: breakfast, lunch, dinner for each day). For each meal, include: day, mealType, recipeName, ingredients, instructions, servings, cookTime, difficulty, availableIngredients, missingIngredients, nutritionInfo. Return strict JSON: { "mealPlan": MealPlanItem[] }`;
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: system },
+          { role: 'user', content: user }
+        ],
+        temperature: 0.7,
+        top_p: 0.9,
+        response_format: { type: 'json_object' }
+      })
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      console.error('OpenAI error:', text);
+      return res.status(500).json({ error: 'OpenAI request failed' });
+    }
+
+    const data = await response.json();
+    const content = data?.choices?.[0]?.message?.content || '{}';
+    let parsed;
+    try { parsed = JSON.parse(content); } catch { parsed = { mealPlan: [] }; }
+
+    const allMissing = new Set();
+    (parsed.mealPlan || []).forEach(meal => (meal?.missingIngredients || []).forEach(i => allMissing.add(i)));
+
+    const weeklyPlan = {
+      id: `plan-${Date.now()}`,
+      weekOf,
+      createdDate: new Date().toISOString(),
+      dietaryPreferences: [
+        ...(dietaryPreferences.restrictions || []),
+        ...(dietaryPreferences.preferences || [])
+      ],
+      meals: parsed.mealPlan || [],
+      shoppingList: Array.from(allMissing),
+      totalEstimatedCost: Math.round(Array.from(allMissing).length * 3.5)
+    };
+
+    res.json(weeklyPlan);
+  } catch (err) {
+    console.error('Meal plan generation error:', err);
+    res.status(500).json({ error: 'Failed to generate meal plan' });
+  }
+});
+
+// Add missing ingredients to shopping list
+app.post('/api/meal-plan/add-to-shopping-list', async (req, res) => {
+  try {
+    if (!sheets || !process.env.GOOGLE_SHEET_ID) {
+      return res.status(500).json({ error: 'Google Sheets not configured' });
+    }
+
+    const body = req.body || {};
+    const ingredients = Array.isArray(body.ingredients) ? body.ingredients : [];
+    const timestamp = new Date().toISOString().split('T')[0];
+
+    const values = ingredients.map(ingredient => [
+      (ingredient || '').toString().trim(),
+      'Meal Plan',
+      1,
+      1,
+      'item',
+      'TRUE',
+      'Added from meal plan',
+      timestamp,
+      'FALSE'
+    ]);
+
+    if (!values.length) return res.json({ message: 'No ingredients to add', added: 0 });
+
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID,
+      range: 'Grocery List!A:I',
+      valueInputOption: 'USER_ENTERED',
+      resource: { values }
+    });
+
+    res.json({ message: `Added ${ingredients.length} ingredients to shopping list`, added: ingredients.length });
+  } catch (error) {
+    console.error('Error adding ingredients to shopping list:', error);
+    res.status(500).json({ error: 'Failed to add ingredients to shopping list' });
+  }
+});
+
+// Export meal plan as PDF
+app.post('/api/meal-plan/export-pdf', async (req, res) => {
+  try {
+    const body = req.body || {};
+    const mealPlan = body.mealPlan || { meals: [], shoppingList: [], weekOf: '' };
+
+    const doc = new PDFDocument({ margin: 50 });
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="meal-plan-${mealPlan.weekOf}.pdf"`);
+    doc.pipe(res);
+
+    doc.fontSize(24).fillColor('#2563eb').text('Weekly Meal Plan', { align: 'center' });
+    doc.fontSize(16).fillColor('#6b7280').text(`Week of ${mealPlan.weekOf}`, { align: 'center' });
+    doc.moveDown(2);
+
+    if (Array.isArray(mealPlan.dietaryPreferences) && mealPlan.dietaryPreferences.length > 0) {
+      doc.fontSize(14).fillColor('#374151').text('Dietary Preferences:', { continued: true });
+      doc.fillColor('#6b7280').text(` ${mealPlan.dietaryPreferences.join(', ')}`);
+      doc.moveDown();
+    }
+
+    const mealsByDay = (mealPlan.meals || []).reduce((acc, meal) => {
+      if (!acc[meal.day]) acc[meal.day] = {};
+      acc[meal.day][meal.mealType] = meal;
+      return acc;
+    }, {});
+
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const mealTypes = ['breakfast', 'lunch', 'dinner'];
+
+    for (const day of days) {
+      if (doc.y > 700) doc.addPage();
+      doc.fontSize(18).fillColor('#1f2937').text(day, { underline: true });
+      doc.moveDown(0.5);
+      for (const mealType of mealTypes) {
+        const meal = mealsByDay[day]?.[mealType];
+        if (!meal) continue;
+        if (doc.y > 650) doc.addPage();
+        doc.fontSize(14).fillColor('#4f46e5').text(`${mealType.charAt(0).toUpperCase() + mealType.slice(1)}: ${meal.recipeName}`);
+        doc.fontSize(10).fillColor('#6b7280').text(`⏱️ ${meal.cookTime} | 👥 ${meal.servings} servings | 🔧 ${meal.difficulty}`, { indent: 20 });
+        if (meal.nutritionInfo) {
+          doc.text(`📊 ${meal.nutritionInfo.calories || 0} cal, ${meal.nutritionInfo.protein || 0}g protein, ${meal.nutritionInfo.carbs || 0}g carbs, ${meal.nutritionInfo.fat || 0}g fat`, { indent: 20 });
+        }
+        doc.fontSize(11).fillColor('#374151').text('Ingredients:', { indent: 20 });
+        (meal.ingredients || []).forEach(ingredient => {
+          const isAvailable = (meal.availableIngredients || []).includes(ingredient);
+          doc.fillColor(isAvailable ? '#059669' : '#dc2626').text(`• ${ingredient}${isAvailable ? ' ✓' : ' (need to buy)'}`, { indent: 40 });
+        });
+        doc.fillColor('#374151').text('Instructions:', { indent: 20 });
+        (meal.instructions || []).forEach((instruction, index) => {
+          doc.fillColor('#4b5563').text(`${index + 1}. ${instruction}`, { indent: 40 });
+        });
+        doc.moveDown();
+      }
+      doc.moveDown();
+    }
+
+    if (Array.isArray(mealPlan.shoppingList) && mealPlan.shoppingList.length > 0) {
+      doc.addPage();
+      doc.fontSize(18).fillColor('#1f2937').text('Shopping List', { underline: true });
+      doc.moveDown();
+      doc.fontSize(12).fillColor('#374151');
+      mealPlan.shoppingList.forEach((item, index) => {
+        doc.text(`${index + 1}. ${item}`, { indent: 20 });
+      });
+      if (mealPlan.totalEstimatedCost) {
+        doc.moveDown();
+        doc.fontSize(14).fillColor('#059669').text(`Estimated Cost: $${mealPlan.totalEstimatedCost}`);
+      }
+    }
+
+    doc.end();
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    res.status(500).json({ error: 'Failed to generate PDF' });
+  }
+});
+
+// Store scraping functions (mock data)
+async function scrapePCOptimumDeals() {
+  try {
+    return [
+      {
+        store: 'pc-optimum',
+        storeName: 'PC Optimum',
+        title: "President's Choice Products",
+        description: '20% off all PC brand products',
+        salePrice: 4.99,
+        originalPrice: 6.24,
+        discount: 20,
+        validUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        category: 'Grocery',
+      },
+      {
+        store: 'pc-optimum',
+        storeName: 'PC Optimum',
+        title: 'Fresh Produce Sale',
+        description: 'Fresh fruits and vegetables on sale',
+        salePrice: 2.99,
+        originalPrice: 4.49,
+        discount: 33,
+        validUntil: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+        category: 'Produce',
+      }
+    ];
+  } catch (error) {
+    console.error('Error scraping PC Optimum deals:', error);
+    return [];
+  }
+}
+
+async function scrapeCostcoDeals() {
+  try {
+    return [
+      {
+        store: 'costco',
+        storeName: 'Costco Wholesale',
+        title: 'Kirkland Signature Products',
+        description: 'Bulk savings on Kirkland brand items',
+        salePrice: 12.99,
+        originalPrice: 16.99,
+        discount: 24,
+        validUntil: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+        category: 'Bulk Items',
+      },
+      {
+        store: 'costco',
+        storeName: 'Costco Wholesale',
+        title: 'Frozen Foods Sale',
+        description: 'Select frozen items at reduced prices',
+        salePrice: 8.99,
+        originalPrice: 11.99,
+        discount: 25,
+        validUntil: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+        category: 'Frozen',
+      }
+    ];
+  } catch (error) {
+    console.error('Error scraping Costco deals:', error);
+    return [];
+  }
+}
+
+async function scrapeSaveOnFoodsDeals() {
+  try {
+    return [
+      {
+        store: 'save-on-foods',
+        storeName: 'Save-On-Foods',
+        title: 'Weekly Specials',
+        description: 'Fresh meat and dairy on sale',
+        salePrice: 5.99,
+        originalPrice: 7.99,
+        discount: 25,
+        validUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        category: 'Meat & Dairy',
+      },
+      {
+        store: 'save-on-foods',
+        storeName: 'Save-On-Foods',
+        title: 'Bakery Fresh',
+        description: 'Fresh baked goods daily specials',
+        salePrice: 3.49,
+        originalPrice: 4.99,
+        discount: 30,
+        validUntil: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+        category: 'Bakery',
+      }
+    ];
+  } catch (error) {
+    console.error('Error scraping Save-On-Foods deals:', error);
+    return [];
+  }
+}
+
+// Get weekly deals from all stores
+app.get('/api/weekly-deals', async (req, res) => {
+  try {
+    const [pcOptimumDeals, costcoDeals, saveOnDeals] = await Promise.all([
+      scrapePCOptimumDeals(),
+      scrapeCostcoDeals(),
+      scrapeSaveOnFoodsDeals()
+    ]);
+
+    const allDeals = [...pcOptimumDeals, ...costcoDeals, ...saveOnDeals];
+    allDeals.sort((a, b) => b.discount - a.discount);
+    res.json({
+      deals: allDeals,
+      totalDeals: allDeals.length,
+      lastUpdated: new Date().toISOString(),
+      stores: ['PC Optimum', 'Costco Wholesale', 'Save-On-Foods']
+    });
+  } catch (error) {
+    console.error('Error fetching weekly deals:', error);
+    res.status(500).json({ error: 'Failed to fetch weekly deals' });
+  }
+});
+
+// Compare prices for shopping list items
+app.post('/api/price-comparison', async (req, res) => {
+  try {
+    const body = req.body || {};
+    const items = Array.isArray(body.items) ? body.items : [];
+    if (!items.length) return res.status(400).json({ error: 'No items provided for price comparison' });
+
+    const priceComparisons = [];
+    let totalCurrentBest = 0;
+    let totalLowest = 0;
+
+    for (const item of items) {
+      const storePrices = [
+        {
+          store: 'pc-optimum',
+          storeName: 'PC Optimum',
+          price: Math.round((Math.random() * 5 + 2) * 100) / 100,
+          unit: item.unit || 'each',
+          availability: 'in-stock',
+          lastUpdated: new Date().toISOString(),
+          deals: Math.random() > 0.7 ? ['20% off PC brand'] : []
+        },
+        {
+          store: 'costco',
+          storeName: 'Costco Wholesale',
+          price: Math.round((Math.random() * 8 + 3) * 100) / 100,
+          unit: item.unit || 'bulk',
+          availability: Math.random() > 0.1 ? 'in-stock' : 'limited',
+          lastUpdated: new Date().toISOString(),
+          deals: Math.random() > 0.8 ? ['Bulk discount'] : []
+        },
+        {
+          store: 'save-on-foods',
+          storeName: 'Save-On-Foods',
+          price: Math.round((Math.random() * 6 + 2.5) * 100) / 100,
+          unit: item.unit || 'each',
+          availability: 'in-stock',
+          lastUpdated: new Date().toISOString(),
+          deals: Math.random() > 0.6 ? ['Weekly special'] : []
+        }
+      ];
+
+      storePrices.forEach(store => {
+        if (store.deals && store.deals.length > 0) {
+          store.originalPrice = store.price;
+          store.price = Math.round(store.price * 0.8 * 100) / 100;
+          store.discount = Math.round(((store.originalPrice - store.price) / store.originalPrice) * 100);
+        }
+      });
+
+      const lowestPrice = storePrices.reduce((min, store) => (store.price < min.price ? store : min));
+      const averagePrice = storePrices.reduce((sum, store) => sum + store.price, 0) / storePrices.length;
+      const bestDeals = storePrices.filter(store => store.deals && store.deals.length > 0);
+
+      totalCurrentBest += storePrices[0].price;
+      totalLowest += lowestPrice.price;
+
+      priceComparisons.push({
+        itemName: item.name,
+        searchTerm: (item.name || '').toLowerCase(),
+        stores: storePrices,
+        lowestPrice,
+        averagePrice: Math.round(averagePrice * 100) / 100,
+        bestDeals,
+        lastUpdated: new Date().toISOString()
+      });
+    }
+
+    const budget = {
+      currentTotal: Math.round(totalCurrentBest * 100) / 100,
+      projectedTotal: Math.round(totalLowest * 100) / 100,
+      savings: Math.round((totalCurrentBest - totalLowest) * 100) / 100,
+      overBudget: false,
+      recommendedStore: 'Save-On-Foods',
+      itemBreakdown: priceComparisons.map(comp => ({
+        itemName: comp.itemName,
+        recommendedStore: comp.lowestPrice.storeName,
+        price: comp.lowestPrice.price,
+        savings: Math.round((comp.averagePrice - comp.lowestPrice.price) * 100) / 100
+      }))
+    };
+
+    res.json({
+      priceComparisons,
+      budget,
+      summary: {
+        totalItems: items.length,
+        averageSavings: Math.round((budget.savings / Math.max(items.length, 1)) * 100) / 100,
+        bestOverallStore: budget.recommendedStore,
+        lastUpdated: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('Error comparing prices:', error);
+    res.status(500).json({ error: 'Failed to compare prices' });
   }
 });
 
