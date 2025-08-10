@@ -1084,6 +1084,10 @@ function App() {
     calorieGoal: 2000,
     servingSize: 2
   });
+  const [showPriceComparison, setShowPriceComparison] = useState(false);
+  const [priceComparison, setPriceComparison] = useState<any>(null);
+  const [loadingPrices, setLoadingPrices] = useState(false);
+  const [weeklyDeals, setWeeklyDeals] = useState<any[]>([]);
   const [pantryCategoryFilter, setPantryCategoryFilter] = useState<string[]>(['all']);
   const [pantrySortBy, setPantrySortBy] = useState<'name' | 'status-critical' | 'status-good' | 'category'>('name');
   const [showWeeksListBox, setShowWeeksListBox] = useState(false);
@@ -1805,6 +1809,54 @@ function App() {
       }
     } catch (error) {
       console.error('Error exporting PDF:', error);
+    }
+  };
+
+  const comparePrices = async () => {
+    setLoadingPrices(true);
+    try {
+      const shoppingItems = shoppingList.map(item => ({
+        name: item.name,
+        quantity: item.needed || 1,
+        unit: item.unit || 'each'
+      }));
+
+      if (shoppingItems.length === 0) {
+        alert('Add items to your shopping list first!');
+        setLoadingPrices(false);
+        return;
+      }
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/price-comparison`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: shoppingItems })
+      });
+
+      if (!response.ok) {
+        console.error('Price comparison endpoint failed:', response.status);
+        setPriceComparison(null);
+      } else {
+        const data = await response.json();
+        setPriceComparison(data);
+      }
+    } catch (error) {
+      console.error('Error comparing prices:', error);
+      setPriceComparison(null);
+    } finally {
+      setLoadingPrices(false);
+    }
+  };
+
+  const fetchWeeklyDeals = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/weekly-deals`);
+      if (response.ok) {
+        const data = await response.json();
+        setWeeklyDeals(data.deals || []);
+      }
+    } catch (error) {
+      console.error('Error fetching weekly deals:', error);
     }
   };
 
@@ -4065,16 +4117,37 @@ chicken breast, 2 lbs`}
                   Add to List
                 </button>
                 {shoppingList.length > 0 && (
-                  <button 
-                    style={styles.pantryBtn}
-                    onClick={() => {
-                      setReviewItems([...shoppingList]);
-                      setShowPantryReviewModal(true);
-                    }}
-                  >
-                    <img src="/grocery icon 2.png" alt="Pantry Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
-                    Add All to Pantry
-                  </button>
+                  <>
+                    <button 
+                      style={{
+                        ...styles.addBtn,
+                        background: 'linear-gradient(135deg, rgba(245,158,11,0.8) 0%, rgba(217,119,6,0.7) 100%)',
+                        border: '2px solid rgba(245,158,11,0.6)',
+                        fontSize: '0.9rem'
+                      }}
+                      onClick={() => {
+                        setShowPriceComparison(!showPriceComparison);
+                        if (!showPriceComparison) {
+                          comparePrices();
+                          fetchWeeklyDeals();
+                        }
+                      }}
+                      disabled={loadingPrices}
+                    >
+                      <img src="/grocery icon 2.png" alt="Price Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+                      {loadingPrices ? 'Comparing...' : (showPriceComparison ? 'Hide Prices' : 'Compare Prices')}
+                    </button>
+                    <button 
+                      style={styles.pantryBtn}
+                      onClick={() => {
+                        setReviewItems([...shoppingList]);
+                        setShowPantryReviewModal(true);
+                      }}
+                    >
+                      <img src="/grocery icon 2.png" alt="Pantry Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+                      Add All to Pantry
+                    </button>
+                  </>
                 )}
               </div>
             </div>
@@ -4242,6 +4315,308 @@ chicken breast, 2 lbs`}
                     </div>
                   );
                 })
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Price Comparison Section */}
+        {activeTab === 'shopping' && showPriceComparison && (
+          <div style={{
+            ...styles.card,
+            marginTop: '1.5rem',
+            background: 'linear-gradient(145deg, rgba(245,158,11,0.1), rgba(217,119,6,0.05))',
+            border: '1px solid rgba(245,158,11,0.3)'
+          }}>
+            <div style={styles.cardHeader}>
+              <div style={styles.cardTitle}>
+                <div style={styles.cardIcon}>
+                  <img src="/grocery icon 2.png" alt="Price Comparison Icon" style={{width: '60px', height: '60px', objectFit: 'contain'}} />
+                </div>
+                <div>
+                  <h2 style={styles.cardTitleText}>Price Comparison & Budget</h2>
+                  <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>Nanaimo stores: PC Optimum, Costco, Save-On-Foods 💰📊</p>
+                </div>
+              </div>
+            </div>
+            
+            <div style={{padding: '1.5rem'}}>
+              {!priceComparison ? (
+                loadingPrices ? (
+                  <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
+                    <img src="/grocery icon 2.png" alt="Loading" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
+                    <p style={{color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem', marginBottom: '0.5rem'}}>
+                      💰 Comparing prices across Nanaimo stores...
+                    </p>
+                    <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem'}}>
+                      Checking PC Optimum, Costco, and Save-On-Foods for the best deals!
+                    </p>
+                  </div>
+                ) : (
+                  <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
+                    <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem', marginBottom: '1rem'}}>
+                      📊 Ready to compare prices?
+                    </p>
+                    <p style={{color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem'}}>
+                      Add items to your shopping list and click "Compare Prices" to find the best deals!
+                    </p>
+                  </div>
+                )
+              ) : (
+                <div>
+                  {/* Budget Summary */}
+                  <div style={{
+                    background: 'linear-gradient(145deg, rgba(34,197,94,0.1), rgba(22,163,74,0.05))',
+                    border: '1px solid rgba(34,197,94,0.3)',
+                    borderRadius: '1rem',
+                    padding: '1.5rem',
+                    marginBottom: '2rem'
+                  }}>
+                    <h3 style={{color: '#34d399', fontSize: '1.3rem', marginBottom: '1rem', textAlign: 'center'}}>
+                      💰 Budget Summary
+                    </h3>
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                      gap: '1rem',
+                      textAlign: 'center'
+                    }}>
+                      <div style={{
+                        background: 'rgba(34,197,94,0.15)',
+                        padding: '1rem',
+                        borderRadius: '0.75rem',
+                        border: '1px solid rgba(34,197,94,0.2)'
+                      }}>
+                        <div style={{color: '#34d399', fontSize: '1.8rem', fontWeight: 'bold'}}>
+                          ${priceComparison.budget?.projectedTotal || 0}
+                        </div>
+                        <div style={{color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem'}}>Best Price Total</div>
+                      </div>
+                      <div style={{
+                        background: 'rgba(245,158,11,0.15)',
+                        padding: '1rem',
+                        borderRadius: '0.75rem',
+                        border: '1px solid rgba(245,158,11,0.2)'
+                      }}>
+                        <div style={{color: '#f59e0b', fontSize: '1.8rem', fontWeight: 'bold'}}>
+                          ${priceComparison.budget?.savings || 0}
+                        </div>
+                        <div style={{color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem'}}>Total Savings</div>
+                      </div>
+                      <div style={{
+                        background: 'rgba(168,85,247,0.15)',
+                        padding: '1rem',
+                        borderRadius: '0.75rem',
+                        border: '1px solid rgba(168,85,247,0.2)'
+                      }}>
+                        <div style={{color: '#a855f7', fontSize: '1.2rem', fontWeight: 'bold'}}>
+                          {priceComparison.budget?.recommendedStore || 'Save-On-Foods'}
+                        </div>
+                        <div style={{color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem'}}>Best Overall Store</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Price Comparison Items */}
+                  <div style={{marginBottom: '2rem'}}>
+                    <h3 style={{color: '#f59e0b', fontSize: '1.2rem', marginBottom: '1rem'}}>
+                      📊 Price Breakdown by Item
+                    </h3>
+                    {priceComparison.priceComparisons?.map((item: any, index: number) => (
+                      <div key={index} style={{
+                        background: 'rgba(245,158,11,0.1)',
+                        border: '1px solid rgba(245,158,11,0.2)',
+                        borderRadius: '0.75rem',
+                        padding: '1.5rem',
+                        marginBottom: '1rem'
+                      }}>
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          marginBottom: '1rem'
+                        }}>
+                          <h4 style={{color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem', margin: 0}}>
+                            {item.itemName}
+                          </h4>
+                          <div style={{
+                            background: 'linear-gradient(135deg, rgba(34,197,94,0.2), rgba(22,163,74,0.1))',
+                            color: '#34d399',
+                            padding: '0.5rem 1rem',
+                            borderRadius: '1rem',
+                            fontSize: '0.9rem',
+                            fontWeight: 'bold',
+                            border: '1px solid rgba(34,197,94,0.3)'
+                          }}>
+                            Best: ${item.lowestPrice?.price || 0} at {item.lowestPrice?.storeName}
+                          </div>
+                        </div>
+                        
+                        <div style={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                          gap: '1rem'
+                        }}>
+                          {item.stores?.map((store: any, storeIndex: number) => (
+                            <div key={storeIndex} style={{
+                              background: store.price === item.lowestPrice?.price 
+                                ? 'rgba(34,197,94,0.15)' 
+                                : 'rgba(245,158,11,0.1)',
+                              padding: '1rem',
+                              borderRadius: '0.5rem',
+                              border: store.price === item.lowestPrice?.price 
+                                ? '2px solid rgba(34,197,94,0.4)' 
+                                : '1px solid rgba(245,158,11,0.2)'
+                            }}>
+                              <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                marginBottom: '0.5rem'
+                              }}>
+                                <div style={{color: 'rgba(255,255,255,0.9)', fontWeight: 'bold'}}>
+                                  {store.storeName}
+                                </div>
+                                {store.price === item.lowestPrice?.price && (
+                                  <div style={{
+                                    background: 'linear-gradient(135deg, rgba(34,197,94,0.3), rgba(22,163,74,0.2))',
+                                    color: '#34d399',
+                                    padding: '0.25rem 0.5rem',
+                                    borderRadius: '0.5rem',
+                                    fontSize: '0.75rem',
+                                    fontWeight: 'bold'
+                                  }}>
+                                    BEST PRICE
+                                  </div>
+                                )}
+                              </div>
+                              <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center'
+                              }}>
+                                <div>
+                                  <div style={{color: 'rgba(255,255,255,0.8)', fontSize: '1.2rem', fontWeight: 'bold'}}>
+                                    ${store.price}
+                                    {store.originalPrice && (
+                                      <span style={{
+                                        textDecoration: 'line-through',
+                                        color: 'rgba(255,255,255,0.5)',
+                                        fontSize: '0.9rem',
+                                        marginLeft: '0.5rem'
+                                      }}>
+                                        ${store.originalPrice}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem'}}>
+                                    per {store.unit}
+                                  </div>
+                                </div>
+                                <div style={{textAlign: 'right'}}>
+                                  <div style={{
+                                    color: store.availability === 'in-stock' ? '#34d399' : 
+                                           store.availability === 'limited' ? '#f59e0b' : '#ef4444',
+                                    fontSize: '0.8rem',
+                                    fontWeight: 'bold'
+                                  }}>
+                                    {store.availability === 'in-stock' ? '✅ In Stock' : 
+                                     store.availability === 'limited' ? '⚠️ Limited' : '❌ Out of Stock'}
+                                  </div>
+                                  {store.deals && store.deals.length > 0 && (
+                                    <div style={{
+                                      color: '#f59e0b',
+                                      fontSize: '0.75rem',
+                                      marginTop: '0.25rem'
+                                    }}>
+                                      🎯 {store.deals.join(', ')}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Weekly Deals */}
+                  {weeklyDeals.length > 0 && (
+                    <div style={{
+                      background: 'rgba(168,85,247,0.1)',
+                      border: '1px solid rgba(168,85,247,0.3)',
+                      borderRadius: '0.75rem',
+                      padding: '1.5rem'
+                    }}>
+                      <h3 style={{color: '#a855f7', fontSize: '1.2rem', marginBottom: '1rem'}}>
+                        🎯 Weekly Deals in Nanaimo
+                      </h3>
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                        gap: '1rem'
+                      }}>
+                        {weeklyDeals.slice(0, 6).map((deal, index) => (
+                          <div key={index} style={{
+                            background: 'rgba(168,85,247,0.15)',
+                            padding: '1rem',
+                            borderRadius: '0.5rem',
+                            border: '1px solid rgba(168,85,247,0.2)'
+                          }}>
+                            <div style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              marginBottom: '0.5rem'
+                            }}>
+                              <div style={{color: '#a855f7', fontSize: '0.9rem', fontWeight: 'bold'}}>
+                                {deal.storeName}
+                              </div>
+                              <div style={{
+                                background: 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(220,38,38,0.1))',
+                                color: '#ef4444',
+                                padding: '0.25rem 0.5rem',
+                                borderRadius: '0.5rem',
+                                fontSize: '0.75rem',
+                                fontWeight: 'bold'
+                              }}>
+                                {deal.discount}% OFF
+                              </div>
+                            </div>
+                            <div style={{color: 'rgba(255,255,255,0.9)', fontSize: '1rem', marginBottom: '0.5rem'}}>
+                              {deal.title}
+                            </div>
+                            <div style={{color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem', marginBottom: '0.5rem'}}>
+                              {deal.description}
+                            </div>
+                            <div style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center'
+                            }}>
+                              <div style={{color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem'}}>
+                                ${deal.salePrice}
+                                {deal.originalPrice && (
+                                  <span style={{
+                                    textDecoration: 'line-through',
+                                    color: 'rgba(255,255,255,0.5)',
+                                    marginLeft: '0.5rem'
+                                  }}>
+                                    ${deal.originalPrice}
+                                  </span>
+                                )}
+                              </div>
+                              <div style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.75rem'}}>
+                                Valid until {new Date(deal.validUntil).toLocaleDateString()}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>

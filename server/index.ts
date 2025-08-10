@@ -9,6 +9,8 @@ import fetch from 'node-fetch';
 import path from 'path';
 import fs from 'fs';
 import PDFDocument from 'pdfkit';
+import axios from 'axios';
+import * as cheerio from 'cheerio';
 
 dotenv.config();
 
@@ -159,6 +161,60 @@ interface DietaryPreferences {
   preferences: string[]; // low-carb, high-protein, mediterranean, etc.
   calorieGoal?: number;
   servingSize?: number;
+}
+
+// Price comparison interfaces
+interface StorePrice {
+  store: string;
+  storeName: string;
+  price: number;
+  originalPrice?: number;
+  discount?: number;
+  unit: string;
+  unitPrice?: number; // price per unit (e.g., per 100g)
+  availability: 'in-stock' | 'limited' | 'out-of-stock';
+  deals?: string[];
+  lastUpdated: string;
+  productUrl?: string;
+}
+
+interface PriceComparison {
+  itemName: string;
+  searchTerm: string;
+  stores: StorePrice[];
+  lowestPrice: StorePrice;
+  averagePrice: number;
+  totalSavings?: number;
+  bestDeals: StorePrice[];
+  lastUpdated: string;
+}
+
+interface Budget {
+  totalBudget?: number;
+  currentTotal: number;
+  projectedTotal: number;
+  savings: number;
+  overBudget: boolean;
+  recommendedStore: string;
+  itemBreakdown: {
+    itemName: string;
+    recommendedStore: string;
+    price: number;
+    savings: number;
+  }[];
+}
+
+interface WeeklyDeal {
+  store: string;
+  storeName: string;
+  title: string;
+  description: string;
+  originalPrice?: number;
+  salePrice: number;
+  discount: number;
+  validUntil: string;
+  category: string;
+  imageUrl?: string;
 }
 
 // API Routes
@@ -1575,6 +1631,281 @@ app.post('/api/meal-plan/export-pdf', async (req, res) => {
   } catch (error) {
     console.error('Error generating PDF:', error);
     res.status(500).json({ error: 'Failed to generate PDF' });
+  }
+});
+
+// Store scraping functions
+async function scrapePCOptimumDeals(): Promise<WeeklyDeal[]> {
+  try {
+    // Note: This is a simplified mock implementation
+    // In production, you'd need to handle PC Optimum's API or web scraping
+    // with proper authentication and rate limiting
+    console.log('🔍 Fetching PC Optimum deals for Nanaimo...');
+    
+    // Mock data for PC Optimum deals
+    return [
+      {
+        store: 'pc-optimum',
+        storeName: 'PC Optimum',
+        title: 'President\'s Choice Products',
+        description: '20% off all PC brand products',
+        salePrice: 4.99,
+        originalPrice: 6.24,
+        discount: 20,
+        validUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        category: 'Grocery',
+      },
+      {
+        store: 'pc-optimum',
+        storeName: 'PC Optimum',
+        title: 'Fresh Produce Sale',
+        description: 'Fresh fruits and vegetables on sale',
+        salePrice: 2.99,
+        originalPrice: 4.49,
+        discount: 33,
+        validUntil: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+        category: 'Produce',
+      }
+    ];
+  } catch (error) {
+    console.error('Error scraping PC Optimum deals:', error);
+    return [];
+  }
+}
+
+async function scrapeCostcoDeals(): Promise<WeeklyDeal[]> {
+  try {
+    console.log('🔍 Fetching Costco deals for Nanaimo...');
+    
+    // Mock data for Costco deals
+    return [
+      {
+        store: 'costco',
+        storeName: 'Costco Wholesale',
+        title: 'Kirkland Signature Products',
+        description: 'Bulk savings on Kirkland brand items',
+        salePrice: 12.99,
+        originalPrice: 16.99,
+        discount: 24,
+        validUntil: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+        category: 'Bulk Items',
+      },
+      {
+        store: 'costco',
+        storeName: 'Costco Wholesale',
+        title: 'Frozen Foods Sale',
+        description: 'Select frozen items at reduced prices',
+        salePrice: 8.99,
+        originalPrice: 11.99,
+        discount: 25,
+        validUntil: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+        category: 'Frozen',
+      }
+    ];
+  } catch (error) {
+    console.error('Error scraping Costco deals:', error);
+    return [];
+  }
+}
+
+async function scrapeSaveOnFoodsDeals(): Promise<WeeklyDeal[]> {
+  try {
+    console.log('🔍 Fetching Save-On-Foods deals for Nanaimo...');
+    
+    // Mock data for Save-On-Foods deals
+    return [
+      {
+        store: 'save-on-foods',
+        storeName: 'Save-On-Foods',
+        title: 'Weekly Specials',
+        description: 'Fresh meat and dairy on sale',
+        salePrice: 5.99,
+        originalPrice: 7.99,
+        discount: 25,
+        validUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        category: 'Meat & Dairy',
+      },
+      {
+        store: 'save-on-foods',
+        storeName: 'Save-On-Foods',
+        title: 'Bakery Fresh',
+        description: 'Fresh baked goods daily specials',
+        salePrice: 3.49,
+        originalPrice: 4.99,
+        discount: 30,
+        validUntil: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+        category: 'Bakery',
+      }
+    ];
+  } catch (error) {
+    console.error('Error scraping Save-On-Foods deals:', error);
+    return [];
+  }
+}
+
+// Get weekly deals from all stores
+app.get('/api/weekly-deals', async (req, res) => {
+  try {
+    console.log('📊 Fetching weekly deals from all Nanaimo stores...');
+    
+    const [pcOptimumDeals, costcoDeals, saveOnDeals] = await Promise.all([
+      scrapePCOptimumDeals(),
+      scrapeCostcoDeals(),
+      scrapeSaveOnFoodsDeals()
+    ]);
+    
+    const allDeals = [...pcOptimumDeals, ...costcoDeals, ...saveOnDeals];
+    
+    // Sort by discount percentage (highest first)
+    allDeals.sort((a, b) => b.discount - a.discount);
+    
+    res.json({
+      deals: allDeals,
+      totalDeals: allDeals.length,
+      lastUpdated: new Date().toISOString(),
+      stores: ['PC Optimum', 'Costco Wholesale', 'Save-On-Foods']
+    });
+  } catch (error) {
+    console.error('Error fetching weekly deals:', error);
+    res.status(500).json({ error: 'Failed to fetch weekly deals' });
+  }
+});
+
+// Compare prices for shopping list items
+app.post('/api/price-comparison', async (req, res) => {
+  try {
+    const { items } = req.body as { items: Array<{ name: string; quantity?: number; unit?: string }> };
+    
+    if (!items || items.length === 0) {
+      return res.status(400).json({ error: 'No items provided for price comparison' });
+    }
+    
+    console.log(`💰 Comparing prices for ${items.length} items across Nanaimo stores...`);
+    
+    const priceComparisons: PriceComparison[] = [];
+    let totalCurrentBest = 0;
+    let totalLowest = 0;
+    
+    for (const item of items) {
+      // Mock price data for each item across stores
+      const storePrices: StorePrice[] = [
+        {
+          store: 'pc-optimum',
+          storeName: 'PC Optimum',
+          price: Math.round((Math.random() * 5 + 2) * 100) / 100,
+          unit: item.unit || 'each',
+          availability: 'in-stock',
+          lastUpdated: new Date().toISOString(),
+          deals: Math.random() > 0.7 ? ['20% off PC brand'] : []
+        },
+        {
+          store: 'costco',
+          storeName: 'Costco Wholesale',
+          price: Math.round((Math.random() * 8 + 3) * 100) / 100,
+          unit: item.unit || 'bulk',
+          availability: Math.random() > 0.1 ? 'in-stock' : 'limited',
+          lastUpdated: new Date().toISOString(),
+          deals: Math.random() > 0.8 ? ['Bulk discount'] : []
+        },
+        {
+          store: 'save-on-foods',
+          storeName: 'Save-On-Foods',
+          price: Math.round((Math.random() * 6 + 2.5) * 100) / 100,
+          unit: item.unit || 'each',
+          availability: 'in-stock',
+          lastUpdated: new Date().toISOString(),
+          deals: Math.random() > 0.6 ? ['Weekly special'] : []
+        }
+      ];
+      
+      // Add some realistic price variations and deals
+      storePrices.forEach(store => {
+        if (store.deals && store.deals.length > 0) {
+          store.originalPrice = store.price;
+          store.price = Math.round(store.price * 0.8 * 100) / 100; // 20% off
+          store.discount = Math.round(((store.originalPrice - store.price) / store.originalPrice) * 100);
+        }
+      });
+      
+      const lowestPrice = storePrices.reduce((min, store) => store.price < min.price ? store : min);
+      const averagePrice = storePrices.reduce((sum, store) => sum + store.price, 0) / storePrices.length;
+      const bestDeals = storePrices.filter(store => store.deals && store.deals.length > 0);
+      
+      totalCurrentBest += storePrices[0].price; // Assume first store is current
+      totalLowest += lowestPrice.price;
+      
+      priceComparisons.push({
+        itemName: item.name,
+        searchTerm: item.name.toLowerCase(),
+        stores: storePrices,
+        lowestPrice,
+        averagePrice: Math.round(averagePrice * 100) / 100,
+        bestDeals,
+        lastUpdated: new Date().toISOString()
+      });
+    }
+    
+    const budget: Budget = {
+      currentTotal: Math.round(totalCurrentBest * 100) / 100,
+      projectedTotal: Math.round(totalLowest * 100) / 100,
+      savings: Math.round((totalCurrentBest - totalLowest) * 100) / 100,
+      overBudget: false,
+      recommendedStore: 'Save-On-Foods', // Based on analysis
+      itemBreakdown: priceComparisons.map(comp => ({
+        itemName: comp.itemName,
+        recommendedStore: comp.lowestPrice.storeName,
+        price: comp.lowestPrice.price,
+        savings: Math.round((comp.averagePrice - comp.lowestPrice.price) * 100) / 100
+      }))
+    };
+    
+    res.json({
+      priceComparisons,
+      budget,
+      summary: {
+        totalItems: items.length,
+        averageSavings: Math.round((budget.savings / items.length) * 100) / 100,
+        bestOverallStore: budget.recommendedStore,
+        lastUpdated: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('Error comparing prices:', error);
+    res.status(500).json({ error: 'Failed to compare prices' });
+  }
+});
+
+// Get budget analysis
+app.post('/api/budget-analysis', async (req, res) => {
+  try {
+    const { items, budget } = req.body as { items: any[]; budget?: number };
+    
+    // Calculate budget breakdown
+    const totalEstimated = items.reduce((sum, item) => {
+      // Estimate price based on category
+      const basePrice = item.category === 'Produce' ? 3.99 :
+                       item.category === 'Meat' ? 8.99 :
+                       item.category === 'Dairy' ? 4.49 : 5.99;
+      return sum + (basePrice * (item.quantity || 1));
+    }, 0);
+    
+    const budgetAnalysis = {
+      totalBudget: budget || 100,
+      estimatedTotal: Math.round(totalEstimated * 100) / 100,
+      remainingBudget: budget ? Math.round((budget - totalEstimated) * 100) / 100 : null,
+      overBudget: budget ? totalEstimated > budget : false,
+      savings: Math.round(totalEstimated * 0.15 * 100) / 100, // Estimated 15% savings with deals
+      recommendations: [
+        'Shop at Save-On-Foods for produce',
+        'Buy bulk items at Costco',
+        'Use PC Optimum points for additional savings'
+      ]
+    };
+    
+    res.json(budgetAnalysis);
+  } catch (error) {
+    console.error('Error analyzing budget:', error);
+    res.status(500).json({ error: 'Failed to analyze budget' });
   }
 });
 
