@@ -263,9 +263,9 @@ const styles = {
     color: 'white',
     borderRadius: '0.75rem',
     fontWeight: '600',
-    border: '1px solid rgba(255,255,255,0.2)',
+    border: '1px solid rgba(255,255,255,0.3)',
     cursor: 'pointer',
-    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1)',
     transition: 'all 0.2s ease',
   },
   weeksListBtn: {
@@ -274,9 +274,9 @@ const styles = {
     color: 'white',
     borderRadius: '0.75rem',
     fontWeight: '600',
-    border: '1px solid rgba(255,255,255,0.2)',
+    border: '1px solid rgba(255,255,255,0.3)',
     cursor: 'pointer',
-    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1)',
     transition: 'all 0.2s ease',
     display: 'flex',
     flexDirection: 'column' as const,
@@ -3696,8 +3696,8 @@ chicken breast, 2 lbs`}
               ...styles.addBtn,
               background: `linear-gradient(135deg, rgba(34,197,94,0.4) 0%, rgba(22,163,74,0.5) 100%), 
                            repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px)`,
-              border: '2px solid rgba(34,197,94,0.3)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.2)',
+              border: '2px solid rgba(34,197,94,0.4)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), 0 2px 4px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.1)',
               textShadow: '0 1px 1px rgba(0,0,0,0.3)',
             }}
             onClick={() => {
@@ -3712,8 +3712,8 @@ chicken breast, 2 lbs`}
             style={{
               ...styles.addBtn,
               background: 'linear-gradient(135deg, rgba(20,184,166,0.8) 0%, rgba(15,118,110,0.7) 100%)',
-              border: '2px solid rgba(20,184,166,0.6)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.2)',
+              border: '2px solid rgba(20,184,166,0.7)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), 0 2px 4px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.1)',
               textShadow: '0 1px 1px rgba(0,0,0,0.3)',
             }}
             onClick={() => {
@@ -3728,8 +3728,8 @@ chicken breast, 2 lbs`}
             style={{
               ...styles.addBtn,
               background: 'linear-gradient(135deg, rgba(100,116,139,0.4) 0%, rgba(71,85,105,0.35) 100%)',
-              border: '2px solid rgba(100,116,139,0.3)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.2)',
+              border: '2px solid rgba(100,116,139,0.4)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), 0 2px 4px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.1)',
               textShadow: '0 1px 1px rgba(0,0,0,0.3)',
             }}
             onClick={() => {
@@ -3745,8 +3745,8 @@ chicken breast, 2 lbs`}
               ...styles.addBtn,
               background: `linear-gradient(135deg, rgba(59,130,246,0.4) 0%, rgba(37,99,235,0.5) 100%), 
                            repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px)`,
-              border: '2px solid rgba(59,130,246,0.3)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.2)',
+              border: '2px solid rgba(59,130,246,0.4)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), 0 2px 4px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.1)',
               textShadow: '0 1px 1px rgba(0,0,0,0.3)',
             }}
             onClick={() => setShowAnalytics(!showAnalytics)}
