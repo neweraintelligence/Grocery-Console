@@ -3680,8 +3680,8 @@ chicken breast, 2 lbs`}
           <button 
             style={{
               ...styles.addBtn,
-              background: 'linear-gradient(135deg, rgba(168,85,247,0.8) 0%, rgba(139,92,246,0.7) 100%)',
-              border: '2px solid rgba(168,85,247,0.6)',
+              background: 'linear-gradient(135deg, rgba(168,85,247,0.4) 0%, rgba(139,92,246,0.35) 100%)',
+              border: '2px solid rgba(168,85,247,0.3)',
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.2)',
               textShadow: '0 1px 1px rgba(0,0,0,0.3)',
             }}
@@ -4236,8 +4236,8 @@ chicken breast, 2 lbs`}
                     <button 
                       style={{
                         ...styles.addBtn,
-                        background: 'linear-gradient(135deg, rgba(245,158,11,0.8) 0%, rgba(217,119,6,0.7) 100%)',
-                        border: '2px solid rgba(245,158,11,0.6)',
+                        background: 'linear-gradient(135deg, rgba(245,158,11,0.4) 0%, rgba(217,119,6,0.35) 100%)',
+                        border: '2px solid rgba(245,158,11,0.3)',
                         fontSize: '0.9rem'
                       }}
                       onClick={() => {
