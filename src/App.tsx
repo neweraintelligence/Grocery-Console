@@ -1088,6 +1088,8 @@ function App() {
   const [priceComparison, setPriceComparison] = useState<any>(null);
   const [loadingPrices, setLoadingPrices] = useState(false);
   const [weeklyDeals, setWeeklyDeals] = useState<any[]>([]);
+  const [editingExpiry, setEditingExpiry] = useState<string | null>(null);
+  const [newExpiryDate, setNewExpiryDate] = useState<string>('');
   const [pantryCategoryFilter, setPantryCategoryFilter] = useState<string[]>(['all']);
   const [pantrySortBy, setPantrySortBy] = useState<'name' | 'status-critical' | 'status-good' | 'category'>('name');
   const [showWeeksListBox, setShowWeeksListBox] = useState(false);
@@ -1846,6 +1848,38 @@ function App() {
     } finally {
       setLoadingPrices(false);
     }
+  };
+
+  const updateItemExpiryDate = async (itemId: string, expiryDate: string) => {
+    try {
+      console.log('Updating expiry date for item:', itemId, 'to:', expiryDate);
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ expiryDate }),
+      });
+
+      if (response.ok) {
+        console.log('✅ Successfully updated expiry date');
+        // Refresh data after successful update
+        fetchPantryItems();
+      } else {
+        const errorText = await response.text();
+        console.error('Failed to update pantry item expiry date:', response.status, errorText);
+      }
+    } catch (error) {
+      console.error('Error updating item expiry date:', error);
+    }
+  };
+
+  const handleExpiryDateUpdate = (itemId: string, expiryDate: string) => {
+    if (expiryDate) {
+      updateItemExpiryDate(itemId, expiryDate);
+    }
+    setEditingExpiry(null);
+    setNewExpiryDate('');
   };
 
   const fetchWeeklyDeals = async () => {
@@ -4824,29 +4858,82 @@ chicken breast, 2 lbs`}
                                   }}>
                                     📦 {item.category.replace(/^Pantry\s*–\s*/, '').replace(/^Fridge\s*–\s*/, '').replace(/^Freezer\s*–\s*/, '')}
                                   </span>
-                                  <span style={{
-                                    color: 'rgba(255,255,255,0.5)',
-                                    fontSize: '0.7rem',
-                                    fontStyle: 'italic'
-                                  }}>
-                                    ⏰ {item.lastUpdated}
-                                  </span>
+                                  {editingExpiry === item.id ? (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                      <input
+                                        type="date"
+                                        value={newExpiryDate}
+                                        onChange={(e) => setNewExpiryDate(e.target.value)}
+                                        style={{
+                                          padding: '0.25rem',
+                                          borderRadius: '0.25rem',
+                                          border: '1px solid rgba(59,130,246,0.4)',
+                                          background: 'rgba(30,58,138,0.6)',
+                                          color: 'white',
+                                          fontSize: '0.7rem'
+                                        }}
+                                        autoFocus
+                                      />
+                                      <button
+                                        onClick={() => handleExpiryDateUpdate(item.id, newExpiryDate)}
+                                        style={{
+                                          padding: '0.25rem 0.5rem',
+                                          borderRadius: '0.25rem',
+                                          border: 'none',
+                                          background: 'linear-gradient(to right, rgba(34,197,94,0.6), rgba(22,163,74,0.6))',
+                                          color: 'white',
+                                          fontSize: '0.7rem',
+                                          cursor: 'pointer'
+                                        }}
+                                      >
+                                        ✓
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          setEditingExpiry(null);
+                                          setNewExpiryDate('');
+                                        }}
+                                        style={{
+                                          padding: '0.25rem 0.5rem',
+                                          borderRadius: '0.25rem',
+                                          border: 'none',
+                                          background: 'linear-gradient(to right, rgba(239,68,68,0.6), rgba(220,38,38,0.6))',
+                                          color: 'white',
+                                          fontSize: '0.7rem',
+                                          cursor: 'pointer'
+                                        }}
+                                      >
+                                        ✕
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <span 
+                                      onClick={() => {
+                                        setEditingExpiry(item.id);
+                                        setNewExpiryDate(item.expiryDate || '');
+                                      }}
+                                      style={{
+                                        color: item.expiryDate ? (
+                                          new Date(item.expiryDate) < new Date() ? '#ef4444' :
+                                          new Date(item.expiryDate) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) ? '#f59e0b' :
+                                          '#34d399'
+                                        ) : 'rgba(156,163,175,0.8)',
+                                        fontSize: '0.7rem',
+                                        fontStyle: 'italic',
+                                        fontWeight: item.expiryDate && new Date(item.expiryDate) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) ? 'bold' : 'normal',
+                                        cursor: 'pointer',
+                                        textDecoration: 'underline'
+                                      }}
+                                    >
+                                      {item.expiryDate ? (
+                                        new Date(item.expiryDate) < new Date() ? '❌ Expired' :
+                                        new Date(item.expiryDate) < new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) ? '⚠️ Expires Soon' :
+                                        new Date(item.expiryDate) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) ? '🔔 Expires This Week' :
+                                        `📅 Expires ${new Date(item.expiryDate).toLocaleDateString()}`
+                                      ) : 'N/A'}
+                                    </span>
+                                  )}
                                 </div>
-                                {item.expiryDate && (
-                                  <span style={{
-                                    color: '#fbbf24',
-                                    fontWeight: '600',
-                                    marginLeft: '0.75rem',
-                                    fontSize: '0.75rem',
-                                    padding: '0.125rem 0.5rem',
-                                    background: 'rgba(251,191,36,0.1)',
-                                    borderRadius: '0.5rem',
-                                    border: '1px solid rgba(251,191,36,0.2)',
-                                    backdropFilter: 'blur(10px)'
-                                  }}>
-                                    ⏰ Expires: {new Date(item.expiryDate).toLocaleDateString()}
-                                  </span>
-                                )}
                               </div>
                             </div>
                             <div style={isMobile ? styles.itemRightMobile : styles.itemRight}>

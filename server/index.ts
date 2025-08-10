@@ -571,9 +571,20 @@ app.put('/api/pantry/:id', async (req, res) => {
     }
 
     const rowId = req.params.id;
-    const { currentCount, minCount } = req.body;
+    const { currentCount, minCount, expiryDate } = req.body;
 
-    // Update current count (column C) and/or min count (column D) in the Pantry sheet
+    // Update current count (column C) and/or min count (column D) and/or expiry date (column H) in the Pantry sheet
+    if (expiryDate !== undefined) {
+      // Update expiry date (column H)
+      const values = [[expiryDate || '']];
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: process.env.GOOGLE_SHEET_ID,
+        range: `Pantry!H${rowId}:H${rowId}`,
+        valueInputOption: 'USER_ENTERED',
+        resource: { values }
+      });
+    }
+    
     if (currentCount !== undefined && minCount !== undefined) {
       // Update both current and min count
       const values = [[currentCount || 0, minCount || 1]];
