@@ -25,6 +25,7 @@ app.use(cors({
     'http://localhost:5174', 
     'http://localhost:5175',
     'http://localhost:5178',
+    'https://grocery-dashboard-frontend.onrender.com',
     process.env.FRONTEND_URL || ''
   ].filter(Boolean),
   credentials: true,
@@ -290,6 +291,10 @@ app.get('/api/groceries', async (req, res) => {
       Pragma: 'no-cache',
       Expires: '0',
       'Surrogate-Control': 'no-store',
+      'Access-Control-Allow-Origin': req.headers.origin || '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin',
+      'Access-Control-Allow-Credentials': 'true'
     });
     if (!sheets || !process.env.GOOGLE_SHEET_ID) {
       return res.status(500).json({ error: 'Google Sheets not configured' });
@@ -567,6 +572,10 @@ app.get('/api/shopping-list', async (req, res) => {
       Pragma: 'no-cache',
       Expires: '0',
       'Surrogate-Control': 'no-store',
+      'Access-Control-Allow-Origin': req.headers.origin || '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin',
+      'Access-Control-Allow-Credentials': 'true'
     });
     if (!sheets || !process.env.GOOGLE_SHEET_ID) {
       return res.status(500).json({ error: 'Google Sheets not configured' });
