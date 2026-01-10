@@ -22,6 +22,18 @@ interface RestockPrediction {
   reasoning: string[];
 }
 
+// Simple Spinner component for loading states
+const Spinner = ({ size = 20, color = 'white' }: { size?: number, color?: string }) => (
+  <div style={{
+    width: size,
+    height: size,
+    border: `2px solid ${color}`,
+    borderTopColor: 'transparent',
+    borderRadius: '50%',
+    animation: 'spin 0.8s linear infinite'
+  }} />
+);
+
 export const WeeksListBox: React.FC<WeeksListBoxProps> = ({ 
   pantryItems, 
   isVisible: propIsVisible,
@@ -542,6 +554,9 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
 
       {/* Add CSS animation styles */}
       <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
         @keyframes pulse {
           0%, 100% { transform: translateX(-50%) scale(1); }
           50% { transform: translateX(-50%) scale(1.05); }
