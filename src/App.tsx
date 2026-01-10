@@ -1092,6 +1092,27 @@ const PantryAnalytics = ({ pantryItems }: { pantryItems: PantryItem[] }) => {
   );
 };
 
+// Component for category group checkbox with indeterminate state support
+const CategoryGroupCheckbox = ({ checked, indeterminate, onChange }: { checked: boolean; indeterminate: boolean; onChange: () => void }) => {
+  const checkboxRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    if (checkboxRef.current) {
+      checkboxRef.current.indeterminate = indeterminate;
+    }
+  }, [indeterminate]);
+
+  return (
+    <input
+      type="checkbox"
+      ref={checkboxRef}
+      checked={checked}
+      onChange={onChange}
+      style={{ width: 16, height: 16, accentColor: '#10b981', cursor: 'pointer' }}
+    />
+  );
+};
+
 function App() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showPhotoModal, setShowPhotoModal] = useState(false);
@@ -1792,6 +1813,19 @@ function App() {
     }
   }, [pantryItems, pantryCategoryFilter, pantrySortBy]);
 
+  // Helper function to check if all subcategories in a group are selected
+  const areAllSubcategoriesSelected = (group: { sub: readonly string[] }): boolean => {
+    if (pantryCategoryFilter.includes('all')) return true;
+    return group.sub.every(sub => pantryCategoryFilter.includes(sub));
+  };
+
+  // Helper function to check if some (but not all) subcategories in a group are selected
+  const areSomeSubcategoriesSelected = (group: { sub: readonly string[] }): boolean => {
+    if (pantryCategoryFilter.includes('all')) return false;
+    const selectedCount = group.sub.filter(sub => pantryCategoryFilter.includes(sub)).length;
+    return selectedCount > 0 && selectedCount < group.sub.length;
+  };
+
   // Handle category filter checkbox changes
   const handleCategoryFilterChange = (category: string) => {
     if (category === 'all') {
@@ -1810,6 +1844,23 @@ function App() {
         // Add category to selection
         setPantryCategoryFilter([...newFilters, category]);
       }
+    }
+  };
+
+  // Handle category group toggle (select/deselect all subcategories in a group)
+  const handleCategoryGroupToggle = (group: { key: string; sub: readonly string[] }) => {
+    const allSelected = areAllSubcategoriesSelected(group);
+    
+    if (allSelected) {
+      // Deselect all subcategories in this group
+      const newFilters = pantryCategoryFilter.filter(c => c !== 'all' && !(group.sub as readonly string[]).includes(c));
+      setPantryCategoryFilter(newFilters.length > 0 ? newFilters : ['all']);
+    } else {
+      // Select all subcategories in this group
+      const newFilters = pantryCategoryFilter.filter(c => c !== 'all');
+      const otherGroups = categoryGroups.filter(g => g.key !== group.key);
+      const otherSelected = otherGroups.flatMap(g => g.sub).filter((sub: string) => newFilters.includes(sub));
+      setPantryCategoryFilter([...otherSelected, ...group.sub]);
     }
   };
 
@@ -4692,17 +4743,28 @@ chicken breast, 2 lbs`}
                 </label>
 
                 {/* Grouped categories */}
-                {categoryGroups.map(group => (
+                {categoryGroups.map(group => {
+                  const allSelected = areAllSubcategoriesSelected(group);
+                  const someSelected = areSomeSubcategoriesSelected(group);
+                  
+                  return (
                   <div key={group.key} style={{ border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.03)' }}>
-                    <button
-                      onClick={() => setExpandedGroups(prev => ({ ...prev, [group.key]: !prev[group.key] }))}
-                      style={{
-                        width: '100%', textAlign: 'left', padding: '0.5rem 0.75rem', background: 'transparent', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between'
-                      }}
-                    >
-                      <span>{group.emoji} {group.name}</span>
-                      <span style={{ opacity: 0.8 }}>{expandedGroups[group.key] ? '▲' : '▼'}</span>
-                    </button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.75rem' }}>
+                      <CategoryGroupCheckbox
+                        checked={allSelected}
+                        indeterminate={someSelected && !allSelected}
+                        onChange={() => handleCategoryGroupToggle(group)}
+                      />
+                      <button
+                        onClick={() => setExpandedGroups(prev => ({ ...prev, [group.key]: !prev[group.key] }))}
+                        style={{
+                          flex: 1, textAlign: 'left', padding: '0', background: 'transparent', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                        }}
+                      >
+                        <span>{group.emoji} {group.name}</span>
+                        <span style={{ opacity: 0.8 }}>{expandedGroups[group.key] ? '▲' : '▼'}</span>
+                      </button>
+                    </div>
                     {expandedGroups[group.key] && (
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0.5rem 0.75rem' }}>
                         {group.sub.map(category => {
@@ -4724,7 +4786,8 @@ chicken breast, 2 lbs`}
                       </div>
                     )}
                   </div>
-                ))}
+                  );
+                })}
               </div>
               
               <div style={{
