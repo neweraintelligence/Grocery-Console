@@ -2517,24 +2517,30 @@ function App() {
                 </div>
               </div>
               
-              <textarea
-                placeholder="📝 Notes... (special instructions?)"
-                value={formData.notes}
-                onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                rows={3}
-                style={{
-                  padding: '1.125rem 1.25rem',
-                  borderRadius: '1rem',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  backgroundColor: 'rgba(15, 23, 42, 0.6)',
-                  color: 'white',
-                  fontSize: '0.9375rem',
-                  resize: 'none',
-                  fontFamily: 'inherit',
-                  outline: 'none',
-                  lineHeight: '1.5'
-                }}
-              />
+              <div>
+                <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
+                  📝 Notes
+                </label>
+                <textarea
+                  placeholder="Any special instructions or preferences?"
+                  value={formData.notes}
+                  onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                  rows={3}
+                  style={{
+                    padding: '1.125rem 1.25rem',
+                    borderRadius: '1rem',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                    color: 'white',
+                    fontSize: '0.9375rem',
+                    resize: 'none',
+                    fontFamily: 'inherit',
+                    outline: 'none',
+                    lineHeight: '1.5',
+                    width: '100%'
+                  }}
+                />
+              </div>
             </div>
             
             <div style={{
@@ -3024,29 +3030,34 @@ chicken breast, 2 lbs`}
                 </div>
               </div>
               
-              <div style={{display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1.25rem'}}>
-                <textarea
-                  placeholder="📝 Storage notes..."
-                  value={formData.notes}
-                  onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                  rows={3}
-                  style={{
-                    padding: '1rem 1.25rem',
-                    borderRadius: '1rem',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    backgroundColor: 'rgba(15, 23, 42, 0.6)',
-                    color: 'white',
-                    fontSize: '0.9375rem',
-                    resize: 'none',
-                    fontFamily: 'inherit',
-                    width: '100%',
-                    outline: 'none',
-                    lineHeight: '1.5'
-                  }}
-                />
+              <div style={{display: 'grid', gridTemplateColumns: '1fr', gap: '1.25rem'}}>
                 <div>
                   <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
-                    📅 Expiry Date
+                    📝 Storage notes...
+                  </label>
+                  <textarea
+                    placeholder="Any special instructions or cooking tips?"
+                    value={formData.notes}
+                    onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                    rows={3}
+                    style={{
+                      padding: '1rem 1.25rem',
+                      borderRadius: '1rem',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                      color: 'white',
+                      fontSize: '0.9375rem',
+                      resize: 'none',
+                      fontFamily: 'inherit',
+                      width: '100%',
+                      outline: 'none',
+                      lineHeight: '1.5'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
+                    📅 Expiry Date (Optional)
                   </label>
                   <input
                     type="date"
