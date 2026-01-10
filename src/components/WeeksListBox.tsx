@@ -132,11 +132,21 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
 
   const getUrgencyColor = (urgency: string) => {
     switch (urgency) {
-      case 'critical': return 'linear-gradient(to right, rgba(239,68,68,0.8), rgba(220,38,38,0.8))';
-      case 'high': return 'linear-gradient(to right, rgba(249,115,22,0.8), rgba(234,88,12,0.8))';
-      case 'medium': return 'linear-gradient(to right, rgba(234,179,8,0.8), rgba(202,138,4,0.8))';
-      case 'low': return 'linear-gradient(to right, rgba(34,197,94,0.8), rgba(22,163,74,0.8))';
-      default: return 'rgba(156,163,175,0.8)';
+      case 'critical': return 'rgba(239, 68, 68, 0.2)';
+      case 'high': return 'rgba(249, 115, 22, 0.2)';
+      case 'medium': return 'rgba(234, 179, 8, 0.2)';
+      case 'low': return 'rgba(34, 197, 94, 0.2)';
+      default: return 'rgba(156, 163, 175, 0.1)';
+    }
+  };
+
+  const getUrgencyTextColor = (urgency: string) => {
+    switch (urgency) {
+      case 'critical': return '#f87171';
+      case 'high': return '#fb923c';
+      case 'medium': return '#fbbf24';
+      case 'low': return '#4ade80';
+      default: return '#9ca3af';
     }
   };
 
@@ -167,7 +177,8 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: 'rgba(0,0,0,0.8)',
+      backgroundColor: 'rgba(15, 23, 42, 0.8)',
+      backdropFilter: 'blur(8px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -175,37 +186,39 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
       padding: '1rem'
     }}>
       <div style={{
-        background: 'linear-gradient(135deg, rgba(16,185,129,0.95) 0%, rgba(5,150,105,0.95) 25%, rgba(4,120,87,0.95) 75%, rgba(6,78,59,0.95) 100%)',
-        backdropFilter: 'blur(20px)',
-        borderRadius: '2rem',
-        border: '3px solid rgba(16,185,129,0.6)',
-        padding: '2rem',
+        background: 'rgba(30, 41, 59, 0.7)',
+        backdropFilter: 'blur(32px)',
+        borderRadius: '2.5rem',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        padding: '3rem',
         width: '95%',
         maxWidth: '900px',
         maxHeight: '90vh',
         overflow: 'hidden',
-        boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
-        position: 'relative'
+        boxShadow: '0 50px 100px -20px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1)',
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column'
       }}>
         {/* Animated Friday Banner */}
         <div style={{
           position: 'absolute',
-          top: '-15px',
+          top: '0',
           left: '50%',
-          transform: 'translateX(-50%)',
-          background: 'linear-gradient(45deg, #ffd700, #ffed4e, #ffd700)',
-          padding: '0.7rem 2rem',
-          borderRadius: '1.5rem',
-          border: '2px solid rgba(255,215,0,0.8)',
-          fontSize: '1.2rem',
-          fontWeight: 'bold',
-          color: '#8b4513',
-          boxShadow: '0 8px 16px rgba(255,215,0,0.3)',
-          textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
-          animation: 'pulse 2s ease-in-out infinite',
-          whiteSpace: 'nowrap'
+          transform: 'translateX(-50%) translateY(-50%)',
+          background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+          padding: '0.75rem 2.5rem',
+          borderRadius: '9999px',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          fontSize: '1rem',
+          fontWeight: '800',
+          color: '#451a03',
+          boxShadow: '0 10px 25px -5px rgba(245, 158, 11, 0.4)',
+          whiteSpace: 'nowrap',
+          zIndex: 10,
+          letterSpacing: '0.05em'
         }}>
-          🎉 FRIDAY'S HERE! WEEKS LIST TIME! 🎉
+          FRIDAY'S HERE! WEEKS LIST TIME! 🎉
         </div>
 
         {/* Close button */}
@@ -213,23 +226,24 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
           onClick={handleClose}
           style={{
             position: 'absolute',
-            top: '1rem',
-            right: '1rem',
-            background: 'rgba(255,255,255,0.2)',
-            border: 'none',
+            top: '1.5rem',
+            right: '1.5rem',
+            background: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
             color: 'white',
             width: '2.5rem',
             height: '2.5rem',
             borderRadius: '50%',
             cursor: 'pointer',
-            fontSize: '1.5rem',
+            fontSize: '1.25rem',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            transition: 'all 0.2s ease'
+            transition: 'all 0.2s ease',
+            zIndex: 10
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.3)')}
-          onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.2)')}
+          onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)')}
+          onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)')}
         >
           ×
         </button>
@@ -237,131 +251,149 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
         {/* Header */}
         <div style={{
           textAlign: 'center',
-          marginTop: '2rem',
-          marginBottom: '3rem'
+          marginBottom: '2.5rem'
         }}>
           <h2 style={{
             color: 'white',
             fontFamily: "'Fredoka', system-ui, sans-serif",
-            fontSize: '2.2rem',
-            fontWeight: 'bold',
-            margin: '0 0 1rem 0',
-            textShadow: '2px 2px 4px rgba(0,0,0,0.4)'
+            fontSize: '2.5rem',
+            fontWeight: '800',
+            margin: '0 0 0.75rem 0',
+            background: 'linear-gradient(to right, #fff, #fbbf24)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            letterSpacing: '-0.02em'
           }}>
-            🛒 Laurie's Weekly Adventure List! ✨
+            Weekly Adventure List! ✨
           </h2>
-                     <p style={{
-             color: 'rgba(255,255,255,0.9)',
-             fontSize: '1.1rem',
-             margin: '0 0 1rem 0',
-             fontWeight: '500'
-           }}>
-             New food adventures await! Here's your culinary roadmap for the week ahead! 🌟
-           </p>
+          <p style={{
+            color: 'rgba(255, 255, 255, 0.6)',
+            fontSize: '1.125rem',
+            margin: '0',
+            fontWeight: '500'
+          }}>
+            New food adventures await! Here's your roadmap for the week ahead! 🌟
+          </p>
         </div>
 
         {/* Summary Stats */}
         <div style={{
-          background: 'rgba(255,255,255,0.1)',
-          borderRadius: '1rem',
-          padding: '1rem',
-          marginBottom: '1.5rem',
-          border: '1px solid rgba(255,255,255,0.2)'
+          background: 'rgba(255, 255, 255, 0.03)',
+          borderRadius: '1.5rem',
+          padding: '1.5rem',
+          marginBottom: '2rem',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '1.5rem'
         }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-            gap: '1rem',
-            textAlign: 'center'
-          }}>
-            <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'white' }}>
-                {predictions.length}
-              </div>
-              <div style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.8)' }}>
-                Total Items
-              </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.75rem', fontWeight: '800', color: 'white' }}>
+              {predictions.length}
             </div>
-            <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#ff6b6b' }}>
-                {predictions.filter(p => p.urgency === 'critical').length}
-              </div>
-              <div style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.8)' }}>
-                Critical Items
-              </div>
+            <div style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '700', marginTop: '0.25rem' }}>
+              Total Items
             </div>
-            <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#ffd93d' }}>
-                {predictions.filter(p => p.urgency === 'high').length}
-              </div>
-              <div style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.8)' }}>
-                High Priority
-              </div>
+          </div>
+          <div style={{ textAlign: 'center', borderLeft: '1px solid rgba(255, 255, 255, 0.08)', borderRight: '1px solid rgba(255, 255, 255, 0.08)' }}>
+            <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#f87171' }}>
+              {predictions.filter(p => p.urgency === 'critical').length}
             </div>
-            
+            <div style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '700', marginTop: '0.25rem' }}>
+              Critical
+            </div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#fbbf24' }}>
+              {predictions.filter(p => p.urgency === 'high').length}
+            </div>
+            <div style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '700', marginTop: '0.25rem' }}>
+              High Priority
+            </div>
           </div>
         </div>
 
         {/* Items List */}
         <div style={{
-          maxHeight: '40vh',
+          flex: 1,
           overflowY: 'auto',
-          marginBottom: '1.5rem',
-          paddingRight: '0.5rem'
+          marginBottom: '2rem',
+          paddingRight: '0.75rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.75rem'
         }}>
           {predictions.length === 0 ? (
             <div style={{
               textAlign: 'center',
-              padding: '2rem',
-              color: 'rgba(255,255,255,0.8)'
+              padding: '4rem 2rem',
+              color: 'rgba(255, 255, 255, 0.4)',
+              background: 'rgba(255, 255, 255, 0.02)',
+              borderRadius: '1.5rem',
+              border: '1px dashed rgba(255, 255, 255, 0.1)'
             }}>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
-              <h3 style={{ margin: '0 0 0.5rem 0', color: 'white' }}>
-                All stocked up for the week!
+              <div style={{ fontSize: '3.5rem', marginBottom: '1.5rem' }}>🎉</div>
+              <h3 style={{ margin: '0 0 0.5rem 0', color: 'white', fontSize: '1.25rem', fontWeight: '700' }}>
+                All stocked up!
               </h3>
-              <p style={{ margin: 0 }}>
-                Your pantry is in great shape. Enjoy your weekend!
+              <p style={{ margin: 0, fontSize: '1rem' }}>
+                Your pantry is in great shape for the week.
               </p>
             </div>
           ) : (
             predictions.map((prediction, index) => (
               <div key={prediction.itemId || index} style={{
-                background: 'rgba(255,255,255,0.1)',
-                borderRadius: '1rem',
-                padding: '1rem',
-                marginBottom: '0.75rem',
-                border: '1px solid rgba(255,255,255,0.2)',
+                background: 'rgba(255, 255, 255, 0.03)',
+                borderRadius: '1.25rem',
+                padding: '1.25rem',
+                border: '1px solid rgba(255, 255, 255, 0.06)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                gap: '1rem'
+                gap: '1.5rem',
+                transition: 'all 0.2s ease'
               }}>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '1rem',
-                  flex: 1
+                  gap: '1.25rem',
+                  flex: 1,
+                  minWidth: 0
                 }}>
                   <div style={{
-                    fontSize: '1.5rem'
+                    width: '3.5rem',
+                    height: '3.5rem',
+                    borderRadius: '1rem',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.75rem',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    flexShrink: 0
                   }}>
                     {getUrgencyEmoji(prediction.urgency)}
                   </div>
-                  <div>
+                  <div style={{ minWidth: 0 }}>
                     <h4 style={{
                       color: 'white',
                       margin: 0,
-                      fontSize: '1.1rem',
-                      fontWeight: '600'
+                      fontSize: '1.125rem',
+                      fontWeight: '700',
+                      letterSpacing: '0.01em',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
                     }}>
                       {prediction.itemName}
                     </h4>
                     <p style={{
-                      color: 'rgba(255,255,255,0.7)',
-                      margin: '0.25rem 0 0 0',
-                      fontSize: '0.875rem'
+                      color: 'rgba(255, 255, 255, 0.4)',
+                      margin: '0.375rem 0 0 0',
+                      fontSize: '0.875rem',
+                      fontWeight: '500'
                     }}>
-                      {prediction.category} • Need {prediction.recommendedQuantity} • 
+                      <span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>{prediction.category}</span> • Need {prediction.recommendedQuantity} • 
                       Run out: {formatDate(prediction.predictedRunOutDate)}
                     </p>
                   </div>
@@ -370,28 +402,32 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '1rem'
+                  gap: '1rem',
+                  flexShrink: 0
                 }}>
                   <div style={{
-                    padding: '0.5rem 1rem',
-                    borderRadius: '0.75rem',
+                    padding: '0.625rem 1rem',
+                    borderRadius: '0.875rem',
                     background: getUrgencyColor(prediction.urgency),
-                    color: 'white',
+                    color: getUrgencyTextColor(prediction.urgency),
                     fontSize: '0.75rem',
-                    fontWeight: 'bold',
+                    fontWeight: '800',
                     textAlign: 'center',
-                    minWidth: '80px'
+                    minWidth: '85px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    border: `1px solid ${getUrgencyTextColor(prediction.urgency)}22`
                   }}>
-                    {prediction.urgency.toUpperCase()}
+                    {prediction.urgency}
                   </div>
-                                     <div style={{
-                     textAlign: 'right',
-                     color: 'white'
-                   }}>
-                     <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)' }}>
-                       {prediction.bestStore}
-                     </div>
-                   </div>
+                  <div style={{
+                    textAlign: 'right',
+                    color: 'rgba(255, 255, 255, 0.4)',
+                    fontSize: '0.75rem',
+                    fontWeight: '600'
+                  }}>
+                    {prediction.bestStore}
+                  </div>
                 </div>
               </div>
             ))
@@ -403,48 +439,55 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          paddingTop: '1rem',
-          borderTop: '2px solid rgba(255,255,255,0.2)',
-          gap: '1rem',
+          paddingTop: '2rem',
+          borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+          gap: '1.5rem',
           flexWrap: 'wrap'
         }}>
           <label style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem',
-            color: 'white',
-            fontSize: '0.875rem',
-            cursor: 'pointer'
+            gap: '0.75rem',
+            color: 'rgba(255, 255, 255, 0.6)',
+            fontSize: '0.9375rem',
+            cursor: 'pointer',
+            fontWeight: '500'
           }}>
             <input
               type="checkbox"
               checked={showDetails}
               onChange={(e) => setShowDetails(e.target.checked)}
               style={{
-                marginRight: '0.25rem'
+                width: '1.125rem',
+                height: '1.125rem',
+                accentColor: '#fbbf24',
+                cursor: 'pointer'
               }}
             />
-            Include detailed reasoning in PDF
+            Include details in PDF
           </label>
 
           <div style={{
             display: 'flex',
-            gap: '1rem'
+            gap: '1rem',
+            flex: '1',
+            justifyContent: 'flex-end'
           }}>
             <button
               onClick={handleClose}
               style={{
-                padding: '0.75rem 1.5rem',
-                background: 'rgba(255,255,255,0.2)',
+                padding: '1rem 1.5rem',
+                background: 'rgba(255, 255, 255, 0.05)',
                 color: 'white',
-                border: 'none',
-                borderRadius: '0.75rem',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '1rem',
                 cursor: 'pointer',
                 fontWeight: '600',
+                fontSize: '0.9375rem',
                 transition: 'all 0.2s ease'
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.3)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.2)')}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)')}
             >
               Maybe Later
             </button>
@@ -452,30 +495,44 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
               onClick={handleDownloadPDF}
               disabled={isGeneratingPDF || predictions.length === 0}
               style={{
-                padding: '0.75rem 2rem',
+                padding: '1rem 2.5rem',
                 background: isGeneratingPDF 
-                  ? 'rgba(255,255,255,0.3)' 
-                  : 'linear-gradient(to right, #ffd700, #ffed4e)',
-                color: isGeneratingPDF ? 'rgba(255,255,255,0.7)' : '#8b4513',
+                  ? 'rgba(255, 255, 255, 0.1)' 
+                  : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                color: isGeneratingPDF ? 'rgba(255, 255, 255, 0.4)' : '#451a03',
                 border: 'none',
-                borderRadius: '0.75rem',
+                borderRadius: '1rem',
                 cursor: isGeneratingPDF || predictions.length === 0 ? 'not-allowed' : 'pointer',
-                fontWeight: 'bold',
+                fontWeight: '800',
                 fontSize: '1rem',
-                transition: 'all 0.2s ease',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem',
-                opacity: isGeneratingPDF || predictions.length === 0 ? 0.6 : 1
+                gap: '0.75rem',
+                boxShadow: isGeneratingPDF ? 'none' : '0 10px 25px -5px rgba(245, 158, 11, 0.4)'
+              }}
+              onMouseEnter={(e) => {
+                if (!isGeneratingPDF && predictions.length > 0) {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 15px 30px -5px rgba(245, 158, 11, 0.5)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isGeneratingPDF && predictions.length > 0) {
+                  e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(245, 158, 11, 0.4)';
+                }
               }}
             >
               {isGeneratingPDF ? (
                 <>
-                  <span>📄</span> Generating PDF...
+                  <Spinner size={18} color="rgba(69, 26, 3, 0.6)" />
+                  Generating...
                 </>
               ) : (
                 <>
-                  <span>📥</span> Download Weeks List!
+                  <span style={{ fontSize: '1.25rem' }}>📥</span>
+                  Download Weeks List!
                 </>
               )}
             </button>

@@ -76,9 +76,13 @@ const QuantityDisplay = ({ quantity, className = '', style = {} }: {
       className={className}
       style={{
         ...style,
-        fontSize: isFraction ? '1.1em' : style.fontSize,
-        fontWeight: isFraction ? 'bold' : style.fontWeight,
-        color: isFraction ? '#ffd93d' : style.color
+        fontSize: isFraction ? '1.25rem' : style.fontSize,
+        fontWeight: '800',
+        color: isFraction ? '#fbbf24' : style.color || 'white',
+        textShadow: isFraction ? '0 0 12px rgba(251, 191, 36, 0.3)' : 'none',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center'
       }}
     >
       {formatted}
@@ -146,7 +150,7 @@ interface Recipe {
 const styles = {
   container: {
     minHeight: '100vh',
-    backgroundImage: 'linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url("/kitchen scene 1.png")',
+    backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.9)), url("/kitchen scene 1.png")',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
@@ -167,37 +171,37 @@ const styles = {
     position: 'absolute' as const,
     top: '-10rem',
     right: '-10rem',
-    width: '20rem',
-    height: '20rem',
-    background: 'radial-gradient(circle, rgba(251,146,60,0.2) 0%, rgba(236,72,153,0.2) 100%)',
+    width: '35rem',
+    height: '35rem',
+    background: 'radial-gradient(circle, rgba(249, 115, 22, 0.15) 0%, rgba(236, 72, 153, 0.1) 100%)',
     borderRadius: '50%',
-    filter: 'blur(3rem)',
-    animation: 'pulse 3s ease-in-out infinite',
+    filter: 'blur(5rem)',
+    animation: 'pulse 6s ease-in-out infinite',
   },
   orb2: {
     position: 'absolute' as const,
     bottom: '-10rem',
     left: '-10rem',
-    width: '20rem',
-    height: '20rem',
-    background: 'radial-gradient(circle, rgba(34,197,94,0.2) 0%, rgba(59,130,246,0.2) 100%)',
+    width: '35rem',
+    height: '35rem',
+    background: 'radial-gradient(circle, rgba(34, 197, 94, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%)',
     borderRadius: '50%',
-    filter: 'blur(3rem)',
-    animation: 'pulse 3s ease-in-out infinite 1s',
+    filter: 'blur(5rem)',
+    animation: 'pulse 6s ease-in-out infinite 2s',
   },
   header: {
     position: 'sticky' as const,
-    backgroundColor: 'rgba(0,0,0,0.2)',
-    backdropFilter: 'blur(20px)',
-    borderBottom: '1px solid rgba(255,255,255,0.1)',
-    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+    backgroundColor: 'rgba(15, 23, 42, 0.3)',
+    backdropFilter: 'blur(16px)',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
     top: 0,
     zIndex: 50,
   },
   headerContent: {
-    maxWidth: '80rem',
+    maxWidth: '85rem',
     margin: '0 auto',
-    padding: '1.5rem',
+    padding: '1.25rem 2rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -205,95 +209,100 @@ const styles = {
   logoSection: {
     display: 'flex',
     alignItems: 'center',
-    gap: '1rem',
+    gap: '1.25rem',
   },
   logoIcon: {
-    width: '5rem',
-    height: '5rem',
+    width: '4.5rem',
+    height: '4.5rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '1.5rem',
-    borderRadius: '1.5rem',
-    background: 'linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05))',
-    backdropFilter: 'blur(20px)',
-    border: '2px solid rgba(255,255,255,0.2)',
-    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3), 0 10px 30px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.1)',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    fontSize: '1.75rem',
+    borderRadius: '1.25rem',
+    background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03))',
+    backdropFilter: 'blur(10px)',
+    border: '1px solid rgba(255, 255, 255, 0.15)',
+    boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.1)',
+    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
     position: 'relative' as const,
     overflow: 'hidden',
   },
   title: {
-    fontSize: '2.5rem',
-    fontWeight: 'bold',
-    background: 'linear-gradient(to right, white, #fed7aa, #fecaca)',
+    fontSize: '2.25rem',
+    fontWeight: '800',
+    background: 'linear-gradient(to right, #ffffff, #fef3c7, #fee2e2)',
     backgroundClip: 'text',
     WebkitBackgroundClip: 'text',
     color: 'transparent',
     fontFamily: "'Fredoka', system-ui, sans-serif",
     margin: '0',
-    lineHeight: '1.2',
+    lineHeight: '1.1',
+    letterSpacing: '-0.02em',
   },
   subtitle: {
-    color: 'rgba(255,255,255,0.7)',
+    color: 'rgba(255, 255, 255, 0.6)',
     margin: '0',
-    marginTop: '0.125rem',
-    fontSize: '0.875rem',
+    marginTop: '0.25rem',
+    fontSize: '0.9375rem',
     fontWeight: '500',
+    letterSpacing: '0.01em',
   },
   headerActions: {
     display: 'flex',
     alignItems: 'center',
-    gap: '1rem',
+    gap: '0.875rem',
   },
   quickAddBtn: {
-    padding: '0.75rem 1.5rem',
-    background: 'linear-gradient(to right, rgba(16,185,129,0.7), rgba(5,150,105,0.7))',
+    padding: '0.625rem 1.25rem',
+    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.8), rgba(5, 150, 105, 0.8))',
     color: 'white',
     borderRadius: '0.75rem',
     fontWeight: '600',
-    border: '1px solid rgba(255,255,255,0.2)',
+    fontSize: '0.875rem',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
     cursor: 'pointer',
-    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-    transition: 'all 0.2s ease',
+    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
+    transition: 'all 0.3s ease',
   },
   spreadsheetBtn: {
-    padding: '0.75rem 1.5rem',
-    background: 'linear-gradient(to right, rgba(75,85,99,0.8), rgba(55,65,81,0.9))',
+    padding: '0.625rem 1.25rem',
+    background: 'rgba(255, 255, 255, 0.05)',
     color: 'white',
     borderRadius: '0.75rem',
     fontWeight: '600',
-    border: '1px solid rgba(255,255,255,0.3)',
+    fontSize: '0.875rem',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
     cursor: 'pointer',
-    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1)',
-    transition: 'all 0.2s ease',
+    backdropFilter: 'blur(8px)',
+    transition: 'all 0.3s ease',
   },
   weeksListBtn: {
-    padding: '0.75rem 1.5rem',
-    background: 'linear-gradient(to right, rgba(59,130,246,0.8), rgba(37,99,235,0.9))',
+    padding: '0.625rem 1.25rem',
+    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(37, 99, 235, 0.8))',
     color: 'white',
     borderRadius: '0.75rem',
     fontWeight: '600',
-    border: '1px solid rgba(255,255,255,0.3)',
+    fontSize: '0.875rem',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
     cursor: 'pointer',
-    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1)',
-    transition: 'all 0.2s ease',
+    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)',
+    transition: 'all 0.3s ease',
     display: 'flex',
     flexDirection: 'column' as const,
     alignItems: 'center',
-    gap: '0.25rem',
+    gap: '0.125rem',
   },
   btnIcon: {
-    fontSize: '0.75rem',
-    marginBottom: '0.25rem',
+    fontSize: '0.875rem',
   },
   btnText: {
     fontSize: '0.75rem',
-    fontWeight: '500',
+    fontWeight: '600',
+    letterSpacing: '0.025em',
   },
   main: {
     position: 'relative' as const,
-    maxWidth: '80rem',
+    maxWidth: '85rem',
     margin: '0 auto',
     padding: '2rem',
     zIndex: 1,
@@ -301,20 +310,20 @@ const styles = {
   grid: {
     display: 'grid',
     gridTemplateColumns: '1fr',
-    gap: '2rem',
+    gap: '2.5rem',
   },
   gridLarge: {
     '@media (min-width: 1280px)': {
-      gridTemplateColumns: '3fr 2fr',
+      gridTemplateColumns: '1fr 380px',
     },
   },
   card: {
-    backgroundColor: 'rgba(0,0,0,0.25)',
-    backdropFilter: 'blur(25px)',
+    backgroundColor: 'rgba(15, 23, 42, 0.4)',
+    backdropFilter: 'blur(24px)',
     borderRadius: '2rem',
-    border: '2px solid rgba(255,255,255,0.15)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
     padding: '2.5rem',
-    boxShadow: '0 30px 60px -15px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 30px rgba(255,255,255,0.05)',
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.05)',
     position: 'relative' as const,
     overflow: 'hidden',
   },
@@ -322,97 +331,97 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: '2rem',
+    marginBottom: '2.5rem',
   },
   cardTitle: {
     display: 'flex',
     alignItems: 'center',
-    gap: '1rem',
+    gap: '1.25rem',
   },
   cardIcon: {
-    width: '5rem',
-    height: '5rem',
+    width: '4.5rem',
+    height: '4.5rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '2rem',
-    borderRadius: '1.5rem',
-    background: 'linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05))',
-    backdropFilter: 'blur(20px)',
-    border: '2px solid rgba(255,255,255,0.2)',
-    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3), 0 10px 30px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.1)',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    borderRadius: '1.25rem',
+    background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02))',
+    backdropFilter: 'blur(10px)',
+    border: '1px solid rgba(255, 255, 255, 0.12)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
     position: 'relative' as const,
     overflow: 'hidden',
   },
   cardIconHover: {
-    transform: 'translateY(-3px) scale(1.05)',
-    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4), 0 15px 40px rgba(0,0,0,0.4), 0 0 30px rgba(255,255,255,0.15)',
-    border: '2px solid rgba(255,255,255,0.3)',
+    transform: 'translateY(-4px) scale(1.02)',
+    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.4)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
   },
   cardTitleText: {
-    fontSize: '2rem',
-    fontWeight: 'bold',
+    fontSize: '1.875rem',
+    fontWeight: '700',
     color: 'white',
     fontFamily: "'Fredoka', system-ui, sans-serif",
     margin: 0,
+    letterSpacing: '-0.01em',
   },
   cardSubtitle: {
-    color: 'rgba(255,255,255,0.6)',
-    fontSize: '0.875rem',
+    color: 'rgba(255, 255, 255, 0.5)',
+    fontSize: '0.9375rem',
     margin: 0,
-    marginTop: '0.05rem',
+    marginTop: '0.25rem',
+    fontWeight: '500',
   },
   addBtn: {
     padding: '0.75rem 1.5rem',
-    background: 'linear-gradient(to right, rgba(100,100,100,0.8), rgba(80,80,80,0.7))',
+    background: 'rgba(255, 255, 255, 0.05)',
     color: 'white',
-    borderRadius: '0.75rem',
+    borderRadius: '0.875rem',
     fontWeight: '600',
-    border: '1px solid rgba(100,100,100,0.6)',
+    fontSize: '0.875rem',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
     cursor: 'pointer',
-    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-    transition: 'all 0.2s ease',
+    transition: 'all 0.3s ease',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    lineHeight: '1',
+    gap: '0.5rem',
   },
   pantryBtn: {
     padding: '0.75rem 1.5rem',
-    background: 'linear-gradient(to right, rgba(100,116,139,0.4), rgba(71,85,105,0.3))',
+    background: 'rgba(255, 255, 255, 0.05)',
     color: 'white',
-    borderRadius: '0.75rem',
+    borderRadius: '0.875rem',
     fontWeight: '600',
-    border: '1px solid rgba(255,255,255,0.2)',
+    fontSize: '0.875rem',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
     cursor: 'pointer',
-    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-    transition: 'all 0.2s ease',
+    transition: 'all 0.3s ease',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    lineHeight: '1',
+    gap: '0.5rem',
   },
   buttonGroup: {
     display: 'flex',
-    gap: '1rem',
+    gap: '0.75rem',
     flexWrap: 'wrap' as const,
   },
   inventoryList: {
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: '1.25rem',
-    padding: '0.5rem',
+    gap: '1rem',
+    padding: '0.25rem',
   },
   inventoryItem: {
-    background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(59,130,246,0.05), rgba(139,92,246,0.03))',
-    backdropFilter: 'blur(25px)',
+    background: 'rgba(255, 255, 255, 0.03)',
+    backdropFilter: 'blur(12px)',
     borderRadius: '1.25rem',
-    padding: '1.75rem',
-    border: '1px solid rgba(255,255,255,0.12)',
-    borderLeft: '4px solid rgba(16,185,129,0.6)',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 1px rgba(255,255,255,0.05)',
-    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+    padding: '1.25rem 1.5rem',
+    border: '1px solid rgba(255, 255, 255, 0.06)',
+    borderLeft: '4px solid rgba(16, 185, 129, 0.5)',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     cursor: 'pointer',
     position: 'relative' as const,
     overflow: 'visible',
@@ -421,130 +430,130 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    minWidth: 0, // Allow flex children to shrink
+    gap: '1rem',
   },
   itemLeft: {
     display: 'flex',
     alignItems: 'center',
-    gap: '1rem',
-    marginRight: '1.5rem',
-    flex: 1, // Allow to grow but not compress controls
-    minWidth: 0, // Allow text to wrap properly
+    gap: '1.25rem',
+    flex: 1,
+    minWidth: 0,
   },
   itemIcon: {
-    width: '3.5rem',
-    height: '3.5rem',
+    width: '3.25rem',
+    height: '3.25rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '1.75rem',
-    background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(59,130,246,0.1))',
+    fontSize: '1.5rem',
+    background: 'rgba(255, 255, 255, 0.05)',
     borderRadius: '1rem',
-    border: '1px solid rgba(16,185,129,0.25)',
-    boxShadow: '0 8px 24px rgba(16,185,129,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
     transition: 'all 0.3s ease',
-    position: 'relative' as const,
   },
   itemDetails: {
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: '0.75rem',
+    gap: '0.375rem',
+    minWidth: 0,
   },
   itemName: {
-    color: 'rgba(255,255,255,0.95)',
+    color: 'rgba(255, 255, 255, 0.95)',
     fontWeight: '600',
-    fontSize: '1.125rem',
+    fontSize: '1.0625rem',
     margin: 0,
-    lineHeight: '1.4',
-    letterSpacing: '0.025em',
-    textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+    lineHeight: '1.25',
+    letterSpacing: '0.01em',
+    whiteSpace: 'nowrap' as const,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
   },
   itemCategory: {
-    color: 'rgba(255,255,255,0.75)',
-    fontSize: '0.8rem',
+    color: 'rgba(255, 255, 255, 0.5)',
+    fontSize: '0.8125rem',
     margin: 0,
     display: 'flex',
     alignItems: 'center',
-    gap: '1rem',
-    flexWrap: 'wrap' as const,
+    gap: '0.75rem',
     fontWeight: '500',
   },
   itemRight: {
     display: 'flex',
     alignItems: 'center',
     gap: '1.5rem',
-    justifyContent: 'flex-end',
-    flexShrink: 0, // Prevent compression
-    minWidth: 'max-content', // Ensure minimum content width
+    flexShrink: 0,
   },
   itemRightMobile: {
     display: 'flex',
     flexDirection: 'column' as const,
     alignItems: 'flex-end',
-    gap: '1rem',
+    gap: '0.75rem',
   },
   mobileButton: {
-    width: '2.5rem',
-    height: '2.5rem',
+    width: '2.25rem',
+    height: '2.25rem',
     borderRadius: '50%',
     border: 'none',
     color: 'white',
     cursor: 'pointer',
-    fontSize: '1.2rem',
+    fontSize: '1.125rem',
     fontWeight: 'bold',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'all 0.2s ease',
   },
   stockInfo: {
     textAlign: 'center' as const,
   },
   stockLabel: {
-    color: 'rgba(255,255,255,0.7)',
+    color: 'rgba(255, 255, 255, 0.5)',
     fontSize: '0.75rem',
-    marginBottom: '0.5rem',
-    fontWeight: '500',
-    letterSpacing: '0.025em',
+    marginBottom: '0.25rem',
+    fontWeight: '600',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.05em',
   },
   stockValue: {
-    color: 'rgba(255,255,255,0.95)',
-    fontWeight: '600',
-    fontSize: '1.375rem',
-    textShadow: '0 1px 2px rgba(0,0,0,0.3)',
-    letterSpacing: '0.025em',
+    color: 'rgba(255, 255, 255, 0.95)',
+    fontWeight: '700',
+    fontSize: '1.25rem',
+    letterSpacing: '0.02em',
   },
   stockUnit: {
-    color: 'rgba(255,255,255,0.5)',
-    fontSize: '0.7rem',
+    color: 'rgba(255, 255, 255, 0.4)',
+    fontSize: '0.75rem',
     fontWeight: '500',
-    letterSpacing: '0.025em',
+    marginLeft: '0.25rem',
   },
   statusBadge: {
-    padding: '0.625rem 1rem',
-    borderRadius: '1rem',
-    color: 'white',
+    padding: '0.5rem 0.875rem',
+    borderRadius: '0.75rem',
     fontSize: '0.75rem',
-    fontWeight: '600',
-    boxShadow: '0 8px 24px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
-    minWidth: '90px',
+    fontWeight: '700',
+    minWidth: '70px',
     textAlign: 'center' as const,
-    whiteSpace: 'nowrap' as const,
     letterSpacing: '0.025em',
-    border: '1px solid rgba(255,255,255,0.1)',
-    backdropFilter: 'blur(10px)',
+    textTransform: 'uppercase' as const,
+    backdropFilter: 'blur(8px)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
   },
   statusLow: {
-    background: 'linear-gradient(135deg, rgba(234,179,8,0.15), rgba(249,115,22,0.1))',
-    border: '1px solid rgba(234,179,8,0.3)',
+    background: 'rgba(245, 158, 11, 0.1)',
     color: '#fbbf24',
+    border: '1px solid rgba(245, 158, 11, 0.2)',
   },
   statusOut: {
-    background: 'linear-gradient(135deg, rgba(239,68,68,0.15), rgba(236,72,153,0.1))',
-    border: '1px solid rgba(239,68,68,0.3)',
+    background: 'rgba(239, 68, 68, 0.1)',
     color: '#f87171',
+    border: '1px solid rgba(239, 68, 68, 0.2)',
     animation: 'pulse 2s ease-in-out infinite',
   },
   statusGood: {
-    background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(5,150,105,0.1))',
-    border: '1px solid rgba(16,185,129,0.3)',
+    background: 'rgba(16, 185, 129, 0.1)',
     color: '#34d399',
+    border: '1px solid rgba(16, 185, 129, 0.2)',
   },
   sidebar: {
     display: 'flex',
@@ -552,18 +561,18 @@ const styles = {
     gap: '1.5rem',
   },
   sidebarCard: {
-    backgroundColor: 'rgba(0,0,0,0.2)',
+    backgroundColor: 'rgba(15, 23, 42, 0.4)',
     backdropFilter: 'blur(20px)',
-    borderRadius: '1.5rem',
-    border: '1px solid rgba(255,255,255,0.1)',
-    padding: '1.5rem',
-    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+    borderRadius: '1.75rem',
+    border: '1px solid rgba(255, 255, 255, 0.08)',
+    padding: '1.75rem',
+    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
   },
   sidebarHeader: {
     display: 'flex',
     alignItems: 'center',
-    gap: '0.75rem',
-    marginBottom: '1.5rem',
+    gap: '1rem',
+    marginBottom: '1.75rem',
   },
   sidebarIcon: {
     width: '3rem',
@@ -572,227 +581,219 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '1.25rem',
+    background: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: '0.875rem',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
   },
   sidebarTitle: {
     color: 'white',
-    fontWeight: 'bold',
+    fontWeight: '700',
     fontSize: '1.25rem',
     fontFamily: "'Fredoka', system-ui, sans-serif",
+    margin: 0,
   },
   sidebarSubtitle: {
-    color: 'rgba(255,255,255,0.6)',
+    color: 'rgba(255, 255, 255, 0.4)',
     fontSize: '0.875rem',
+    fontWeight: '500',
   },
   filterContainer: {
     display: 'flex',
     flexDirection: 'column' as const,
-    gap: '1rem',
+    gap: '0.75rem',
   },
   filterButton: {
-    padding: '1rem',
+    padding: '0.875rem 1rem',
     borderRadius: '0.75rem',
-    color: 'white',
-    fontSize: '0.75rem',
-    fontWeight: 'bold',
-    boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
-    minWidth: '90px',
-    textAlign: 'center' as const,
-    whiteSpace: 'nowrap' as const,
+    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: '0.8125rem',
+    fontWeight: '600',
+    textAlign: 'left' as const,
     transition: 'all 0.2s ease',
+    border: '1px solid transparent',
+    cursor: 'pointer',
   },
   filterActive: {
-    background: 'linear-gradient(to right, rgba(16,185,129,0.7), rgba(5,150,105,0.7))',
+    background: 'rgba(255, 255, 255, 0.08)',
+    color: 'white',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
   },
   filterInactive: {
-    background: 'rgba(255,255,255,0.1)',
+    background: 'transparent',
+    '&:hover': {
+      background: 'rgba(255, 255, 255, 0.04)',
+    },
   },
   quickStatsCard: {
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    backdropFilter: 'blur(25px)',
+    backgroundColor: 'rgba(15, 23, 42, 0.4)',
+    backdropFilter: 'blur(32px)',
     borderRadius: '2rem',
-    border: '2px solid rgba(255,255,255,0.2)',
-    padding: '2rem',
-    marginBottom: '2rem',
-    boxShadow: '0 30px 60px -15px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 40px rgba(59, 130, 246, 0.15)',
-    background: 'linear-gradient(135deg, rgba(30, 58, 138, 0.8) 0%, rgba(59, 130, 246, 0.6) 25%, rgba(147, 197, 253, 0.4) 75%, rgba(30, 58, 138, 0.8) 100%)',
+    border: '1px solid rgba(255, 255, 255, 0.12)',
+    padding: '2.5rem',
+    marginBottom: '2.5rem',
+    boxShadow: '0 30px 60px rgba(0, 0, 0, 0.5)',
+    background: 'linear-gradient(135deg, rgba(30, 58, 138, 0.3) 0%, rgba(15, 23, 42, 0.4) 100%)',
     position: 'relative' as const,
     overflow: 'hidden',
   },
   quickStatsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '2rem',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+    gap: '1.5rem',
   },
   quickStatCard: {
     textAlign: 'center' as const,
-    padding: '1.5rem',
+    padding: '1.75rem 1.25rem',
     borderRadius: '1.5rem',
-    background: 'linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
-    backdropFilter: 'blur(15px)',
-    border: '1px solid rgba(255,255,255,0.2)',
-    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 8px 25px rgba(0,0,0,0.2)',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-    position: 'relative' as const,
-    overflow: 'hidden',
+    background: 'rgba(255, 255, 255, 0.03)',
+    backdropFilter: 'blur(10px)',
+    border: '1px solid rgba(255, 255, 255, 0.06)',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
     cursor: 'pointer',
   },
   quickStatCardHover: {
-    transform: 'translateY(-5px) scale(1.02)',
-    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3), 0 15px 35px rgba(0,0,0,0.3), 0 0 30px rgba(59, 130, 246, 0.2)',
-    border: '1px solid rgba(255,255,255,0.3)',
+    transform: 'translateY(-6px)',
+    background: 'rgba(255, 255, 255, 0.06)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.4)',
   },
   quickStatValue: {
     fontSize: '2.5rem',
-    fontWeight: 'bold',
+    fontWeight: '800',
     color: 'white',
-    margin: '0.5rem 0',
+    margin: '0.25rem 0',
     fontFamily: "'Fredoka', system-ui, sans-serif",
+    letterSpacing: '-0.02em',
   },
   quickStatLabel: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: '0.875rem',
-    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.4)',
+    fontSize: '0.75rem',
+    fontWeight: '700',
     textTransform: 'uppercase' as const,
-    letterSpacing: '0.05em',
+    letterSpacing: '0.1em',
   },
   tabContainer: {
     display: 'flex',
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    borderRadius: '1rem',
-    padding: '0.5rem',
-    marginBottom: '2rem',
-    border: '1px solid rgba(255,255,255,0.15)',
+    backgroundColor: 'rgba(15, 23, 42, 0.5)',
+    borderRadius: '1.25rem',
+    padding: '0.375rem',
+    marginBottom: '2.5rem',
+    border: '1px solid rgba(255, 255, 255, 0.08)',
+    boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)',
   },
   tab: {
     flex: 1,
-    padding: '1rem 2rem',
-    borderRadius: '0.75rem',
+    padding: '0.875rem 1.5rem',
+    borderRadius: '1rem',
     border: 'none',
     background: 'transparent',
-    color: 'rgba(255,255,255,0.6)',
-    fontSize: '1rem',
+    color: 'rgba(255, 255, 255, 0.5)',
+    fontSize: '0.9375rem',
     fontWeight: '600',
     cursor: 'pointer',
-    transition: 'all 0.3s ease',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     fontFamily: "'Fredoka', system-ui, sans-serif",
   },
   tabShopping: {
-    background: 'rgba(251, 146, 60, 0.1)',
-    borderLeft: '3px solid #fb923c',
-  },
-  tabShoppingHover: {
-    background: 'rgba(251, 146, 60, 0.2)',
-    color: 'rgba(255,255,255,0.8)',
-    transform: 'translateY(-1px)',
+    '&:hover': { color: '#fb923c' },
   },
   tabShoppingActive: {
-    background: 'linear-gradient(135deg, rgba(251, 146, 60, 0.3), rgba(236, 72, 153, 0.2))',
-    color: 'white',
-    boxShadow: '0 10px 15px -3px rgba(251, 146, 60, 0.3)',
-    borderLeft: '3px solid #fb923c',
+    background: 'rgba(251, 146, 60, 0.15)',
+    color: '#fb923c',
+    boxShadow: '0 4px 12px rgba(251, 146, 60, 0.2)',
   },
   tabPantry: {
-    background: 'rgba(16, 185, 129, 0.1)',
-    borderLeft: '3px solid #10b981',
-  },
-  tabPantryHover: {
-    background: 'rgba(16, 185, 129, 0.2)',
-    color: 'rgba(255,255,255,0.8)',
-    transform: 'translateY(-1px)',
+    '&:hover': { color: '#10b981' },
   },
   tabPantryActive: {
-    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(59, 130, 246, 0.2))',
-    color: 'white',
-    boxShadow: '0 10px 15px -3px rgba(16, 185, 129, 0.3)',
-    borderLeft: '3px solid #10b981',
+    background: 'rgba(16, 185, 129, 0.15)',
+    color: '#10b981',
+    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)',
   },
   tabRecipes: {
-    background: 'rgba(168, 85, 247, 0.1)',
-    borderLeft: '3px solid #a855f7',
-  },
-  tabRecipesHover: {
-    background: 'rgba(168, 85, 247, 0.2)',
-    color: 'rgba(255,255,255,0.8)',
-    transform: 'translateY(-1px)',
+    '&:hover': { color: '#a855f7' },
   },
   tabRecipesActive: {
-    background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(139, 92, 246, 0.2))',
-    color: 'white',
-    boxShadow: '0 10px 15px -3px rgba(168, 85, 247, 0.3)',
-    borderLeft: '3px solid #a855f7',
+    background: 'rgba(168, 85, 247, 0.15)',
+    color: '#a855f7',
+    boxShadow: '0 4px 12px rgba(168, 85, 247, 0.2)',
   },
   // Bulk Add Modal Styles
   bulkTextarea: {
     width: '100%',
     padding: '1rem',
     borderRadius: '1rem',
-    border: '2px solid rgba(255,215,0,0.4)',
-    backgroundColor: 'rgba(139,69,19,0.8)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(15, 23, 42, 0.6)',
     color: 'white',
-    fontSize: '0.9rem',
+    fontSize: '0.9375rem',
     fontFamily: 'monospace',
     resize: 'vertical' as const,
-    minHeight: '200px',
-    boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)',
+    minHeight: '180px',
+    outline: 'none',
+    transition: 'all 0.2s ease',
   },
   bulkLabel: {
-    color: 'white',
-    fontSize: '1rem',
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: '0.9375rem',
     marginBottom: '0.75rem',
     display: 'block',
-    fontWeight: 'bold',
-    textAlign: 'center' as const,
+    fontWeight: '600',
   },
   bulkHelp: {
-    background: 'rgba(0,0,0,0.2)',
+    background: 'rgba(255, 255, 255, 0.03)',
     padding: '1rem',
-    borderRadius: '0.75rem',
-    border: '1px solid rgba(255,215,0,0.2)',
+    borderRadius: '0.875rem',
+    border: '1px solid rgba(255, 255, 255, 0.08)',
+    fontSize: '0.8125rem',
+    color: 'rgba(255, 255, 255, 0.5)',
+    lineHeight: '1.5',
   },
   bulkButton: {
-    flex: '1 1 0',
-    padding: '1rem',
+    flex: '1',
+    padding: '0.875rem',
     borderRadius: '0.75rem',
     border: 'none',
     cursor: 'pointer',
-    fontWeight: 'bold',
-    minWidth: '0',
-    whiteSpace: 'nowrap' as const,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
+    fontWeight: '700',
+    fontSize: '0.875rem',
+    transition: 'all 0.2s ease',
   },
   // Item source badges
   itemBadge: {
-    padding: '0.25rem 0.75rem',
-    borderRadius: '9999px',
-    fontSize: '0.75rem',
-    fontWeight: '600',
+    padding: '0.25rem 0.625rem',
+    borderRadius: '0.5rem',
+    fontSize: '0.6875rem',
+    fontWeight: '700',
     textTransform: 'uppercase' as const,
-    letterSpacing: '0.025em',
+    letterSpacing: '0.05em',
     display: 'inline-flex',
     alignItems: 'center',
     gap: '0.25rem',
   },
   itemBadgeSource: {
-    background: 'linear-gradient(135deg, rgba(34,197,94,0.2), rgba(22,163,74,0.3))',
-    color: 'rgba(34,197,94,1)',
-    border: '1px solid rgba(34,197,94,0.4)',
+    background: 'rgba(34, 197, 94, 0.1)',
+    color: '#4ade80',
+    border: '1px solid rgba(34, 197, 94, 0.2)',
   },
   itemBadgeManual: {
-    background: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(37,99,235,0.3))',
-    color: 'rgba(59,130,246,1)',
-    border: '1px solid rgba(59,130,246,0.4)',
+    background: 'rgba(59, 130, 246, 0.1)',
+    color: '#60a5fa',
+    border: '1px solid rgba(59, 130, 246, 0.2)',
   },
   quantityDisplay: {
-    background: 'rgba(0,0,0,0.3)',
-    borderRadius: '0.5rem',
-    padding: '0.5rem 0.75rem',
-    fontSize: '0.875rem',
-    fontWeight: '600',
+    background: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: '0.75rem',
+    padding: '0.5rem 0.875rem',
+    fontSize: '0.9375rem',
+    fontWeight: '700',
     color: 'white',
-    border: '1px solid rgba(255,255,255,0.1)',
-    minWidth: '4rem',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    minWidth: '4.5rem',
     textAlign: 'center' as const,
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
   },
 };
 
@@ -923,14 +924,15 @@ const PantryAnalytics = ({ pantryItems }: { pantryItems: PantryItem[] }) => {
   if (pantryItems.length === 0) {
     return (
       <div style={{
-        padding: '2rem',
-        background: 'rgba(30,58,138,0.3)',
-        borderRadius: '1rem',
-        border: '1px solid rgba(59,130,246,0.3)',
+        padding: '3rem 2rem',
+        background: 'rgba(255, 255, 255, 0.03)',
+        borderRadius: '1.5rem',
+        border: '1px dashed rgba(255, 255, 255, 0.1)',
         textAlign: 'center'
       }}>
-        <h3 style={{ color: 'white', marginBottom: '1rem' }}>📊 Pantry Analytics</h3>
-        <p style={{ color: 'rgba(255,255,255,0.7)' }}>Add items to your pantry to see analytics</p>
+        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📊</div>
+        <h3 style={{ color: 'white', marginBottom: '0.5rem', fontWeight: '700', fontFamily: "'Fredoka', system-ui, sans-serif" }}>Pantry Analytics</h3>
+        <p style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.9375rem' }}>Add items to see your pantry insights!</p>
       </div>
     );
   }
@@ -944,68 +946,92 @@ const PantryAnalytics = ({ pantryItems }: { pantryItems: PantryItem[] }) => {
     }}>
       {/* Controls */}
       <div style={{
-        background: 'rgba(30,58,138,0.3)',
-        borderRadius: '1rem',
-        border: '1px solid rgba(59,130,246,0.3)',
-        padding: '1.5rem'
+        background: 'rgba(255, 255, 255, 0.03)',
+        borderRadius: '1.5rem',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        padding: '1.5rem',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)'
       }}>
-        <h3 style={{ color: 'white', marginBottom: '1rem', fontSize: '1.2rem' }}>📊 Pantry Analytics</h3>
+        <h3 style={{ 
+          color: 'white', 
+          marginBottom: '1.25rem', 
+          fontSize: '1.125rem', 
+          fontWeight: '700',
+          fontFamily: "'Fredoka', system-ui, sans-serif" 
+        }}>📊 Pantry Insights</h3>
         
-        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as 'stock' | 'category' | 'ratio')}
             style={{
-              padding: '0.5rem',
-              borderRadius: '0.5rem',
-              border: '1px solid rgba(59,130,246,0.4)',
-              background: 'rgba(30,58,138,0.6)',
+              padding: '0.625rem 1rem',
+              borderRadius: '0.75rem',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              background: 'rgba(15, 23, 42, 0.6)',
               color: 'white',
-              fontSize: '0.875rem'
+              fontSize: '0.8125rem',
+              fontWeight: '600',
+              outline: 'none',
+              cursor: 'pointer'
             }}
           >
-            <option value="stock">Sort by Stock Count</option>
-            <option value="ratio">Sort by Stock Ratio</option>
-            <option value="category">Sort by Category</option>
+            <option value="stock" style={{ background: '#1e293b' }}>Sort by Stock Count</option>
+            <option value="ratio" style={{ background: '#1e293b' }}>Sort by Stock Ratio</option>
+            <option value="category" style={{ background: '#1e293b' }}>Sort by Category</option>
           </select>
           
           <button
             onClick={() => setShowHighest(!showHighest)}
             style={{
-              padding: '0.5rem 1rem',
-              borderRadius: '0.5rem',
-              border: 'none',
-              background: showHighest 
-                ? 'linear-gradient(to right, rgba(34,197,94,0.6), rgba(22,163,74,0.6))'
-                : 'linear-gradient(to right, rgba(239,68,68,0.6), rgba(220,38,38,0.6))',
+              padding: '0.625rem 1.25rem',
+              borderRadius: '0.75rem',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              background: 'rgba(255, 255, 255, 0.05)',
               color: 'white',
-              fontSize: '0.875rem',
-              cursor: 'pointer'
+              fontSize: '0.8125rem',
+              fontWeight: '700',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
             }}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'}
           >
-            {showHighest ? '📈 Highest' : '📉 Lowest'}
+            <span>{showHighest ? '📈' : '📉'}</span>
+            {showHighest ? 'Show Highest' : 'Show Lowest'}
           </button>
         </div>
       </div>
 
       {/* Bar Chart */}
       <div style={{
-        background: 'rgba(30,58,138,0.3)',
-        borderRadius: '1rem',
-        border: '1px solid rgba(59,130,246,0.3)',
-        padding: '1.5rem',
+        background: 'rgba(255, 255, 255, 0.03)',
+        borderRadius: '1.5rem',
+        padding: '1.75rem',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        boxShadow: '0 12px 40px rgba(0, 0, 0, 0.3)',
         flex: 1
       }}>
         <h4 style={{ 
           color: 'white', 
-          marginBottom: '1rem',
-          fontSize: '1rem'
+          margin: '0 0 1.5rem 0', 
+          fontSize: '1rem',
+          fontWeight: '700',
+          fontFamily: "'Fredoka', system-ui, sans-serif",
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em',
+          opacity: 0.8
         }}>
-          {showHighest ? 'Top 5' : 'Bottom 5'} {sortBy === 'category' ? 'Categories' : 'Items'}
-          {sortBy === 'ratio' ? ' (by Stock Ratio)' : sortBy === 'stock' ? ' (by Count)' : ''}
+          {showHighest ? '✨ Top 5' : '🚨 Bottom 5'} {sortBy === 'category' ? 'Categories' : 'Items'}
+          <span style={{ fontSize: '0.75rem', opacity: 0.5, fontWeight: '600', marginLeft: '0.75rem' }}>
+            {sortBy === 'ratio' ? '(by ratio)' : sortBy === 'stock' ? '(by count)' : ''}
+          </span>
         </h4>
         
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {dataToShow.map((item: any, index: number) => {
             const value = getValue(item);
             const percentage = maxValue > 0 ? (value / maxValue) * 100 : 0;
@@ -1014,43 +1040,47 @@ const PantryAnalytics = ({ pantryItems }: { pantryItems: PantryItem[] }) => {
               <div key={item.id || index} style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.75rem'
+                gap: '1rem'
               }}>
                 <div style={{ 
-                  width: '50px', 
-                  fontSize: '0.875rem', 
-                  color: 'white',
+                  width: '100px', 
+                  fontSize: '0.8125rem', 
+                  color: 'rgba(255, 255, 255, 0.7)',
                   textOverflow: 'ellipsis',
                   overflow: 'hidden',
-                  whiteSpace: 'nowrap'
+                  whiteSpace: 'nowrap',
+                  fontWeight: '600'
                 }}>
                   {item.name}
                 </div>
                 <div style={{ 
                   flex: 1, 
-                  background: 'rgba(71,85,105,0.3)', 
-                  borderRadius: '0.25rem',
-                  height: '24px',
+                  background: 'rgba(255, 255, 255, 0.05)', 
+                  borderRadius: '9999px',
+                  height: '10px',
                   position: 'relative',
                   overflow: 'hidden'
                 }}>
                   <div style={{
                     background: sortBy === 'category'
-                      ? 'linear-gradient(to right, rgba(100,116,139,0.8), rgba(71,85,105,0.8))'
+                      ? 'linear-gradient(to right, #6366f1, #a855f7)'
                       : value < (item.minCount || 1)
-                        ? 'linear-gradient(to right, rgba(239,68,68,0.8), rgba(220,38,38,0.8))'
-                        : 'linear-gradient(to right, rgba(34,197,94,0.8), rgba(22,163,74,0.8))',
+                        ? 'linear-gradient(to right, #f87171, #ef4444)'
+                        : 'linear-gradient(to right, #34d399, #10b981)',
                     height: '100%',
                     width: `${Math.max(5, percentage)}%`,
-                    borderRadius: '0.25rem',
-                    transition: 'width 0.3s ease'
+                    borderRadius: '9999px',
+                    transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+                    boxShadow: '0 0 12px rgba(0, 0, 0, 0.2)'
                   }} />
                 </div>
                 <div style={{ 
                   width: '60px', 
-                  fontSize: '0.75rem', 
-                  color: 'rgba(255,255,255,0.8)',
-                  textAlign: 'right'
+                  fontSize: '0.8125rem', 
+                  color: 'white',
+                  textAlign: 'right',
+                  fontWeight: '700',
+                  fontFamily: 'monospace'
                 }}>
                   {getValueLabel(item)}
                 </div>
@@ -1063,25 +1093,37 @@ const PantryAnalytics = ({ pantryItems }: { pantryItems: PantryItem[] }) => {
       {/* Category Summary */}
       {sortBy === 'category' && categories.length > 0 && (
         <div style={{
-          background: 'rgba(30,58,138,0.3)',
-          borderRadius: '1rem',
-          border: '1px solid rgba(59,130,246,0.3)',
-          padding: '1.5rem'
+          background: 'rgba(255, 255, 255, 0.03)',
+          borderRadius: '1.5rem',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          padding: '1.75rem',
+          marginTop: '1.5rem',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)'
         }}>
-          <h4 style={{ color: 'white', marginBottom: '1rem', fontSize: '1rem' }}>📂 Categories Overview</h4>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.75rem' }}>
+          <h4 style={{ 
+            color: 'white', 
+            marginBottom: '1.25rem', 
+            fontSize: '1rem',
+            fontWeight: '700',
+            fontFamily: "'Fredoka', system-ui, sans-serif",
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            opacity: 0.8
+          }}>📂 Category Breakdown</h4>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem' }}>
             {categories.slice(0, 4).map((category, index) => (
               <div key={index} style={{
-                background: 'rgba(71,85,105,0.3)',
-                padding: '0.75rem',
-                borderRadius: '0.5rem',
-                textAlign: 'center'
+                background: 'rgba(255, 255, 255, 0.05)',
+                padding: '1.25rem 1rem',
+                borderRadius: '1.25rem',
+                textAlign: 'center',
+                border: '1px solid rgba(255, 255, 255, 0.05)'
               }}>
-                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)' }}>
+                <div style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>
                   {category.name}
                 </div>
-                <div style={{ fontSize: '1rem', color: 'white', fontWeight: 'bold' }}>
-                  {category.count} items
+                <div style={{ fontSize: '1.25rem', color: 'white', fontWeight: '800', fontFamily: 'monospace' }}>
+                  {category.count} <span style={{ fontSize: '0.8125rem', fontWeight: '500', opacity: 0.5 }}>items</span>
                 </div>
               </div>
             ))}
@@ -1780,9 +1822,11 @@ function App() {
 
   // Filter and sort pantry items
   const filteredPantryItems = React.useMemo(() => {
-    let filtered = pantryCategoryFilter.includes('all') 
-      ? pantryItems 
-      : pantryItems.filter(item => pantryCategoryFilter.includes(item.category));
+    let filtered = pantryCategoryFilter.length === 0
+      ? [] // If filter is empty (all unselected), show nothing
+      : pantryCategoryFilter.includes('all') 
+        ? pantryItems 
+        : pantryItems.filter(item => pantryCategoryFilter.includes(item.category));
     
     // Sort the filtered items
     switch (pantrySortBy) {
@@ -1829,8 +1873,13 @@ function App() {
   // Handle category filter checkbox changes
   const handleCategoryFilterChange = (category: string) => {
     if (category === 'all') {
-      // If "All" is selected, clear other selections
-      setPantryCategoryFilter(['all']);
+      // If "All" is already selected, unselect everything
+      if (pantryCategoryFilter.includes('all')) {
+        setPantryCategoryFilter([]);
+      } else {
+        // If "All" is not selected, select all
+        setPantryCategoryFilter(['all']);
+      }
     } else {
       // Remove 'all' if it was selected
       const newFilters = pantryCategoryFilter.filter(c => c !== 'all');
@@ -2226,14 +2275,14 @@ function App() {
         zIndex: 1000
       }}>
         <div style={{
-          background: 'linear-gradient(135deg, rgba(139,69,19,0.95) 0%, rgba(184,134,11,0.95) 25%, rgba(217,119,6,0.95) 75%, rgba(120,53,15,0.95) 100%)',
-          backdropFilter: 'blur(20px)',
-          borderRadius: '2rem',
-          border: '3px solid rgba(255,215,0,0.6)',
-          padding: '2.5rem',
+          background: 'rgba(15, 23, 42, 0.8)',
+          backdropFilter: 'blur(32px)',
+          borderRadius: '2.5rem',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          padding: '3rem',
           width: '90%',
           maxWidth: '650px',
-          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
+          boxShadow: '0 50px 100px -20px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1)',
           position: 'relative'
         }}>
           {/* Close X button */}
@@ -2245,80 +2294,85 @@ function App() {
             }}
             style={{
               position: 'absolute',
-              top: '1rem',
-              right: '1rem',
-              background: 'rgba(255,255,255,0.2)',
-              border: 'none',
+              top: '1.5rem',
+              right: '1.5rem',
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
               color: 'white',
               width: '2.5rem',
               height: '2.5rem',
               borderRadius: '50%',
               cursor: 'pointer',
-              fontSize: '1.5rem',
+              fontSize: '1.25rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'all 0.2s ease',
               zIndex: 10
             }}
-            onMouseEnter={(e) => (e.target as HTMLButtonElement).style.background = 'rgba(255,255,255,0.3)'}
-            onMouseLeave={(e) => (e.target as HTMLButtonElement).style.background = 'rgba(255,255,255,0.2)'}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)')}
           >
             ×
           </button>
           <div style={{
             position: 'absolute',
-            top: '-10px',
+            top: '0',
             left: '50%',
-            transform: 'translateX(-50%)',
-            background: 'linear-gradient(45deg, #ffd700, #ffed4e)',
-            padding: '0.5rem 1.5rem',
-            borderRadius: '1rem',
-            border: '2px solid rgba(255,215,0,0.8)',
-            fontSize: '1.1rem',
-            fontWeight: 'bold',
-            color: '#8b4513',
-            boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
+            transform: 'translateX(-50%) translateY(-50%)',
+            background: 'linear-gradient(135deg, #10b981, #059669)',
+            padding: '0.6rem 2rem',
+            borderRadius: '9999px',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            fontSize: '0.875rem',
+            fontWeight: '800',
+            color: 'white',
+            boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.4)',
+            letterSpacing: '0.1em',
+            zIndex: 10
           }}>
             SHOPPING LIST
           </div>
           
           <h2 style={{
             color: 'white', 
-            marginBottom: '2rem', 
-            marginTop: '1rem',
+            marginBottom: '2.5rem', 
+            marginTop: '0.5rem',
             fontFamily: "'Fredoka', system-ui, sans-serif",
-            fontSize: '1.8rem',
+            fontSize: '2rem',
+            fontWeight: '800',
             textAlign: 'center',
-            textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
+            letterSpacing: '-0.02em'
           }}>
-            ✨ Add New Item to List
+            ✨ Add New Item
           </h2>
           
           {/* Toggle between Single and Bulk mode */}
           <div style={{
             display: 'flex',
             justifyContent: 'center',
-            marginBottom: '1.5rem',
-            background: 'rgba(0,0,0,0.3)',
-            borderRadius: '1rem',
-            padding: '0.5rem',
-            border: '1px solid rgba(255,215,0,0.3)'
+            marginBottom: '2rem',
+            background: 'rgba(15, 23, 42, 0.6)',
+            borderRadius: '1.25rem',
+            padding: '0.375rem',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)'
           }}>
             <button
               type="button"
               onClick={() => setBulkMode(false)}
               style={{
                 flex: 1,
-                padding: '0.75rem 1rem',
-                borderRadius: '0.75rem',
+                padding: '0.875rem 1rem',
+                borderRadius: '1rem',
                 border: 'none',
-                background: !bulkMode ? 'rgba(255,215,0,0.3)' : 'transparent',
-                color: 'white',
-                fontSize: '0.9rem',
-                fontWeight: 'bold',
+                background: !bulkMode ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
+                color: !bulkMode ? 'white' : 'rgba(255, 255, 255, 0.4)',
+                fontSize: '0.9375rem',
+                fontWeight: '700',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease'
+                transition: 'all 0.3s ease',
+                fontFamily: "'Fredoka', system-ui, sans-serif",
               }}
             >
               📝 Single Add
@@ -2328,15 +2382,16 @@ function App() {
               onClick={() => setBulkMode(true)}
               style={{
                 flex: 1,
-                padding: '0.75rem 1rem',
-                borderRadius: '0.75rem',
+                padding: '0.875rem 1rem',
+                borderRadius: '1rem',
                 border: 'none',
-                background: bulkMode ? 'rgba(255,215,0,0.3)' : 'transparent',
-                color: 'white',
-                fontSize: '0.9rem',
-                fontWeight: 'bold',
+                background: bulkMode ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
+                color: bulkMode ? 'white' : 'rgba(255, 255, 255, 0.4)',
+                fontSize: '0.9375rem',
+                fontWeight: '700',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease'
+                transition: 'all 0.3s ease',
+                fontFamily: "'Fredoka', system-ui, sans-serif",
               }}
             >
               📋 Bulk Add
@@ -2353,58 +2408,68 @@ function App() {
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                 required
                 style={{
-                  padding: '1.2rem',
+                  padding: '1.125rem 1.25rem',
                   borderRadius: '1rem',
-                  border: '2px solid rgba(255,215,0,0.4)',
-                  backgroundColor: 'rgba(139,69,19,0.8)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  backgroundColor: 'rgba(15, 23, 42, 0.6)',
                   color: 'white',
                   fontSize: '1rem',
                   fontWeight: '500',
-                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)'
+                  outline: 'none',
+                  boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)',
+                  transition: 'all 0.2s ease'
                 }}
               />
               
-              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({...formData, category: e.target.value})}
-                  style={{
-                    padding: '1rem',
-                    borderRadius: '0.75rem',
-                    border: '2px solid rgba(255,215,0,0.4)',
-                    backgroundColor: 'rgba(139,69,19,0.8)',
-                    color: 'white',
-                    fontSize: '1rem',
-                    width: '100%'
-                  }}
-                >
-                  <option value="" disabled style={{backgroundColor: 'rgba(139,69,19,0.9)', color: 'white'}}>📂 Select Category</option>
-                  {pantryCategories.filter(cat => cat !== 'all').map((category) => (
-                    <option key={category} value={category} style={{backgroundColor: 'rgba(139,69,19,0.9)', color: 'white'}}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem'}}>
+                <div style={{ position: 'relative' }}>
+                  <select
+                    value={formData.category}
+                    onChange={(e) => setFormData({...formData, category: e.target.value})}
+                    style={{
+                      padding: '1rem 1.25rem',
+                      borderRadius: '1rem',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                      color: 'white',
+                      fontSize: '0.9375rem',
+                      fontWeight: '600',
+                      width: '100%',
+                      outline: 'none',
+                      cursor: 'pointer',
+                      appearance: 'none'
+                    }}
+                  >
+                    <option value="" disabled style={{background: '#1e293b'}}>📂 Select Category</option>
+                    {pantryCategories.filter(cat => cat !== 'all').map((category) => (
+                      <option key={category} value={category} style={{background: '#1e293b'}}>
+                        {category}
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <input
                   type="text"
-                  placeholder="📦 Unit (pieces, bags)"
+                  placeholder="📦 Unit (pcs, bags)"
                   value={formData.unit}
                   onChange={(e) => setFormData({...formData, unit: e.target.value})}
                   style={{
-                    padding: '1rem',
-                    borderRadius: '0.75rem',
-                    border: '2px solid rgba(255,215,0,0.4)',
-                    backgroundColor: 'rgba(139,69,19,0.8)',
+                    padding: '1rem 1.25rem',
+                    borderRadius: '1rem',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    backgroundColor: 'rgba(15, 23, 42, 0.6)',
                     color: 'white',
-                    fontSize: '1rem',
-                    width: '100%'
+                    fontSize: '0.9375rem',
+                    fontWeight: '600',
+                    width: '100%',
+                    outline: 'none'
                   }}
                 />
               </div>
               
-              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem'}}>
                 <div>
-                  <label style={{color: 'white', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold'}}>
+                  <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
                     📊 Quantity
                   </label>
                   <input
@@ -2413,52 +2478,61 @@ function App() {
                     value={formData.quantity}
                     onChange={(e) => setFormData({...formData, quantity: parseFloat(e.target.value) || 1})}
                     style={{
-                      padding: '1rem',
-                      borderRadius: '0.75rem',
-                      border: '2px solid rgba(255,215,0,0.4)',
-                      backgroundColor: 'rgba(139,69,19,0.8)',
+                      padding: '1rem 1.25rem',
+                      borderRadius: '1rem',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: 'rgba(15, 23, 42, 0.6)',
                       color: 'white',
-                      width: '100%'
+                      fontWeight: '700',
+                      width: '100%',
+                      outline: 'none'
                     }}
                   />
                 </div>
                 <div>
-                  <label style={{color: 'white', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold'}}>
-                    📈 Priority Level
+                  <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
+                    📈 Priority
                   </label>
                   <select
                     value={formData.priority}
                     onChange={(e) => setFormData({...formData, priority: e.target.value as 'High' | 'Medium' | 'Low'})}
                     style={{
-                      padding: '1rem',
-                      borderRadius: '0.75rem',
-                      border: '2px solid rgba(255,215,0,0.4)',
-                      backgroundColor: 'rgba(139,69,19,0.8)',
+                      padding: '1rem 1.25rem',
+                      borderRadius: '1rem',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: 'rgba(15, 23, 42, 0.6)',
                       color: 'white',
+                      fontSize: '0.9375rem',
+                      fontWeight: '700',
                       width: '100%',
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      outline: 'none',
+                      appearance: 'none'
                     }}
                   >
-                    <option value="High">🔴 High Priority</option>
-                    <option value="Medium">🟡 Medium Priority</option>
-                    <option value="Low">🟢 Low Priority</option>
+                    <option value="High" style={{background: '#1e293b'}}>🔴 High Priority</option>
+                    <option value="Medium" style={{background: '#1e293b'}}>🟡 Medium Priority</option>
+                    <option value="Low" style={{background: '#1e293b'}}>🟢 Low Priority</option>
                   </select>
                 </div>
               </div>
               
               <textarea
-                placeholder="📝 Notes... (any special instructions or preferences?)"
+                placeholder="📝 Notes... (special instructions?)"
                 value={formData.notes}
                 onChange={(e) => setFormData({...formData, notes: e.target.value})}
                 rows={3}
                 style={{
-                  padding: '1rem',
-                  borderRadius: '0.75rem',
-                  border: '2px solid rgba(255,215,0,0.4)',
-                  backgroundColor: 'rgba(139,69,19,0.8)',
+                  padding: '1.125rem 1.25rem',
+                  borderRadius: '1rem',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  backgroundColor: 'rgba(15, 23, 42, 0.6)',
                   color: 'white',
+                  fontSize: '0.9375rem',
                   resize: 'none',
-                  fontFamily: 'inherit'
+                  fontFamily: 'inherit',
+                  outline: 'none',
+                  lineHeight: '1.5'
                 }}
               />
             </div>
@@ -2479,41 +2553,37 @@ function App() {
                   setBulkText('');
                 }}
                 style={{
-                  flex: '1 1 0',
-                  padding: '1rem',
+                  flex: '1',
+                  padding: '0.875rem',
                   borderRadius: '0.75rem',
-                  border: '2px solid rgba(255,215,0,0.4)',
-                  backgroundColor: 'rgba(139,69,19,0.8)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
                   color: 'white',
                   cursor: 'pointer',
-                  fontWeight: 'bold',
-                  minWidth: '0',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
+                  fontWeight: '600',
+                  fontSize: '0.875rem',
+                  transition: 'all 0.2s ease'
                 }}
               >
-                ❌ Cancel
+                Cancel
               </button>
               <button
                 type="submit"
                 style={{
-                  flex: '1 1 0',
-                  padding: '1rem',
+                  flex: '1',
+                  padding: '0.875rem',
                   borderRadius: '0.75rem',
                   border: 'none',
-                  background: 'linear-gradient(to right, #ffd700, #ffed4e)',
-                  color: '#8b4513',
-                  fontWeight: 'bold',
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  color: 'white',
+                  fontWeight: '700',
+                  fontSize: '0.875rem',
                   cursor: 'pointer',
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
-                  minWidth: '0',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
+                  boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
+                  transition: 'all 0.2s ease'
                 }}
               >
-                ✅ Add to List
+                Add to List
               </button>
             </div>
           </form>
@@ -2521,7 +2591,15 @@ function App() {
             /* Bulk Add Mode */
             <div style={{display: 'grid', gap: '1.5rem'}}>
               <div>
-                <label style={styles.bulkLabel}>
+                <label style={{ 
+                  color: 'rgba(255, 255, 255, 0.8)', 
+                  fontSize: '0.9375rem', 
+                  marginBottom: '0.75rem', 
+                  display: 'block', 
+                  fontWeight: '700',
+                  textAlign: 'center',
+                  fontFamily: "'Fredoka', system-ui, sans-serif"
+                }}>
                   📋 Paste your grocery list below (one item per line)
                 </label>
                 <textarea
@@ -2535,34 +2613,60 @@ bread
 3 bottles olive oil
 chicken breast, 2 lbs`}
                   rows={8}
-                  style={styles.bulkTextarea}
+                  style={{
+                    width: '100%',
+                    padding: '1.25rem',
+                    borderRadius: '1.25rem',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                    color: 'white',
+                    fontSize: '0.9375rem',
+                    fontFamily: 'monospace',
+                    resize: 'vertical' as const,
+                    minHeight: '200px',
+                    outline: 'none',
+                    boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)',
+                    transition: 'all 0.2s ease',
+                    lineHeight: '1.6'
+                  }}
                 />
               </div>
               
-              <div style={styles.bulkHelp}>
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                padding: '1.25rem',
+                borderRadius: '1rem',
+                border: '1px solid rgba(255, 255, 255, 0.08)'
+              }}>
                 <p style={{
                   color: 'white',
-                  fontSize: '0.8rem',
-                  margin: '0 0 0.5rem 0',
-                  fontWeight: 'bold'
+                  fontSize: '0.8125rem',
+                  margin: '0 0 0.75rem 0',
+                  fontWeight: '700',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
                 }}>
                   📝 Supported formats:
                 </p>
                 <ul style={{
-                  color: 'rgba(255,215,0,0.8)',
-                  fontSize: '0.75rem',
+                  color: 'rgba(255, 255, 255, 0.5)',
+                  fontSize: '0.8125rem',
                   margin: 0,
-                  paddingLeft: '1.2rem'
+                  paddingLeft: '1.25rem',
+                  display: 'grid',
+                  gap: '0.375rem',
+                  fontWeight: '500'
                 }}>
                   <li>"2 lbs apples" or "3 bottles water"</li>
                   <li>"apples, 2 lbs" or "water - 3 bottles"</li>
                   <li>"bread" (defaults to 1 piece)</li>
                 </ul>
                 <p style={{
-                  color: 'rgba(255,215,0,0.7)',
-                  fontSize: '0.7rem',
-                  margin: '0.5rem 0 0 0',
-                  fontStyle: 'italic'
+                  color: '#34d399',
+                  fontSize: '0.75rem',
+                  margin: '1rem 0 0 0',
+                  fontStyle: 'italic',
+                  fontWeight: '600'
                 }}>
                   🤖 Items will be automatically categorized by AI
                 </p>
@@ -2584,12 +2688,12 @@ chicken breast, 2 lbs`}
                   }}
                   style={{
                     ...styles.bulkButton,
-                    border: '2px solid rgba(255,215,0,0.4)',
-                    backgroundColor: 'rgba(139,69,19,0.8)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
                     color: 'white',
                   }}
                 >
-                  ❌ Cancel
+                  Cancel
                 </button>
                 <button
                   type="button"
@@ -2598,11 +2702,12 @@ chicken breast, 2 lbs`}
                   style={{
                     ...styles.bulkButton,
                     background: bulkText.trim() 
-                      ? 'linear-gradient(45deg, #ffd700, #ffed4e)'
-                      : 'rgba(100,100,100,0.5)',
-                    color: bulkText.trim() ? '#8b4513' : '#666',
+                      ? 'linear-gradient(135deg, #10b981, #059669)'
+                      : 'rgba(255, 255, 255, 0.05)',
+                    color: bulkText.trim() ? 'white' : 'rgba(255, 255, 255, 0.2)',
                     cursor: bulkText.trim() ? 'pointer' : 'not-allowed',
-                    boxShadow: bulkText.trim() ? '0 4px 8px rgba(255,215,0,0.3)' : 'none'
+                    boxShadow: bulkText.trim() ? '0 4px 12px rgba(16, 185, 129, 0.25)' : 'none',
+                    border: bulkText.trim() ? 'none' : '1px solid rgba(255, 255, 255, 0.05)'
                   }}
                 >
                   🚀 Add All Items
@@ -2678,21 +2783,22 @@ chicken breast, 2 lbs`}
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.85)',
+        backgroundColor: 'rgba(15, 23, 42, 0.85)',
+        backdropFilter: 'blur(8px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1000
       }}>
         <div style={{
-          background: 'linear-gradient(145deg, #1e3a8a 0%, #1e40af 25%, #2563eb 50%, #1d4ed8 75%, #1e3a8a 100%)',
-          backdropFilter: 'blur(25px)',
-          borderRadius: '2rem',
-          border: '2px solid rgba(59, 130, 246, 0.4)',
-          padding: '2.5rem',
+          background: 'rgba(30, 41, 59, 0.7)',
+          backdropFilter: 'blur(32px)',
+          borderRadius: '2.5rem',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          padding: '3rem',
           width: '90%',
-          maxWidth: '600px',
-          boxShadow: '0 25px 50px -12px rgba(30, 58, 138, 0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
+          maxWidth: '650px',
+          boxShadow: '0 50px 100px -20px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1)',
           position: 'relative'
         }}>
           {/* Close X button */}
@@ -2700,81 +2806,86 @@ chicken breast, 2 lbs`}
             onClick={() => setShowAddModal(false)}
             style={{
               position: 'absolute',
-              top: '1rem',
-              right: '1rem',
-              background: 'rgba(255,255,255,0.2)',
-              border: 'none',
+              top: '1.5rem',
+              right: '1.5rem',
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
               color: 'white',
               width: '2.5rem',
               height: '2.5rem',
               borderRadius: '50%',
               cursor: 'pointer',
-              fontSize: '1.5rem',
+              fontSize: '1.25rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'all 0.2s ease',
               zIndex: 10
             }}
-            onMouseEnter={(e) => (e.target as HTMLButtonElement).style.background = 'rgba(255,255,255,0.3)'}
-            onMouseLeave={(e) => (e.target as HTMLButtonElement).style.background = 'rgba(255,255,255,0.2)'}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)')}
           >
             ×
           </button>
           
           <div style={{
             position: 'absolute',
-            top: '-15px',
+            top: '0',
             left: '50%',
-            transform: 'translateX(-50%)',
-            background: 'linear-gradient(45deg, #60a5fa, #3b82f6)',
-            padding: '0.7rem 2rem',
-            borderRadius: '1.5rem',
-            border: '2px solid rgba(59, 130, 246, 0.6)',
-            fontSize: '1.1rem',
-            fontWeight: 'bold',
+            transform: 'translateX(-50%) translateY(-50%)',
+            background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+            padding: '0.6rem 2rem',
+            borderRadius: '9999px',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            fontSize: '0.875rem',
+            fontWeight: '800',
             color: 'white',
-            boxShadow: '0 8px 16px rgba(30, 58, 138, 0.3)',
-            textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
+            boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)',
+            letterSpacing: '0.1em',
+            zIndex: 10
           }}>
             PANTRY INVENTORY
           </div>
           
           <h2 style={{
-            color: '#bfdbfe', 
-            marginBottom: '1rem', 
-            marginTop: '1.5rem',
+            color: 'white', 
+            marginBottom: '2.5rem', 
+            marginTop: '0.5rem',
             fontFamily: "'Fredoka', system-ui, sans-serif",
-            fontSize: '1.9rem',
+            fontSize: '2rem',
+            fontWeight: '800',
             textAlign: 'center',
-            textShadow: '2px 2px 4px rgba(0,0,0,0.4)'
+            letterSpacing: '-0.02em'
           }}>
-            🏠 Add to Pantry Inventory
+            🏠 Update Inventory
           </h2>
           
           {/* Toggle buttons for single vs bulk mode */}
           <div style={{
             display: 'flex',
-            gap: '0.5rem',
-            marginBottom: '1rem',
-            backgroundColor: 'rgba(30, 58, 138, 0.4)',
-            borderRadius: '0.75rem',
-            padding: '0.25rem'
+            justifyContent: 'center',
+            marginBottom: '2rem',
+            background: 'rgba(15, 23, 42, 0.6)',
+            borderRadius: '1.25rem',
+            padding: '0.375rem',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)'
           }}>
             <button
               type="button"
               onClick={() => setPantryBulkMode(false)}
               style={{
                 flex: 1,
-                padding: '0.75rem',
-                borderRadius: '0.5rem',
+                padding: '0.875rem 1rem',
+                borderRadius: '1rem',
                 border: 'none',
-                fontSize: '0.9rem',
-                fontWeight: '600',
+                background: !pantryBulkMode ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
+                color: !pantryBulkMode ? 'white' : 'rgba(255, 255, 255, 0.4)',
+                fontSize: '0.9375rem',
+                fontWeight: '700',
                 cursor: 'pointer',
-                transition: 'all 0.2s',
-                backgroundColor: !pantryBulkMode ? 'rgba(59, 130, 246, 0.8)' : 'transparent',
-                color: !pantryBulkMode ? '#ffffff' : '#bfdbfe'
+                transition: 'all 0.3s ease',
+                fontFamily: "'Fredoka', system-ui, sans-serif",
               }}
             >
               Single Item
@@ -2784,15 +2895,16 @@ chicken breast, 2 lbs`}
               onClick={() => setPantryBulkMode(true)}
               style={{
                 flex: 1,
-                padding: '0.75rem',
-                borderRadius: '0.5rem',
+                padding: '0.875rem 1rem',
+                borderRadius: '1rem',
                 border: 'none',
-                fontSize: '0.9rem',
-                fontWeight: '600',
+                background: pantryBulkMode ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
+                color: pantryBulkMode ? 'white' : 'rgba(255, 255, 255, 0.4)',
+                fontSize: '0.9375rem',
+                fontWeight: '700',
                 cursor: 'pointer',
-                transition: 'all 0.2s',
-                backgroundColor: pantryBulkMode ? 'rgba(59, 130, 246, 0.8)' : 'transparent',
-                color: pantryBulkMode ? '#ffffff' : '#bfdbfe'
+                transition: 'all 0.3s ease',
+                fontFamily: "'Fredoka', system-ui, sans-serif",
               }}
             >
               Bulk Add
@@ -2801,67 +2913,76 @@ chicken breast, 2 lbs`}
           
           {!pantryBulkMode ? (
             <form onSubmit={handleSubmit}>
-              <div style={{display: 'grid', gap: '1rem'}}>
+              <div style={{display: 'grid', gap: '1.25rem'}}>
                 <input
                   type="text"
-                  placeholder="What would you like to add to your pantry? (e.g., Extra Virgin Olive Oil)"
+                  placeholder="What would you like to add? (e.g., Extra Virgin Olive Oil)"
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                 required
                 style={{
-                  padding: '1.2rem',
-                  borderRadius: '1rem',
-                  border: '2px solid rgba(59, 130, 246, 0.4)',
-                  backgroundColor: 'rgba(30, 58, 138, 0.6)',
-                  color: '#bfdbfe',
+                  padding: '1.125rem 1.25rem',
+                  borderRadius: '1.125rem',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                  color: 'white',
                   fontSize: '1rem',
                   fontWeight: '500',
-                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)'
+                  outline: 'none',
+                  boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)',
+                  width: '100%'
                 }}
               />
               
-              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem'}}>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({...formData, category: e.target.value})}
                   required
                   style={{
-                    padding: '1rem',
-                    borderRadius: '0.75rem',
-                    border: '2px solid rgba(59, 130, 246, 0.4)',
-                    backgroundColor: 'rgba(30, 58, 138, 0.6)',
-                    color: '#bfdbfe',
-                    fontSize: '1rem',
-                    width: '100%'
+                    padding: '1rem 1.25rem',
+                    borderRadius: '1rem',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                    color: 'white',
+                    fontSize: '0.9375rem',
+                    fontWeight: '600',
+                    width: '100%',
+                    outline: 'none',
+                    cursor: 'pointer',
+                    appearance: 'none'
                   }}
                 >
-                  <option value="" disabled style={{backgroundColor: 'rgba(30, 58, 138, 0.8)', color: '#bfdbfe'}}>🎪 Select Category</option>
+                  <option value="" disabled style={{background: '#1e293b'}}>🎪 Select Category</option>
                   {pantryCategories.filter(cat => cat !== 'all').map((category) => (
-                    <option key={category} value={category} style={{backgroundColor: 'rgba(30, 58, 138, 0.8)', color: '#bfdbfe'}}>
+                    <option key={category} value={category} style={{background: '#1e293b'}}>
                       {category}
                     </option>
                   ))}
                 </select>
                 <input
                   type="text"
-                  placeholder="📦 Unit (jars, bottles, cups)"
+                  placeholder="📦 Unit (jars, bottles)"
                   value={formData.unit}
                   onChange={(e) => setFormData({...formData, unit: e.target.value})}
                   style={{
-                    padding: '1rem',
-                    borderRadius: '0.75rem',
-                    border: '2px solid rgba(59, 130, 246, 0.4)',
-                    backgroundColor: 'rgba(30, 58, 138, 0.6)',
-                    color: '#bfdbfe',
-                    width: '100%'
+                    padding: '1rem 1.25rem',
+                    borderRadius: '1rem',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                    color: 'white',
+                    fontSize: '0.9375rem',
+                    fontWeight: '600',
+                    width: '100%',
+                    outline: 'none'
                   }}
                 />
               </div>
               
-              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
+              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem'}}>
                 <div>
-                  <label style={{color: '#bfdbfe', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold'}}>
-                    📦 Quantity Added
+                  <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
+                    📦 Quantity
                   </label>
                   <input
                     type="number"
@@ -2869,17 +2990,19 @@ chicken breast, 2 lbs`}
                     value={formData.currentCount}
                     onChange={(e) => setFormData({...formData, currentCount: parseFloat(e.target.value) || 0})}
                     style={{
-                      padding: '1rem',
-                      borderRadius: '0.75rem',
-                      border: '2px solid rgba(59, 130, 246, 0.4)',
-                      backgroundColor: 'rgba(30, 58, 138, 0.6)',
-                      color: '#bfdbfe',
-                      width: '100%'
+                      padding: '1rem 1.25rem',
+                      borderRadius: '1rem',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                      color: 'white',
+                      fontWeight: '700',
+                      width: '100%',
+                      outline: 'none'
                     }}
                   />
                 </div>
                 <div>
-                  <label style={{color: '#bfdbfe', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold'}}>
+                  <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
                     ⚠️ Min Needed
                   </label>
                   <input
@@ -2888,49 +3011,56 @@ chicken breast, 2 lbs`}
                     value={formData.minCount}
                     onChange={(e) => setFormData({...formData, minCount: parseFloat(e.target.value) || 1})}
                     style={{
-                      padding: '1rem',
-                      borderRadius: '0.75rem',
-                      border: '2px solid rgba(59, 130, 246, 0.4)',
-                      backgroundColor: 'rgba(30, 58, 138, 0.6)',
-                      color: '#bfdbfe',
-                      width: '100%'
+                      padding: '1rem 1.25rem',
+                      borderRadius: '1rem',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                      color: 'white',
+                      fontWeight: '700',
+                      width: '100%',
+                      outline: 'none'
                     }}
                   />
                 </div>
               </div>
               
-              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
+              <div style={{display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1.25rem'}}>
                 <textarea
-                  placeholder="📝 Storage notes... (special instructions or cooking tips)"
+                  placeholder="📝 Storage notes..."
                   value={formData.notes}
                   onChange={(e) => setFormData({...formData, notes: e.target.value})}
                   rows={3}
                   style={{
-                    padding: '1rem',
-                    borderRadius: '0.75rem',
-                    border: '2px solid rgba(59, 130, 246, 0.4)',
-                    backgroundColor: 'rgba(30, 58, 138, 0.6)',
-                    color: '#bfdbfe',
+                    padding: '1rem 1.25rem',
+                    borderRadius: '1rem',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                    color: 'white',
+                    fontSize: '0.9375rem',
                     resize: 'none',
                     fontFamily: 'inherit',
-                    width: '100%'
+                    width: '100%',
+                    outline: 'none',
+                    lineHeight: '1.5'
                   }}
                 />
                 <div>
-                  <label style={{color: '#bfdbfe', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block', fontWeight: 'bold'}}>
-                    📅 Expiry Date (Optional)
+                  <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
+                    📅 Expiry Date
                   </label>
                   <input
                     type="date"
                     value={formData.expiryDate}
                     onChange={(e) => setFormData({...formData, expiryDate: e.target.value})}
                     style={{
-                      padding: '1rem',
-                      borderRadius: '0.75rem',
-                      border: '2px solid rgba(59, 130, 246, 0.4)',
-                      backgroundColor: 'rgba(30, 58, 138, 0.6)',
-                      color: '#bfdbfe',
-                      width: '100%'
+                      padding: '1rem 1.25rem',
+                      borderRadius: '1rem',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                      color: 'white',
+                      fontSize: '0.875rem',
+                      width: '100%',
+                      outline: 'none'
                     }}
                   />
                 </div>
@@ -2940,7 +3070,7 @@ chicken breast, 2 lbs`}
             <div style={{
               display: 'flex', 
               gap: '1rem', 
-              marginTop: '1.5rem', 
+              marginTop: '2rem', 
               width: '100%',
               justifyContent: 'space-between',
               alignItems: 'center'
@@ -2949,70 +3079,112 @@ chicken breast, 2 lbs`}
                 type="button"
                 onClick={() => setShowAddModal(false)}
                 style={{
-                  flex: '1 1 0',
+                  flex: '1',
                   padding: '1rem',
-                  borderRadius: '0.75rem',
-                  border: '2px solid rgba(59, 130, 246, 0.4)',
-                  backgroundColor: 'rgba(30, 58, 138, 0.6)',
-                  color: '#bfdbfe',
+                  borderRadius: '1rem',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  color: 'white',
                   cursor: 'pointer',
-                  fontWeight: 'bold',
-                  minWidth: '0',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
+                  fontWeight: '600',
+                  fontSize: '0.9375rem',
+                  transition: 'all 0.2s ease'
                 }}
               >
-                ❌ Cancel
+                Cancel
               </button>
               <button
                 type="submit"
                 style={{
-                  flex: '1 1 0',
+                  flex: '1',
                   padding: '1rem',
-                  borderRadius: '0.75rem',
+                  borderRadius: '1rem',
                   border: 'none',
-                  background: 'linear-gradient(to right, #3b82f6, #60a5fa)',
+                  background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
                   color: 'white',
-                  fontWeight: 'bold',
+                  fontWeight: '800',
+                  fontSize: '0.9375rem',
                   cursor: 'pointer',
-                  boxShadow: '0 4px 8px rgba(30, 58, 138, 0.3)',
-                  minWidth: '0',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
+                  boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)',
+                  transition: 'all 0.3s ease'
                 }}
               >
-                ✅ Add to Pantry
+                Add to Pantry
               </button>
             </div>
           </form>
           ) : (
             <div>
-              <label style={styles.bulkLabel}>
+              <label style={{ 
+                color: 'rgba(255, 255, 255, 0.8)', 
+                fontSize: '0.9375rem', 
+                marginBottom: '1rem', 
+                display: 'block', 
+                fontWeight: '700',
+                textAlign: 'center',
+                fontFamily: "'Fredoka', system-ui, sans-serif"
+              }}>
                 📝 Paste your pantry list (one item per line)
               </label>
               <textarea
                 value={pantryBulkText}
                 onChange={(e) => setPantryBulkText(e.target.value)}
                 placeholder="Rice, 5 cups, 2 cups&#10;Pasta - 3 boxes&#10;Olive Oil, 2 bottles, 1 bottle&#10;Salt&#10;Black Pepper, 1 container, min 1"
-                style={styles.bulkTextarea}
+                style={{
+                  width: '100%',
+                  padding: '1.25rem',
+                  borderRadius: '1.25rem',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                  color: 'white',
+                  fontSize: '0.9375rem',
+                  fontFamily: 'monospace',
+                  resize: 'vertical' as const,
+                  minHeight: '200px',
+                  outline: 'none',
+                  boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)',
+                  transition: 'all 0.2s ease',
+                  lineHeight: '1.6'
+                }}
                 rows={8}
               />
               
-              <div style={styles.bulkHelp}>
-                💡 <strong>Format examples:</strong><br/>
-                • Item name, current amount, minimum needed<br/>
-                • Item name - current amount<br/>
-                • Just item name (will set defaults)<br/>
-                • Add expiry dates with "expires YYYY-MM-DD"
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                padding: '1.25rem',
+                borderRadius: '1rem',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                marginTop: '1.5rem',
+                marginBottom: '1.5rem'
+              }}>
+                <div style={{ color: 'white', fontSize: '0.8125rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem' }}>
+                  💡 Format examples:
+                </div>
+                <ul style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '0.8125rem', margin: 0, paddingLeft: '1.25rem', display: 'grid', gap: '0.375rem', fontWeight: '500' }}>
+                  <li>Item name, current amount, minimum needed</li>
+                  <li>Item name - current amount</li>
+                  <li>Just item name (will set defaults)</li>
+                  <li>Add expiry dates with "expires YYYY-MM-DD"</li>
+                </ul>
               </div>
               
               <button
                 type="button"
                 onClick={handleBulkPantrySubmit}
-                style={styles.bulkButton}
                 disabled={!pantryBulkText.trim()}
+                style={{
+                  width: '100%',
+                  padding: '1rem',
+                  borderRadius: '1rem',
+                  border: 'none',
+                  background: pantryBulkText.trim() ? 'linear-gradient(135deg, #3b82f6, #2563eb)' : 'rgba(255, 255, 255, 0.05)',
+                  color: pantryBulkText.trim() ? 'white' : 'rgba(255, 255, 255, 0.2)',
+                  fontWeight: '800',
+                  fontSize: '0.9375rem',
+                  cursor: pantryBulkText.trim() ? 'pointer' : 'not-allowed',
+                  boxShadow: pantryBulkText.trim() ? '0 10px 25px -5px rgba(59, 130, 246, 0.4)' : 'none',
+                  transition: 'all 0.3s ease'
+                }}
               >
                 🏠 Add All to Pantry ({pantryBulkText.split('\n').filter(line => line.trim()).length} items)
               </button>
@@ -3156,7 +3328,8 @@ chicken breast, 2 lbs`}
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.8)',
+        backgroundColor: 'rgba(15, 23, 42, 0.85)',
+        backdropFilter: 'blur(8px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -3164,19 +3337,90 @@ chicken breast, 2 lbs`}
         padding: '1rem'
       }}>
         <div style={{
-          background: 'linear-gradient(135deg, rgba(16,185,129,0.95) 0%, rgba(5,150,105,0.95) 25%, rgba(4,120,87,0.95) 75%, rgba(6,78,59,0.95) 100%)',
-          backdropFilter: 'blur(20px)',
-          borderRadius: '2rem',
-          border: '3px solid rgba(16,185,129,0.6)',
-          padding: '2rem',
+          background: 'rgba(30, 41, 59, 0.7)',
+          backdropFilter: 'blur(32px)',
+          borderRadius: '2.5rem',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          padding: '3rem',
           width: '95%',
-          maxWidth: '800px',
+          maxWidth: '850px',
           maxHeight: '90vh',
           overflow: 'hidden',
-          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
-          position: 'relative'
+          boxShadow: '0 50px 100px -20px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1)',
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column'
         }}>
-          {/* Header */}
+          {/* Close button */}
+          <button
+            onClick={() => setShowPantryReviewModal(false)}
+            style={{
+              position: 'absolute',
+              top: '1.5rem',
+              right: '1.5rem',
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: 'white',
+              width: '2.5rem',
+              height: '2.5rem',
+              borderRadius: '50%',
+              cursor: 'pointer',
+              fontSize: '1.25rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+              zIndex: 10
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)')}
+          >
+            ×
+          </button>
+
+          <div style={{
+            position: 'absolute',
+            top: '0',
+            left: '50%',
+            transform: 'translateX(-50%) translateY(-50%)',
+            background: 'linear-gradient(135deg, #10b981, #059669)',
+            padding: '0.6rem 2.5rem',
+            borderRadius: '9999px',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            fontSize: '0.875rem',
+            fontWeight: '800',
+            color: 'white',
+            boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.4)',
+            letterSpacing: '0.1em',
+            zIndex: 10
+          }}>
+            REVIEW & STOCK
+          </div>
+
+          <div style={{
+            textAlign: 'center',
+            marginBottom: '2.5rem',
+            marginTop: '0.5rem'
+          }}>
+            <h2 style={{
+              color: 'white',
+              fontFamily: "'Fredoka', system-ui, sans-serif",
+              fontSize: '2.25rem',
+              fontWeight: '800',
+              margin: '0 0 0.75rem 0',
+              letterSpacing: '-0.02em'
+            }}>
+              Stock Your Pantry 🏠
+            </h2>
+            <p style={{
+              color: 'rgba(255, 255, 255, 0.5)',
+              fontSize: '1.125rem',
+              margin: '0',
+              fontWeight: '500'
+            }}>
+              Check off what you bought and adjust quantities!
+            </p>
+          </div>
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
@@ -3232,77 +3476,107 @@ chicken breast, 2 lbs`}
           </div>
 
           {/* Impulse add button */}
-          <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+          <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'flex-end' }}>
             <button
               onClick={addImpulseItem}
               style={{
-                padding: '0.5rem 1rem',
-                background: 'linear-gradient(to right, rgba(251,146,60,0.6), rgba(236,72,153,0.6))',
+                padding: '0.75rem 1.25rem',
+                background: 'rgba(255, 255, 255, 0.05)',
                 color: 'white',
-                border: 'none',
-                borderRadius: '0.75rem',
-                fontWeight: 600,
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '1rem',
+                fontWeight: '700',
+                fontSize: '0.875rem',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem',
-                transition: 'all 0.2s ease'
+                gap: '0.625rem',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
               }}
-              onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-1px)')}
-              onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0px)')}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                e.currentTarget.style.transform = 'translateY(0px)';
+              }}
             >
-              ➕ Item (Impulse Buy!)
+              <span>➕</span> Impulse Buy!
             </button>
           </div>
 
           {/* Items List */}
           <div style={{
-            maxHeight: '50vh',
+            flex: 1,
             overflowY: 'auto',
             marginBottom: '2rem',
-            paddingRight: '0.5rem'
+            paddingRight: '0.75rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.75rem'
           }}>
             {reviewItems.map((item, index) => (
               <div key={item.id || index} style={{
-                background: 'rgba(255,255,255,0.1)',
-                borderRadius: '1rem',
-                padding: '1.5rem',
-                marginBottom: '1rem',
-                border: '1px solid rgba(255,255,255,0.2)',
+                background: 'rgba(255, 255, 255, 0.03)',
+                borderRadius: '1.25rem',
+                padding: '1.25rem',
+                border: '1px solid rgba(255, 255, 255, 0.06)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                gap: '1rem'
+                gap: '1.5rem',
+                transition: 'all 0.2s ease'
               }}>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '1rem',
-                  flex: 1
+                  gap: '1.25rem',
+                  flex: 1,
+                  minWidth: 0
                 }}>
-                  <img src="/grocery icon 1.png" alt="Item Icon" style={{width: '32px', height: '32px', objectFit: 'contain'}} />
-                  <div>
-                    <h3 style={{
+                  <div style={{
+                    width: '3.5rem',
+                    height: '3.5rem',
+                    borderRadius: '1rem',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.75rem',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    flexShrink: 0
+                  }}>
+                    {getCategoryEmoji(item.category || 'other')}
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <h4 style={{
                       color: 'white',
                       margin: 0,
-                      fontSize: '1.1rem',
-                      fontWeight: '600'
+                      fontSize: '1.125rem',
+                      fontWeight: '700',
+                      letterSpacing: '0.01em',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
                     }}>
                       {item.name}
-                    </h3>
+                    </h4>
                     <p style={{
-                      color: 'rgba(255,255,255,0.7)',
-                      margin: '0.25rem 0 0 0',
-                      fontSize: '0.9rem'
+                      color: 'rgba(255, 255, 255, 0.4)',
+                      margin: '0.375rem 0 0 0',
+                      fontSize: '0.875rem',
+                      fontWeight: '500'
                     }}>
-                      {item.category} • {item.unit || 'units'}
+                      <span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>{item.category}</span> • {item.unit || 'units'}
                       {item.expiryDate && (
                         <span style={{
                           color: '#fbbf24',
-                          fontWeight: 'bold',
+                          fontWeight: '700',
                           marginLeft: '0.5rem'
                         }}>
-                          • Expires: {new Date(item.expiryDate).toLocaleDateString()}
+                          • 📅 {new Date(item.expiryDate).toLocaleDateString()}
                         </span>
                       )}
                     </p>
@@ -3312,60 +3586,65 @@ chicken breast, 2 lbs`}
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '1rem'
+                  gap: '1rem',
+                  flexShrink: 0
                 }}>
                   {/* Quantity Controls */}
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '0.5rem',
-                    background: 'rgba(0,0,0,0.3)',
-                    borderRadius: '0.75rem',
-                    padding: '0.5rem'
+                    background: 'rgba(15, 23, 42, 0.4)',
+                    borderRadius: '1rem',
+                    padding: '0.375rem',
+                    border: '1px solid rgba(255, 255, 255, 0.08)'
                   }}>
                     <button
                       onClick={() => updateReviewItemQuantity(item.id, item.quantity - 1)}
                       style={{
-                        width: '2rem',
-                        height: '2rem',
-                        borderRadius: '50%',
+                        width: '2.25rem',
+                        height: '2.25rem',
+                        borderRadius: '0.75rem',
                         border: 'none',
-                        background: 'linear-gradient(to right, rgba(239,68,68,0.6), rgba(220,38,38,0.7))',
-                        color: 'white',
+                        background: 'rgba(239, 68, 68, 0.1)',
+                        color: '#f87171',
                         cursor: 'pointer',
-                        fontSize: '1rem',
+                        fontSize: '1.25rem',
                         fontWeight: 'bold',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        transition: 'all 0.2s ease'
                       }}
                     >
                       -
                     </button>
                     <span style={{
                       color: 'white',
-                      fontWeight: 'bold',
-                      fontSize: '1.1rem',
-                      minWidth: '2.5rem',
-                      textAlign: 'center'
+                      fontWeight: '800',
+                      fontSize: '1.125rem',
+                      minWidth: '3rem',
+                      textAlign: 'center',
+                      fontFamily: 'monospace'
                     }}>
                       {item.quantity}
                     </span>
                     <button
                       onClick={() => updateReviewItemQuantity(item.id, item.quantity + 1)}
                       style={{
-                        width: '2rem',
-                        height: '2rem',
-                        borderRadius: '50%',
+                        width: '2.25rem',
+                        height: '2.25rem',
+                        borderRadius: '0.75rem',
                         border: 'none',
-                        background: 'linear-gradient(to right, rgba(34,197,94,0.6), rgba(22,163,74,0.7))',
-                        color: 'white',
+                        background: 'rgba(16, 185, 129, 0.1)',
+                        color: '#4ade80',
                         cursor: 'pointer',
-                        fontSize: '1rem',
+                        fontSize: '1.25rem',
                         fontWeight: 'bold',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        transition: 'all 0.2s ease'
                       }}
                     >
                       +
@@ -3376,17 +3655,18 @@ chicken breast, 2 lbs`}
                   <button
                     onClick={() => removeReviewItem(item.id)}
                     style={{
-                      width: '2rem',
-                      height: '2rem',
-                      borderRadius: '50%',
-                      border: 'none',
-                      background: 'rgba(239,68,68,0.5)',
-                      color: 'white',
+                      width: '2.5rem',
+                      height: '2.5rem',
+                      borderRadius: '0.75rem',
+                      border: '1px solid rgba(239, 68, 68, 0.2)',
+                      background: 'rgba(239, 68, 68, 0.05)',
+                      color: '#f87171',
                       cursor: 'pointer',
-                      fontSize: '1rem',
+                      fontSize: '1.25rem',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center'
+                      justifyContent: 'center',
+                      transition: 'all 0.2s ease'
                     }}
                     title="Remove item"
                   >
@@ -3402,18 +3682,25 @@ chicken breast, 2 lbs`}
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            paddingTop: '1rem',
-            borderTop: '2px solid rgba(255,255,255,0.2)'
+            paddingTop: '2rem',
+            borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+            gap: '1.5rem',
+            flexWrap: 'wrap'
           }}>
             <div style={{
-              color: 'rgba(255,255,255,0.8)',
-              fontSize: '0.9rem'
+              color: 'rgba(255, 255, 255, 0.4)',
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em'
             }}>
-              {reviewItems.filter(item => item.quantity > 0).length} items ready to add
+              {reviewItems.filter(item => item.quantity > 0).length} items to stock
             </div>
             <div style={{
               display: 'flex',
-              gap: '1rem'
+              gap: '1rem',
+              flex: 1,
+              justifyContent: 'flex-end'
             }}>
               <button
                 onClick={() => {
@@ -3421,13 +3708,14 @@ chicken breast, 2 lbs`}
                   setReviewItems([]);
                 }}
                 style={{
-                  padding: '0.75rem 1.5rem',
-                  background: 'rgba(255,255,255,0.2)',
+                  padding: '1rem 1.5rem',
+                  background: 'rgba(255, 255, 255, 0.05)',
                   color: 'white',
-                  border: 'none',
-                  borderRadius: '0.75rem',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '1rem',
                   cursor: 'pointer',
                   fontWeight: '600',
+                  fontSize: '0.9375rem',
                   transition: 'all 0.2s ease'
                 }}
               >
@@ -3437,20 +3725,21 @@ chicken breast, 2 lbs`}
                 onClick={addItemsToPantry}
                 disabled={reviewItems.filter(item => item.quantity > 0).length === 0}
                 style={{
-                  padding: '0.75rem 2rem',
+                  padding: '1rem 2.5rem',
                   background: reviewItems.filter(item => item.quantity > 0).length > 0 
-                    ? 'linear-gradient(to right, #22c55e, #16a34a)' 
-                    : 'rgba(255,255,255,0.2)',
-                  color: 'white',
+                    ? 'linear-gradient(135deg, #10b981, #059669)' 
+                    : 'rgba(255, 255, 255, 0.05)',
+                  color: reviewItems.filter(item => item.quantity > 0).length > 0 ? 'white' : 'rgba(255, 255, 255, 0.2)',
                   border: 'none',
-                  borderRadius: '0.75rem',
+                  borderRadius: '1rem',
                   cursor: reviewItems.filter(item => item.quantity > 0).length > 0 ? 'pointer' : 'not-allowed',
-                  fontWeight: '600',
-                  transition: 'all 0.2s ease',
-                  opacity: reviewItems.filter(item => item.quantity > 0).length > 0 ? 1 : 0.5
+                  fontWeight: '800',
+                  fontSize: '1rem',
+                  transition: 'all 0.3s ease',
+                  boxShadow: reviewItems.filter(item => item.quantity > 0).length > 0 ? '0 10px 25px -5px rgba(16, 185, 129, 0.4)' : 'none'
                 }}
               >
-                Add {reviewItems.filter(item => item.quantity > 0).length} to Pantry
+                Stock {reviewItems.filter(item => item.quantity > 0).length} Items
               </button>
             </div>
           </div>
@@ -3469,106 +3758,131 @@ chicken breast, 2 lbs`}
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.7)',
+        backgroundColor: 'rgba(15, 23, 42, 0.85)',
+        backdropFilter: 'blur(8px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1000
       }}>
         <div style={{
-          backgroundColor: 'rgba(0,0,0,0.9)',
-          backdropFilter: 'blur(20px)',
-          borderRadius: '1.5rem',
-          border: '1px solid rgba(255,255,255,0.1)',
-          padding: '2rem',
+          background: 'rgba(30, 41, 59, 0.7)',
+          backdropFilter: 'blur(32px)',
+          borderRadius: '2.5rem',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          padding: '3rem',
           width: '90%',
-          maxWidth: '600px',
-          maxHeight: '80vh',
-          overflow: 'auto',
-          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)'
+          maxWidth: '650px',
+          maxHeight: '85vh',
+          overflow: 'hidden',
+          boxShadow: '0 50px 100px -20px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1)',
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column'
         }}>
-          <h2 style={{color: 'white', marginBottom: '1.5rem', fontFamily: "'Fredoka', system-ui, sans-serif"}}>
-            📸 Photo Analysis Results
+          <h2 style={{
+            color: 'white', 
+            marginBottom: '2rem', 
+            fontFamily: "'Fredoka', system-ui, sans-serif",
+            fontSize: '2rem',
+            fontWeight: '800',
+            textAlign: 'center',
+            letterSpacing: '-0.02em'
+          }}>
+            📸 Photo Analysis
           </h2>
           
-          {detectedItems.length > 0 ? (
-            <>
-              <p style={{color: 'rgba(255,255,255,0.7)', marginBottom: '1.5rem'}}>
-                We detected {detectedItems.length} items in your photo. Review and add them to your pantry:
-              </p>
-              
-              <div style={{display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem'}}>
-                {detectedItems.map((item, index) => (
-                  <div key={index} style={{
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                    borderRadius: '0.75rem',
-                    padding: '1rem',
-                    border: '1px solid rgba(255,255,255,0.1)'
-                  }}>
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+          <div style={{ flex: 1, overflowY: 'auto', paddingRight: '0.5rem', marginBottom: '2rem' }}>
+            {detectedItems.length > 0 ? (
+              <>
+                <p style={{
+                  color: 'rgba(255, 255, 255, 0.5)', 
+                  marginBottom: '1.5rem', 
+                  textAlign: 'center',
+                  fontWeight: '500'
+                }}>
+                  We detected {detectedItems.length} items in your photo. Review and add them to your pantry:
+                </p>
+                
+                <div style={{display: 'flex', flexDirection: 'column', gap: '0.75rem'}}>
+                  {detectedItems.map((item, index) => (
+                    <div key={index} style={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                      borderRadius: '1.25rem',
+                      padding: '1.25rem',
+                      border: '1px solid rgba(255, 255, 255, 0.06)',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}>
                       <div>
-                        <h4 style={{color: 'white', margin: '0 0 0.5rem 0', fontSize: '1.1rem'}}>{item.name}</h4>
-                        <p style={{color: 'rgba(255,255,255,0.6)', margin: 0, fontSize: '0.875rem'}}>
-                          {item.category} • {item.estimatedCount} {item.unit} • {Math.round(item.confidence * 100)}% confidence
+                        <h4 style={{color: 'white', margin: '0 0 0.375rem 0', fontSize: '1.1rem', fontWeight: '700'}}>{item.name}</h4>
+                        <p style={{color: 'rgba(255, 255, 255, 0.4)', margin: 0, fontSize: '0.875rem', fontWeight: '500'}}>
+                          {item.category} • {item.estimatedCount} {item.unit}
                         </p>
                       </div>
                       <div style={{
                         padding: '0.5rem 1rem',
-                        borderRadius: '0.5rem',
-                        background: `linear-gradient(to right, ${
-                          item.confidence > 0.8 ? '#10b981, #059669' : 
-                          item.confidence > 0.6 ? '#eab308, #f97316' : 
-                          '#ef4444, #ec4899'
-                        })`,
-                        color: 'white',
+                        borderRadius: '0.75rem',
+                        background: item.confidence > 0.8 ? 'rgba(16, 185, 129, 0.1)' : 
+                                   item.confidence > 0.6 ? 'rgba(245, 158, 11, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                        color: item.confidence > 0.8 ? '#34d399' : 
+                               item.confidence > 0.6 ? '#fbbf24' : '#f87171',
+                        border: '1px solid currentColor',
                         fontSize: '0.75rem',
-                        fontWeight: 'bold'
+                        fontWeight: '800'
                       }}>
                         {Math.round(item.confidence * 100)}%
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '3rem 0' }}>
+                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
+                <p style={{color: 'rgba(255, 255, 255, 0.5)', fontSize: '1.125rem'}}>No items detected in the photo.</p>
               </div>
-              
-              <div style={{display: 'flex', gap: '1rem'}}>
-                <button
-                  onClick={() => {
-                    setShowPhotoModal(false);
-                    setDetectedItems([]);
-                  }}
-                  style={{
-                    flex: 1,
-                    padding: '1rem',
-                    borderRadius: '0.75rem',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    backgroundColor: 'rgba(255,255,255,0.1)',
-                    color: 'white',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => addDetectedItems(detectedItems)}
-                  style={{
-                    flex: 1,
-                    padding: '1rem',
-                    borderRadius: '0.75rem',
-                    border: 'none',
-                    background: 'linear-gradient(to right, rgba(16,185,129,0.7), rgba(5,150,105,0.7))',
-                    color: 'white',
-                    fontWeight: 'bold',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Add All Items
-                </button>
-              </div>
-            </>
-          ) : (
-            <p style={{color: 'rgba(255,255,255,0.7)'}}>No items detected in the photo.</p>
-          )}
+            )}
+          </div>
+          
+          <div style={{display: 'flex', gap: '1rem'}}>
+            <button
+              onClick={() => {
+                setShowPhotoModal(false);
+                setDetectedItems([]);
+              }}
+              style={{
+                flex: 1,
+                padding: '1rem',
+                borderRadius: '1rem',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                color: 'white',
+                cursor: 'pointer',
+                fontWeight: '600'
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => addDetectedItems(detectedItems)}
+              disabled={detectedItems.length === 0}
+              style={{
+                flex: 1,
+                padding: '1rem',
+                borderRadius: '1rem',
+                border: 'none',
+                background: detectedItems.length > 0 ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(255, 255, 255, 0.05)',
+                color: detectedItems.length > 0 ? 'white' : 'rgba(255, 255, 255, 0.2)',
+                fontWeight: '800',
+                cursor: detectedItems.length > 0 ? 'pointer' : 'not-allowed',
+                boxShadow: detectedItems.length > 0 ? '0 10px 25px -5px rgba(16, 185, 129, 0.4)' : 'none'
+              }}
+            >
+              Add {detectedItems.length} Items
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -3709,8 +4023,6 @@ chicken breast, 2 lbs`}
               ...styles.tabShopping,
               ...(activeTab === 'shopping' 
                 ? styles.tabShoppingActive 
-                : hoveredTab === 'shopping' 
-                ? styles.tabShoppingHover 
                 : {}
               )
             }}
@@ -3727,8 +4039,6 @@ chicken breast, 2 lbs`}
               ...styles.tabPantry,
               ...(activeTab === 'pantry' 
                 ? styles.tabPantryActive 
-                : hoveredTab === 'pantry' 
-                ? styles.tabPantryHover 
                 : {}
               )
             }}
@@ -4317,16 +4627,15 @@ chicken breast, 2 lbs`}
                   }}
                 >
                   <img src="/grocery icon 1.png" alt="Grocery Icon" style={{
-                    width: '65px', 
-                    height: '65px', 
+                    width: '60px', 
+                    height: '60px', 
                     objectFit: 'contain',
                     borderRadius: '1rem',
-                    boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
                   }} />
                 </div>
                 <div>
                   <h2 style={styles.cardTitleText}>Laurie's Loot List</h2>
-                  <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>Adventures awaiting in the grocery aisles! 🛒✨</p>
+                  <p style={styles.cardSubtitle}>Adventures awaiting in the grocery aisles! 🛒✨</p>
                 </div>
               </div>
               <div style={styles.buttonGroup}>
@@ -4337,7 +4646,7 @@ chicken breast, 2 lbs`}
                     setShowAddModal(true);
                   }}
                 >
-                  <img src="/grocery icon 1.png" alt="Add Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+                  <span style={{ fontSize: '1.1rem' }}>➕</span>
                   Add to List
                 </button>
                 {shoppingList.length > 0 && (
@@ -4345,10 +4654,9 @@ chicken breast, 2 lbs`}
                     <button 
                       style={{
                         ...styles.addBtn,
-                        // Match neutral styling of siblings
-                        background: styles.addBtn.background,
-                        border: styles.addBtn.border,
-                        fontSize: '0.9rem'
+                        background: 'rgba(251, 191, 36, 0.1)',
+                        color: '#fbbf24',
+                        borderColor: 'rgba(251, 191, 36, 0.2)'
                       }}
                       onClick={() => {
                         setShowPriceComparison(!showPriceComparison);
@@ -4359,17 +4667,22 @@ chicken breast, 2 lbs`}
                       }}
                       disabled={loadingPrices}
                     >
-                      <img src="/grocery icon 2.png" alt="Price Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+                      <span>{loadingPrices ? '⌛' : '💰'}</span>
                       {loadingPrices ? 'Comparing...' : (showPriceComparison ? 'Hide Prices' : 'Compare Prices')}
                     </button>
                     <button 
-                      style={styles.pantryBtn}
+                      style={{
+                        ...styles.pantryBtn,
+                        background: 'rgba(16, 185, 129, 0.1)',
+                        color: '#34d399',
+                        borderColor: 'rgba(16, 185, 129, 0.2)'
+                      }}
                       onClick={() => {
                         setReviewItems([...shoppingList]);
                         setShowPantryReviewModal(true);
                       }}
                     >
-                      <img src="/grocery icon 2.png" alt="Pantry Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
+                      <span>📦</span>
                       Add All to Pantry
                     </button>
                   </>
@@ -4379,10 +4692,16 @@ chicken breast, 2 lbs`}
             
             <div style={styles.inventoryList}>
               {shoppingList.length === 0 ? (
-                <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
-                  <img src="/grocery icon 1.png" alt="Grocery Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
-                  <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem'}}>
-                    🎉 Laurie's all set! The snack gods are pleased! ✨
+                <div style={{
+                  ...styles.inventoryItem, 
+                  textAlign: 'center', 
+                  padding: '4rem 2rem',
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  borderStyle: 'dashed'
+                }}>
+                  <div style={{ fontSize: '3.5rem', marginBottom: '1.5rem' }}>🎉</div>
+                  <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '1.125rem', fontWeight: '500' }}>
+                    Laurie's all set! The snack gods are pleased! ✨
                   </p>
                 </div>
               ) : (
@@ -4429,8 +4748,14 @@ chicken breast, 2 lbs`}
                     return `${qty} ${uom}`;
                   };
                   
+                  const statusColor = getStatusText() === 'Out' || getStatusText() === 'High' ? '#f87171' : 
+                                     getStatusText() === 'Low' || getStatusText() === 'Medium' ? '#fbbf24' : '#4ade80';
+                  
                   return (
-                    <div key={item.id || index} style={styles.inventoryItem}>
+                    <div key={item.id || index} style={{
+                      ...styles.inventoryItem,
+                      borderLeftColor: statusColor
+                    }}>
                       <div style={styles.itemContent}>
                         <div style={styles.itemLeft}>
                           <div style={styles.itemIcon}>
@@ -4443,17 +4768,17 @@ chicken breast, 2 lbs`}
                                 ...styles.itemBadge,
                                 ...(item.source === 'pantry' ? styles.itemBadgeSource : styles.itemBadgeManual)
                               }}>
-                                {item.source === 'pantry' ? '🏠 Pantry' : `📦 ${(item.category || 'Other').replace(/^Pantry\s*–\s*/, '').replace(/^Fridge\s*–\s*/, '').replace(/^Freezer\s*–\s*/, '')}`}
+                                {item.source === 'pantry' ? '🏠 Pantry' : `📦 ${(item.category || 'Other').replace(/^(Pantry|Fridge|Freezer)\s*–\s*/, '')}`}
                               </span>
-                              <span style={{fontSize: '0.875rem', color: 'rgba(255,255,255,0.7)'}}>
+                              <span style={{fontSize: '0.8125rem', color: 'rgba(255,255,255,0.4)', fontWeight: '600'}}>
                                 {getDescription()}
                               </span>
                               {item.expiryDate && (
                                 <span style={{
                                   ...styles.itemBadge,
-                                  background: 'linear-gradient(135deg, rgba(251,191,36,0.2), rgba(245,158,11,0.3))',
-                                  color: 'rgba(251,191,36,1)',
-                                  border: '1px solid rgba(251,191,36,0.4)',
+                                  background: 'rgba(251, 191, 36, 0.1)',
+                                  color: '#fbbf24',
+                                  border: '1px solid rgba(251, 191, 36, 0.2)',
                                 }}>
                                   📅 Expires: {new Date(item.expiryDate).toLocaleDateString()}
                                 </span>
@@ -4462,64 +4787,50 @@ chicken breast, 2 lbs`}
                           </div>
                         </div>
                         <div style={isMobile ? styles.itemRightMobile : styles.itemRight}>
-                          <div style={styles.stockInfo}>
-                            <p style={styles.stockLabel}>Quantity</p>
+                          <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            minWidth: '120px'
+                          }}>
+                            <div style={styles.stockLabel}>QUANTITY</div>
                             <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
                               <button
                                 onClick={() => openQuantityModal(item)}
                                 style={{
-                                  ...(isMobile ? styles.mobileButton : {
-                                    width: '2.2rem',
-                                    height: '2.2rem',
-                                    borderRadius: '50%',
-                                    border: 'none',
-                                    color: 'white',
-                                    cursor: 'pointer',
-                                    fontSize: '1rem',
-                                    fontWeight: 'bold',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                  }),
-                                  background: 'linear-gradient(to right, rgba(239,68,68,0.4), rgba(220,38,38,0.5))'
+                                  ...styles.mobileButton,
+                                  background: 'rgba(239, 68, 68, 0.1)',
+                                  color: '#f87171',
+                                  border: '1px solid rgba(239, 68, 68, 0.2)'
                                 }}
                               >
                                 -
                               </button>
                               <div 
                                 style={{
-                                  textAlign: 'center', 
+                                  ...styles.quantityDisplay,
                                   cursor: 'pointer',
                                   display: 'flex',
                                   flexDirection: 'column',
                                   alignItems: 'center',
                                   justifyContent: 'center',
-                                  minWidth: '3rem',
-                                  height: '2.2rem',
-                                  padding: '0.25rem 0'
+                                  minWidth: '4rem',
+                                  height: '2.5rem',
+                                  padding: '0'
                                 }}
                                 onClick={() => openQuantityModal(item)}
                               >
-                                <p style={{...styles.stockValue, margin: 0, lineHeight: '1', fontSize: '1.1rem'}}>{(item.quantity || item.needed || 1) + ' ' + (item.unit || '')}</p>
-                                <p style={{...styles.stockUnit, margin: 0, lineHeight: '1', fontSize: '0.65rem'}}>click to edit</p>
+                                <p style={{...styles.stockValue, margin: 0, lineHeight: '1', fontSize: '1rem'}}>{item.quantity || item.needed || 1}</p>
+                                <p style={{...styles.stockUnit, margin: '0.125rem 0 0 0', lineHeight: '1', fontSize: '0.625rem'}}>{item.unit || 'units'}</p>
                               </div>
                               <button
                                 onClick={() => openQuantityModal(item)}
                                 style={{
-                                  ...(isMobile ? styles.mobileButton : {
-                                    width: '2.2rem',
-                                    height: '2.2rem',
-                                    borderRadius: '50%',
-                                    border: 'none',
-                                    color: 'white',
-                                    cursor: 'pointer',
-                                    fontSize: '1rem',
-                                    fontWeight: 'bold',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                  }),
-                                  background: 'linear-gradient(to right, rgba(34,197,94,0.4), rgba(22,163,74,0.5))'
+                                  ...styles.mobileButton,
+                                  background: 'rgba(16, 185, 129, 0.1)',
+                                  color: '#4ade80',
+                                  border: '1px solid rgba(16, 185, 129, 0.2)'
                                 }}
                               >
                                 +
@@ -4527,8 +4838,8 @@ chicken breast, 2 lbs`}
                             </div>
                           </div>
                           <div style={{
-                            ...styles.statusBadge, 
                             ...getStatusStyle(),
+                            ...styles.statusBadge,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center'
@@ -4700,45 +5011,51 @@ chicken breast, 2 lbs`}
                   }}
                 >
                   <img src="/grocery icon 2.png" alt="Grocery Icon" style={{
-                    width: '65px', 
-                    height: '65px', 
+                    width: '60px', 
+                    height: '60px', 
                     objectFit: 'contain',
                     borderRadius: '1rem',
-                    boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
                   }} />
                 </div>
                 <div>
                   <h2 style={styles.cardTitleText}>Laurie's Secret Stash</h2>
-                  <p style={{...styles.cardSubtitle, marginTop: '0.1rem'}}>Your culinary arsenal at a glance! 🍴✨</p>
+                  <p style={styles.cardSubtitle}>Your culinary arsenal at a glance! 🍴✨</p>
                 </div>
               </div>
             </div>
             
             {/* Pantry Category Multi-Select */}
             <div style={{
-              padding: '0 1rem 1rem',
-              borderBottom: '1px solid rgba(255,255,255,0.1)',
-              marginBottom: '1rem'
+              padding: '0 0 2rem 0',
+              borderBottom: '1px solid rgba(255,255,255,0.08)',
+              marginBottom: '2rem'
             }}>
               <div style={{
-                color: 'rgba(255,255,255,0.8)',
-                fontSize: '0.875rem',
-                fontWeight: 'bold',
-                marginBottom: '0.75rem'
+                color: 'rgba(255,255,255,0.5)',
+                fontSize: '0.75rem',
+                fontWeight: '700',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                marginBottom: '1rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
               }}>
-                📂 Filter by Category:
+                <span style={{ fontSize: '1rem' }}>📂</span> Filter by Category
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {/* All Items toggle */}
                 <label key="all" style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                  padding: '0.5rem 0.75rem', borderRadius: '0.5rem',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  background: pantryCategoryFilter.includes('all') ? 'linear-gradient(135deg, rgba(16,185,129,0.3), rgba(59,130,246,0.2))' : 'rgba(255,255,255,0.05)',
-                  color: pantryCategoryFilter.includes('all') ? 'white' : 'rgba(255,255,255,0.7)',
-                  fontSize: '0.75rem', fontWeight: pantryCategoryFilter.includes('all') ? 'bold' : 'normal', cursor: 'pointer'
+                  display: 'inline-flex', alignItems: 'center', gap: '0.75rem',
+                  padding: '0.75rem 1rem', borderRadius: '0.875rem',
+                  border: '1px solid',
+                  borderColor: pantryCategoryFilter.includes('all') ? 'rgba(16, 185, 129, 0.3)' : 'rgba(255,255,255,0.08)',
+                  background: pantryCategoryFilter.includes('all') ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.03)',
+                  color: pantryCategoryFilter.includes('all') ? '#34d399' : 'rgba(255,255,255,0.6)',
+                  fontSize: '0.875rem', fontWeight: '600', cursor: 'pointer',
+                  transition: 'all 0.2s ease'
                 }}>
-                  <input type="checkbox" checked={pantryCategoryFilter.includes('all')} onChange={() => handleCategoryFilterChange('all')} style={{ width: 16, height: 16, accentColor: '#10b981' }} />
+                  <input type="checkbox" checked={pantryCategoryFilter.includes('all')} onChange={() => handleCategoryFilterChange('all')} style={{ width: 18, height: 18, accentColor: '#10b981' }} />
                   📦 All Items
                 </label>
 
@@ -4748,8 +5065,13 @@ chicken breast, 2 lbs`}
                   const someSelected = areSomeSubcategoriesSelected(group);
                   
                   return (
-                  <div key={group.key} style={{ border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.03)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.75rem' }}>
+                  <div key={group.key} style={{ 
+                    border: '1px solid rgba(255,255,255,0.08)', 
+                    borderRadius: '1rem', 
+                    background: 'rgba(255,255,255,0.02)',
+                    overflow: 'hidden'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem' }}>
                       <CategoryGroupCheckbox
                         checked={allSelected}
                         indeterminate={someSelected && !allSelected}
@@ -4761,24 +5083,38 @@ chicken breast, 2 lbs`}
                           flex: 1, textAlign: 'left', padding: '0', background: 'transparent', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between'
                         }}
                       >
-                        <span>{group.emoji} {group.name}</span>
-                        <span style={{ opacity: 0.8 }}>{expandedGroups[group.key] ? '▲' : '▼'}</span>
+                        <span style={{ fontSize: '0.875rem', fontWeight: '600' }}>{group.emoji} {group.name}</span>
+                        <span style={{ opacity: 0.4, fontSize: '0.75rem' }}>{expandedGroups[group.key] ? '▲' : '▼'}</span>
                       </button>
                     </div>
                     {expandedGroups[group.key] && (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', padding: '0.5rem 0.75rem' }}>
+                      <div style={{ 
+                        display: 'flex', 
+                        flexWrap: 'wrap', 
+                        gap: '0.5rem', 
+                        padding: '0.5rem 1rem 1rem 2.75rem',
+                        borderTop: '1px solid rgba(255,255,255,0.05)'
+                      }}>
                         {group.sub.map(category => {
                           const labelText = category
                             .replace(/^Fridge\s*–\s*/,'')
                             .replace(/^Pantry\s*–\s*/,'')
                             .replace(/^Freezer\s*–\s*/,'');
+                          const isSelected = pantryCategoryFilter.includes(category);
                           return (
                           <label key={category} style={{
-                            display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 0.6rem', borderRadius: '0.5rem', border: '1px solid rgba(255,255,255,0.2)',
-                            background: pantryCategoryFilter.includes(category) ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(59, 130, 246, 0.2))' : 'rgba(255,255,255,0.05)',
-                            color: pantryCategoryFilter.includes(category) ? 'white' : 'rgba(255,255,255,0.7)', fontSize: '0.72rem', cursor: 'pointer'
+                            display: 'inline-flex', alignItems: 'center', gap: '0.5rem', 
+                            padding: '0.4rem 0.75rem', borderRadius: '0.75rem', 
+                            border: '1px solid',
+                            borderColor: isSelected ? 'rgba(59, 130, 246, 0.3)' : 'rgba(255,255,255,0.08)',
+                            background: isSelected ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
+                            color: isSelected ? '#60a5fa' : 'rgba(255,255,255,0.5)', 
+                            fontSize: '0.75rem', 
+                            fontWeight: isSelected ? '600' : '500',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
                           }}>
-                            <input type="checkbox" checked={pantryCategoryFilter.includes(category)} onChange={() => handleCategoryFilterChange(category)} style={{ width: '16', height: '16', accentColor: '#10b981' }} />
+                            <input type="checkbox" checked={isSelected} onChange={() => handleCategoryFilterChange(category)} style={{ width: 14, height: 14, accentColor: '#3b82f6' }} />
                             {labelText}
                           </label>
                           );
@@ -4791,58 +5127,65 @@ chicken breast, 2 lbs`}
               </div>
               
               <div style={{
-                color: 'rgba(255,255,255,0.8)',
-                fontSize: '0.875rem',
-                fontWeight: 'bold',
-                marginTop: '3rem',
-                marginBottom: '0.75rem'
+                color: 'rgba(255,255,255,0.5)',
+                fontSize: '0.75rem',
+                fontWeight: '700',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                marginTop: '2rem',
+                marginBottom: '1rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
               }}>
-                🔄 Sort by:
+                <span style={{ fontSize: '1rem' }}>🔄</span> Sort Items
               </div>
               <select
                 value={pantrySortBy}
                 onChange={(e) => setPantrySortBy(e.target.value as 'name' | 'status-critical' | 'status-good' | 'category')}
                 style={{
                   width: '100%',
-                  padding: '0.5rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  background: 'rgba(0,0,0,0.8)',
+                  padding: '0.875rem 1rem',
+                  borderRadius: '0.875rem',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  background: 'rgba(15, 23, 42, 0.6)',
                   color: 'white',
-                  fontSize: '0.75rem',
-                  marginBottom: '1rem'
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  outline: 'none',
+                  cursor: 'pointer',
+                  appearance: 'none',
+                  backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'white\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\'%3E%3C/path%3E%3C/svg%3E")',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'right 1rem center',
+                  backgroundSize: '1rem'
                 }}
               >
-                <option value="name" style={{background: 'rgba(0,0,0,0.9)', color: 'white'}}>📝 Name (A-Z)</option>
-                <option value="status-critical" style={{background: 'rgba(0,0,0,0.9)', color: 'white'}}>🚨 Status (Critical First)</option>
-                <option value="status-good" style={{background: 'rgba(0,0,0,0.9)', color: 'white'}}>✅ Status (Good First)</option>
-                <option value="category" style={{background: 'rgba(0,0,0,0.9)', color: 'white'}}>📂 Category</option>
+                <option value="name" style={{background: '#1e293b'}}>📝 Name (A-Z)</option>
+                <option value="status-critical" style={{background: '#1e293b'}}>🚨 Status (Critical First)</option>
+                <option value="status-good" style={{background: '#1e293b'}}>✅ Status (Good First)</option>
+                <option value="category" style={{background: '#1e293b'}}>📂 Category</option>
               </select>
             </div>
             
             {/* Main Content - Pantry List Only */}
-            <div style={{minHeight: '600px'}}>
+            <div style={{ minHeight: '600px', paddingTop: '1rem' }}>
                 <div style={styles.inventoryList}>
                   {filteredPantryItems.length === 0 ? (
-                    <div style={{...styles.inventoryItem, textAlign: 'center', padding: '3rem'}}>
-                      <img src="/grocery icon 2.png" alt="Grocery Icon" style={{width: '72px', height: '72px', objectFit: 'contain', margin: '0 auto 1rem', opacity: 0.7}} />
-                      <p style={{color: 'rgba(255,255,255,0.6)', fontSize: '1.1rem'}}>
-                        {pantryCategoryFilter.includes('all') 
-                          ? "🕵️‍♀️ Laurie's stash is suspiciously empty... Time for a 'Snack Attack'!"
-                          : `📦 No items found in ${pantryCategoryFilter.includes('Pantry – Staples') ? 'Staples' :
-                             pantryCategoryFilter.includes('Pantry – Oils, Vinegars & Condiments') ? 'Oils & Condiments' :
-                             pantryCategoryFilter.includes('Pantry – Cereals') ? 'Cereals' :
-                             pantryCategoryFilter.includes('Pantry – Pasta') ? 'Pasta' :
-                             pantryCategoryFilter.includes('Pantry – Rice & Grains') ? 'Rice & Grains' :
-                             pantryCategoryFilter.includes('Pantry – Baking & Misc. Dry Goods') ? 'Baking & Misc' :
-                             pantryCategoryFilter.includes('Fridge') ? 'Fridge' :
-                             pantryCategoryFilter.includes('Freezer') ? 'Freezer' :
-                             pantryCategoryFilter.includes('Produce') ? 'Produce' :
-                             pantryCategoryFilter.includes('Dairy') ? 'Dairy' :
-                             pantryCategoryFilter.includes('Meat') ? 'Meat' :
-                             pantryCategoryFilter.includes('Snacks') ? 'Snacks' :
-                             pantryCategoryFilter.includes('Beverages') ? 'Beverages' :
-                             pantryCategoryFilter.includes('💖 CHOCOLATE') ? '💖 CHOCOLATE' : 'selected categories'}`
+                    <div style={{
+                      ...styles.inventoryItem, 
+                      textAlign: 'center', 
+                      padding: '4rem 2rem',
+                      background: 'rgba(255, 255, 255, 0.02)',
+                      borderStyle: 'dashed'
+                    }}>
+                      <div style={{ fontSize: '3.5rem', marginBottom: '1.5rem' }}>🕵️‍♀️</div>
+                      <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '1.125rem', fontWeight: '500' }}>
+                        {pantryCategoryFilter.length === 0
+                          ? "No filters selected - select categories to view items"
+                          : pantryCategoryFilter.includes('all') 
+                            ? "Laurie's stash is suspiciously empty... Time for a 'Snack Attack'!"
+                            : "No items found in the selected categories."
                         }
                       </p>
                     </div>
@@ -4865,87 +5208,62 @@ chicken breast, 2 lbs`}
                         return <span style={{fontSize: '1.5rem'}}>{emoji}</span>;
                       };
                       
+                      const statusColor = item.currentCount === 0 ? '#ef4444' : 
+                                         item.currentCount < item.minCount ? '#f59e0b' : '#10b981';
+                      
                       return (
-                        <div key={item.id || index} style={styles.inventoryItem}>
+                        <div key={item.id || index} style={{
+                          ...styles.inventoryItem,
+                          borderLeftColor: statusColor
+                        }}>
                           <div style={styles.itemContent}>
                             <div style={styles.itemLeft}>
                               <div style={styles.itemIcon}>
                                 {getItemIcon()}
                               </div>
                               <div style={styles.itemDetails}>
-                                <h3 style={{
-                                  ...styles.itemName,
-                                  width: '180px',
-                                  marginRight: '2rem',
-                                  textOverflow: 'ellipsis',
-                                  overflow: 'hidden',
-                                  whiteSpace: 'nowrap'
-                                }}>{item.name}</h3>
-                                <div style={{
-                                  ...styles.itemCategory,
-                                  marginRight: '2rem'
-                                }}>
+                                <h3 style={styles.itemName}>{item.name}</h3>
+                                <div style={styles.itemCategory}>
                                   <span style={{
-                                    background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(59,130,246,0.1))',
-                                    color: '#34d399',
-                                    padding: '0.25rem 0.75rem',
-                                    borderRadius: '1rem',
-                                    fontSize: '0.75rem',
-                                    fontWeight: '500',
-                                    border: '1px solid rgba(16,185,129,0.3)',
-                                    boxShadow: '0 4px 12px rgba(16,185,129,0.2), inset 0 1px 0 rgba(255,255,255,0.1)',
-                                    backdropFilter: 'blur(10px)',
-                                    transition: 'all 0.3s ease'
+                                    background: 'rgba(255, 255, 255, 0.05)',
+                                    color: 'rgba(255, 255, 255, 0.6)',
+                                    padding: '0.2rem 0.6rem',
+                                    borderRadius: '0.5rem',
+                                    fontSize: '0.7rem',
+                                    fontWeight: '600',
+                                    border: '1px solid rgba(255, 255, 255, 0.08)'
                                   }}>
-                                    📦 {item.category.replace(/^Pantry\s*–\s*/, '').replace(/^Fridge\s*–\s*/, '').replace(/^Freezer\s*–\s*/, '')}
+                                    📦 {item.category.replace(/^(Pantry|Fridge|Freezer)\s*–\s*/, '')}
                                   </span>
                                   {editingExpiry === item.id ? (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                                       <input
                                         type="date"
                                         value={newExpiryDate}
                                         onChange={(e) => setNewExpiryDate(e.target.value)}
                                         style={{
-                                          padding: '0.25rem',
-                                          borderRadius: '0.25rem',
-                                          border: '1px solid rgba(59,130,246,0.4)',
-                                          background: 'rgba(30,58,138,0.6)',
+                                          padding: '0.25rem 0.5rem',
+                                          borderRadius: '0.5rem',
+                                          border: '1px solid rgba(255, 255, 255, 0.1)',
+                                          background: 'rgba(15, 23, 42, 0.6)',
                                           color: 'white',
-                                          fontSize: '0.7rem'
+                                          fontSize: '0.75rem'
                                         }}
-                                        // Remove autoFocus to avoid scroll jump on open
                                       />
                                       <button
                                         onClick={() => handleExpiryDateUpdate(item.id, newExpiryDate)}
                                         style={{
-                                          padding: '0.25rem 0.5rem',
-                                          borderRadius: '0.25rem',
-                                          border: 'none',
-                                          background: 'linear-gradient(to right, rgba(34,197,94,0.6), rgba(22,163,74,0.6))',
-                                          color: 'white',
-                                          fontSize: '0.7rem',
-                                          cursor: 'pointer'
+                                          width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', border: 'none',
+                                          background: '#10b981', color: 'white', fontSize: '0.75rem', cursor: 'pointer'
                                         }}
-                                      >
-                                        ✓
-                                      </button>
+                                      >✓</button>
                                       <button
-                                        onClick={() => {
-                                          setEditingExpiry(null);
-                                          setNewExpiryDate('');
-                                        }}
+                                        onClick={() => { setEditingExpiry(null); setNewExpiryDate(''); }}
                                         style={{
-                                          padding: '0.25rem 0.5rem',
-                                          borderRadius: '0.25rem',
-                                          border: 'none',
-                                          background: 'linear-gradient(to right, rgba(239,68,68,0.6), rgba(220,38,38,0.6))',
-                                          color: 'white',
-                                          fontSize: '0.7rem',
-                                          cursor: 'pointer'
+                                          width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', border: 'none',
+                                          background: 'rgba(255, 255, 255, 0.1)', color: 'white', fontSize: '0.75rem', cursor: 'pointer'
                                         }}
-                                      >
-                                        ✕
-                                      </button>
+                                      >✕</button>
                                     </div>
                                   ) : (
                                     <span 
@@ -4955,50 +5273,41 @@ chicken breast, 2 lbs`}
                                       }}
                                       style={{
                                         color: item.expiryDate ? (
-                                          new Date(item.expiryDate) < new Date() ? '#ef4444' :
-                                          new Date(item.expiryDate) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) ? '#f59e0b' :
-                                          '#34d399'
-                                        ) : 'rgba(156,163,175,0.8)',
-                                        fontSize: '0.7rem',
-                                        fontStyle: 'italic',
-                                        fontWeight: item.expiryDate && new Date(item.expiryDate) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) ? 'bold' : 'normal',
+                                          new Date(item.expiryDate) < new Date() ? '#f87171' :
+                                          new Date(item.expiryDate) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) ? '#fbbf24' :
+                                          '#4ade80'
+                                        ) : 'rgba(255, 255, 255, 0.3)',
+                                        fontSize: '0.75rem',
+                                        fontWeight: '600',
                                         cursor: 'pointer',
-                                        textDecoration: 'underline'
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.25rem'
                                       }}
                                     >
-                                      {item.expiryDate ? (
-                                        new Date(item.expiryDate) < new Date() ? '❌ Expired' :
-                                        new Date(item.expiryDate) < new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) ? '⚠️ Expires Soon' :
-                                        new Date(item.expiryDate) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) ? '🔔 Expires This Week' :
-                                        `📅 Expires ${new Date(item.expiryDate).toLocaleDateString()}`
-                                      ) : 'N/A'}
+                                      📅 {item.expiryDate ? (
+                                        new Date(item.expiryDate) < new Date() ? 'Expired' :
+                                        new Date(item.expiryDate) < new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) ? 'Expires Soon' :
+                                        new Date(item.expiryDate).toLocaleDateString()
+                                      ) : 'Set Expiry'}
                                     </span>
                                   )}
                                 </div>
                               </div>
                             </div>
+                            
                             <div style={isMobile ? styles.itemRightMobile : styles.itemRight}>
                               <div style={{
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
                                 gap: '0.5rem',
-                                minWidth: '140px',
-                                marginLeft: '1rem'
+                                minWidth: '120px'
                               }}>
-                                <p style={{
-                                  ...styles.stockLabel,
-                                  fontSize: '0.75rem',
-                                  margin: 0,
-                                  textAlign: 'center'
-                                }}>
-                                  Stock: {formatStockDisplay(item.currentCount, item.minCount)}
-                                </p>
-                                <div style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '0.75rem'
-                                }}>
+                                <div style={styles.stockLabel}>
+                                  STOCK: {formatStockDisplay(item.currentCount, item.minCount)}
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                   <button
                                     onClick={() => {
                                       const decrement = item.currentCount <= 1 ? 0.25 : 1;
@@ -5006,47 +5315,22 @@ chicken breast, 2 lbs`}
                                       updateItemQuantity(item.id, Math.round(newValue * 100) / 100, false);
                                     }}
                                     style={{
-                                      width: '2.25rem',
-                                      height: '2.25rem',
-                                      borderRadius: '50%',
-                                      border: '1px solid rgba(239,68,68,0.3)',
-                                      color: 'white',
-                                      background: 'linear-gradient(135deg, rgba(239,68,68,0.8) 0%, rgba(220,38,38,0.8) 100%)',
-                                      cursor: 'pointer',
-                                      fontSize: '1rem',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      boxShadow: '0 4px 12px rgba(239,68,68,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
-                                      backdropFilter: 'blur(10px)',
-                                      transition: 'all 0.2s ease'
+                                      ...styles.mobileButton,
+                                      background: 'rgba(239, 68, 68, 0.1)',
+                                      color: '#f87171',
+                                      border: '1px solid rgba(239, 68, 68, 0.2)'
                                     }}
-                                  >
-                                    −
-                                  </button>
+                                  >−</button>
                                   
                                   <button
                                     onClick={() => {
                                       setEditingItem({...item, source: 'pantry', quantity: item.currentCount} as any);
                                       setShowQuantityModal(true);
                                     }}
-                                    style={{
-                                      ...styles.quantityDisplay,
-                                      cursor: 'pointer',
-                                      minWidth: '80px',
-                                      textAlign: 'center',
-                                      fontSize: '0.875rem',
-                                      fontWeight: 'bold',
-                                      transition: 'all 0.2s ease',
-                                      border: '2px solid rgba(59,130,246,0.3)'
-                                    }}
+                                    style={styles.quantityDisplay}
                                   >
                                     <QuantityDisplay quantity={item.currentCount} />
-                                    <span style={{
-                                      fontSize: '0.7rem',
-                                      color: 'rgba(255,255,255,0.7)',
-                                      marginLeft: '0.25rem'
-                                    }}>
+                                    <span style={{ fontSize: '0.7rem', color: 'rgba(255, 255, 255, 0.4)', marginLeft: '0.25rem' }}>
                                       {item.unit}
                                     </span>
                                   </button>
@@ -5057,39 +5341,18 @@ chicken breast, 2 lbs`}
                                       updateItemQuantity(item.id, item.currentCount + increment, false);
                                     }}
                                     style={{
-                                      width: '2.25rem',
-                                      height: '2.25rem',
-                                      borderRadius: '50%',
-                                      border: '1px solid rgba(16,185,129,0.3)',
-                                      color: 'white',
-                                      background: 'linear-gradient(135deg, rgba(16,185,129,0.8) 0%, rgba(5,150,105,0.8) 100%)',
-                                      cursor: 'pointer',
-                                      fontSize: '1rem',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      boxShadow: '0 4px 12px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
-                                      backdropFilter: 'blur(10px)',
-                                      transition: 'all 0.2s ease'
+                                      ...styles.mobileButton,
+                                      background: 'rgba(16, 185, 129, 0.1)',
+                                      color: '#4ade80',
+                                      border: '1px solid rgba(16, 185, 129, 0.2)'
                                     }}
-                                  >
-                                    +
-                                  </button>
+                                  >+</button>
                                 </div>
                               </div>
                               
                               <div style={{
                                 ...getStatusStyle(),
-                                padding: '0.375rem 0.75rem',
-                                borderRadius: '0.5rem',
-                                fontSize: '0.75rem',
-                                fontWeight: '600',
-                                minWidth: '60px',
-                                textAlign: 'center',
-                                marginLeft: '1rem',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
+                                ...styles.statusBadge
                               }}>
                                 {getStatusText()}
                               </div>
@@ -5118,7 +5381,8 @@ chicken breast, 2 lbs`}
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.8)',
+          backgroundColor: 'rgba(15, 23, 42, 0.85)',
+          backdropFilter: 'blur(8px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -5126,54 +5390,113 @@ chicken breast, 2 lbs`}
           padding: '1rem'
         }}>
           <div style={{
-            background: 'linear-gradient(135deg, rgba(16,185,129,0.95) 0%, rgba(5,150,105,0.95) 25%, rgba(4,120,87,0.95) 75%, rgba(6,78,59,0.95) 100%)',
-            backdropFilter: 'blur(20px)',
-            borderRadius: '2rem',
-            border: '3px solid rgba(16,185,129,0.6)',
-            padding: '2rem',
+            background: 'rgba(30, 41, 59, 0.7)',
+            backdropFilter: 'blur(32px)',
+            borderRadius: '2.5rem',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            padding: '3rem',
             width: '95%',
             maxWidth: '400px',
-            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1)',
+            boxShadow: '0 50px 100px -20px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1)',
             position: 'relative'
           }}>
-            <h2 style={{color: 'white', marginBottom: '1.5rem', fontFamily: "'Fredoka', system-ui, sans-serif"}}>
-              Edit Quantity
+            <h2 style={{
+              color: 'white', 
+              marginBottom: '2rem', 
+              fontFamily: "'Fredoka', system-ui, sans-serif",
+              fontSize: '1.75rem',
+              fontWeight: '800',
+              textAlign: 'center',
+              letterSpacing: '-0.02em'
+            }}>
+              Edit Quantity 🔢
             </h2>
             
-            <div style={{marginBottom: '1.5rem'}}>
-              <label style={{color: 'rgba(255,255,255,0.8)', fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block'}}>
-                Current Stock:
+            <div style={{marginBottom: '2rem'}}>
+              <label style={{
+                color: 'rgba(255, 255, 255, 0.4)', 
+                fontSize: '0.75rem', 
+                marginBottom: '0.75rem', 
+                display: 'block',
+                fontWeight: '700',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
+              }}>
+                Adjust Current Stock:
               </label>
-              <input
-                type="number"
-                step="0.25"
-                min="0"
-                value={editingItem.currentCount}
-                onChange={(e) => setEditingItem({...editingItem, currentCount: parseFloat(e.target.value) || 0})}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  borderRadius: '0.5rem',
-                  border: '2px solid rgba(16,185,129,0.3)',
-                  background: 'rgba(255,255,255,0.1)',
-                  color: 'white',
-                  fontSize: '1rem',
-                  outline: 'none'
-                }}
-              />
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+                background: 'rgba(15, 23, 42, 0.6)',
+                borderRadius: '1.25rem',
+                padding: '0.5rem',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)'
+              }}>
+                <button
+                  onClick={() => setEditingItem({...editingItem, currentCount: Math.max(0, (editingItem.currentCount || 0) - 0.25)})}
+                  style={{
+                    width: '3rem',
+                    height: '3rem',
+                    borderRadius: '1rem',
+                    border: 'none',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    color: 'white',
+                    fontSize: '1.5rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >−</button>
+                <input
+                  type="number"
+                  step="0.25"
+                  min="0"
+                  value={editingItem.currentCount}
+                  onChange={(e) => setEditingItem({...editingItem, currentCount: parseFloat(e.target.value) || 0})}
+                  style={{
+                    flex: 1,
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'white',
+                    fontSize: '1.5rem',
+                    fontWeight: '800',
+                    textAlign: 'center',
+                    outline: 'none',
+                    fontFamily: 'monospace'
+                  }}
+                />
+                <button
+                  onClick={() => setEditingItem({...editingItem, currentCount: (editingItem.currentCount || 0) + 0.25})}
+                  style={{
+                    width: '3rem',
+                    height: '3rem',
+                    borderRadius: '1rem',
+                    border: 'none',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    color: 'white',
+                    fontSize: '1.5rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                >+</button>
+              </div>
             </div>
 
-            <div style={{display: 'flex', gap: '1rem', justifyContent: 'flex-end'}}>
+            <div style={{display: 'flex', gap: '1rem'}}>
               <button
                 onClick={() => setShowQuantityModal(false)}
                 style={{
-                  padding: '0.75rem 1.5rem',
-                  borderRadius: '0.5rem',
-                  border: '2px solid rgba(255,255,255,0.3)',
-                  background: 'rgba(255,255,255,0.1)',
+                  flex: 1,
+                  padding: '1rem',
+                  borderRadius: '1rem',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  background: 'rgba(255, 255, 255, 0.05)',
                   color: 'white',
-                  fontSize: '0.875rem',
-                  cursor: 'pointer'
+                  fontSize: '0.9375rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
                 }}
               >
                 Cancel
@@ -5184,13 +5507,17 @@ chicken breast, 2 lbs`}
                   setShowQuantityModal(false);
                 }}
                 style={{
-                  padding: '0.75rem 1.5rem',
-                  borderRadius: '0.5rem',
-                  border: '2px solid rgba(16,185,129,0.4)',
-                  background: 'linear-gradient(135deg, rgba(16,185,129,0.8) 0%, rgba(5,150,105,0.8) 100%)',
+                  flex: 1,
+                  padding: '1rem',
+                  borderRadius: '1rem',
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
                   color: 'white',
-                  fontSize: '0.875rem',
-                  cursor: 'pointer'
+                  fontSize: '0.9375rem',
+                  fontWeight: '800',
+                  cursor: 'pointer',
+                  boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)',
+                  transition: 'all 0.3s ease'
                 }}
               >
                 Update
