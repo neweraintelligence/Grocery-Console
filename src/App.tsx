@@ -1741,7 +1741,14 @@ function App() {
       name: 'Freezer',
       emoji: '❄️',
       sub: [
-        'Meat'
+        'Freezer – Fruit',
+        'Freezer – Vegetables',
+        'Freezer – Meat',
+        'Freezer – Leftovers',
+        'Freezer – Baked Goods',
+        'Freezer – Desserts',
+        'Freezer – Harvested Items',
+        'Freezer – General'
       ]
     }
   ] as const;
