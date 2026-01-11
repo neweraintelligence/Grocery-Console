@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
-import { fetchProductByBarcode, mapToAppCategory } from '../services/openFoodFacts';
+import { fetchProductByBarcode, mapToAppCategory } from '../services/barcodeDatabase';
 
 interface BarcodeScannerProps {
   onScanSuccess: (product: {
