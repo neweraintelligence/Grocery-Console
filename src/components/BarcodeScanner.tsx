@@ -26,6 +26,7 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
       // Cleanup on unmount
       if (scannerRef.current) {
         scannerRef.current.stop().catch(() => {});
+        scannerRef.current.clear();
       }
     };
   }, []);
@@ -47,9 +48,26 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
 
       // Use back camera on mobile, default camera on laptop/desktop
       const isMobile = isMobileDevice();
-      const cameraConfig = isMobile 
-        ? { facingMode: 'environment' } // Back camera on mobile
-        : {}; // Default camera on laptop/desktop (usually front-facing webcam)
+      let cameraConfig: any;
+      
+      if (isMobile) {
+        cameraConfig = { facingMode: 'environment' }; // Back camera on mobile
+      } else {
+        // For desktop, try to get available cameras and use the first one
+        try {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const videoDevices = devices.filter(device => device.kind === 'videoinput');
+          if (videoDevices.length > 0) {
+            cameraConfig = { deviceId: { exact: videoDevices[0].deviceId } };
+          } else {
+            // Fallback: use user-facing camera
+            cameraConfig = { facingMode: 'user' };
+          }
+        } catch (err) {
+          // If enumeration fails, use user-facing camera
+          cameraConfig = { facingMode: 'user' };
+        }
+      }
 
       await scanner.start(
         cameraConfig,
@@ -127,9 +145,16 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
     if (scannerRef.current) {
       try {
         await scannerRef.current.stop();
+      } catch (err: any) {
+        // Ignore "scanner is not running" errors
+        if (!err.message?.includes('not running') && !err.message?.includes('not paused')) {
+          console.error('Error stopping scanner:', err);
+        }
+      }
+      try {
         await scannerRef.current.clear();
       } catch (err) {
-        console.error('Error stopping scanner:', err);
+        // Ignore clear errors
       }
       scannerRef.current = null;
     }
