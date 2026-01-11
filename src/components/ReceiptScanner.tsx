@@ -15,8 +15,12 @@ interface ReceiptScannerProps {
   onClose: () => void;
 }
 
+// Processing step type for progress indicator
+type ProcessingStep = 'idle' | 'preparing' | 'ocr' | 'matching' | 'done';
+
 export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted, onClose }) => {
   const [processing, setProcessing] = useState(false);
+  const [processingStep, setProcessingStep] = useState<ProcessingStep>('idle');
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
@@ -230,6 +234,7 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
 
   const processReceiptImage = async (fileOrBlob: File | Blob) => {
     setProcessing(true);
+    setProcessingStep('preparing');
     setError(null);
 
     try {
@@ -240,6 +245,7 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
       if (fileOrBlob.size === 0) {
         setError('Image file is empty. Please try capturing or uploading again.');
         setProcessing(false);
+        setProcessingStep('idle');
         return;
       }
       
@@ -251,6 +257,9 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
         console.warn('⚠️ Image scaling failed, using original:', scaleError);
         imageToProcess = fileOrBlob instanceof Blob ? fileOrBlob : new Blob([fileOrBlob]);
       }
+      
+      // Update step to OCR
+      setProcessingStep('ocr');
       
       // Initialize Tesseract worker
       const worker = await createWorker('eng');
@@ -287,6 +296,7 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
       if (!bestResult || !bestResult.text || bestResult.text.trim().length < 10) {
         setError('OCR could not extract readable text from the receipt. Please try:\n• Better lighting\n• Hold camera steady\n• Ensure receipt is flat and in focus\n• Try uploading a higher resolution image');
         setProcessing(false);
+        setProcessingStep('idle');
         return;
       }
 
@@ -313,10 +323,12 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
           setError(`No grocery items found in receipt (confidence: ${Math.round(confidence)}%).\n\nOCR extracted text:\n${preview}${lines.length > 5 ? '\n...' : ''}\n\nYou can add items manually.`);
         }
         setProcessing(false);
+        setProcessingStep('idle');
         return;
       }
 
       // Smart matching: match OCR items against existing pantry and shopping list
+      setProcessingStep('matching');
       console.log('🧠 Starting smart matching...');
       const matchedItems = await matchReceiptItems(rawItems);
       
@@ -340,6 +352,7 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
       console.error('Error processing receipt:', err);
       setError(err.message || 'Failed to process receipt image. Please try again.');
       setProcessing(false);
+      setProcessingStep('idle');
     }
   };
 
@@ -897,15 +910,154 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
           <div style={{
             color: 'white',
             textAlign: 'center',
-            fontSize: '0.9rem',
-            padding: '2rem'
+            padding: '2rem',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '1.5rem'
           }}>
-            <p style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>⏳ Processing receipt...</p>
-            <p style={{ fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.7)', marginTop: '0.5rem' }}>
-              Extracting items from receipt. This may take a few seconds.
-            </p>
+            {/* Animated Spinner */}
+            <div style={{
+              width: '60px',
+              height: '60px',
+              border: '4px solid rgba(255, 255, 255, 0.2)',
+              borderTop: '4px solid #3b82f6',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite'
+            }} />
+            
+            {/* Step Indicator */}
+            <div style={{ width: '100%', maxWidth: '300px' }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginBottom: '0.75rem'
+              }}>
+                {/* Step 1: Preparing */}
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '0.25rem'
+                }}>
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    backgroundColor: processingStep === 'preparing' ? '#3b82f6' : 
+                                    ['ocr', 'matching', 'done'].includes(processingStep) ? '#22c55e' : 'rgba(255, 255, 255, 0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.75rem',
+                    transition: 'all 0.3s ease'
+                  }}>
+                    {['ocr', 'matching', 'done'].includes(processingStep) ? '✓' : '1'}
+                  </div>
+                  <span style={{ fontSize: '0.7rem', color: processingStep === 'preparing' ? '#3b82f6' : 'rgba(255, 255, 255, 0.6)' }}>
+                    Prepare
+                  </span>
+                </div>
+
+                {/* Connector Line */}
+                <div style={{
+                  flex: 1,
+                  height: '2px',
+                  backgroundColor: ['ocr', 'matching', 'done'].includes(processingStep) ? '#22c55e' : 'rgba(255, 255, 255, 0.2)',
+                  alignSelf: 'center',
+                  marginBottom: '1rem',
+                  transition: 'all 0.3s ease'
+                }} />
+
+                {/* Step 2: OCR */}
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '0.25rem'
+                }}>
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    backgroundColor: processingStep === 'ocr' ? '#3b82f6' : 
+                                    ['matching', 'done'].includes(processingStep) ? '#22c55e' : 'rgba(255, 255, 255, 0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.75rem',
+                    transition: 'all 0.3s ease'
+                  }}>
+                    {['matching', 'done'].includes(processingStep) ? '✓' : '2'}
+                  </div>
+                  <span style={{ fontSize: '0.7rem', color: processingStep === 'ocr' ? '#3b82f6' : 'rgba(255, 255, 255, 0.6)' }}>
+                    Read Text
+                  </span>
+                </div>
+
+                {/* Connector Line */}
+                <div style={{
+                  flex: 1,
+                  height: '2px',
+                  backgroundColor: ['matching', 'done'].includes(processingStep) ? '#22c55e' : 'rgba(255, 255, 255, 0.2)',
+                  alignSelf: 'center',
+                  marginBottom: '1rem',
+                  transition: 'all 0.3s ease'
+                }} />
+
+                {/* Step 3: Smart Matching */}
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '0.25rem'
+                }}>
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    backgroundColor: processingStep === 'matching' ? '#3b82f6' : 
+                                    processingStep === 'done' ? '#22c55e' : 'rgba(255, 255, 255, 0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '0.75rem',
+                    transition: 'all 0.3s ease'
+                  }}>
+                    {processingStep === 'done' ? '✓' : '3'}
+                  </div>
+                  <span style={{ fontSize: '0.7rem', color: processingStep === 'matching' ? '#3b82f6' : 'rgba(255, 255, 255, 0.6)' }}>
+                    Match Items
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Status Message */}
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ fontSize: '1.1rem', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                {processingStep === 'preparing' && '📷 Preparing image...'}
+                {processingStep === 'ocr' && '🔍 Reading receipt text...'}
+                {processingStep === 'matching' && '🧠 Matching items with your pantry...'}
+                {processingStep === 'done' && '✅ Done!'}
+              </p>
+              <p style={{ fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.7)' }}>
+                {processingStep === 'preparing' && 'Optimizing image for best results'}
+                {processingStep === 'ocr' && 'Using OCR to extract text from receipt'}
+                {processingStep === 'matching' && 'Using AI to match items with your inventory'}
+                {processingStep === 'done' && 'Processing complete!'}
+              </p>
+            </div>
           </div>
         )}
+
+        {/* CSS Animation for Spinner */}
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
 
         <div style={{
           color: 'rgba(255, 255, 255, 0.7)',
