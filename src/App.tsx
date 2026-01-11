@@ -425,12 +425,16 @@ const styles = {
     cursor: 'pointer',
     position: 'relative' as const,
     overflow: 'visible',
+    display: 'flex',
+    alignItems: 'center',
+    minHeight: '6.5rem',
   },
   itemContent: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: '1rem',
+    width: '100%',
   },
   itemLeft: {
     display: 'flex',
@@ -700,17 +704,17 @@ const styles = {
     '&:hover': { color: '#fb923c' },
   },
   tabShoppingActive: {
-    background: 'rgba(251, 146, 60, 0.15)',
+    background: 'rgba(251, 146, 60, 0.35)',
     color: '#fb923c',
-    boxShadow: '0 4px 12px rgba(251, 146, 60, 0.2)',
+    boxShadow: '0 4px 12px rgba(251, 146, 60, 0.4)',
   },
   tabPantry: {
     '&:hover': { color: '#10b981' },
   },
   tabPantryActive: {
-    background: 'rgba(16, 185, 129, 0.15)',
+    background: 'rgba(16, 185, 129, 0.35)',
     color: '#10b981',
-    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)',
+    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)',
   },
   tabRecipes: {
     '&:hover': { color: '#a855f7' },
@@ -4803,9 +4807,16 @@ chicken breast, 2 lbs`}
                             flexDirection: 'column',
                             alignItems: 'center',
                             gap: '0.5rem',
-                            minWidth: '120px'
+                            minWidth: '120px',
+                            position: 'relative',
+                            paddingTop: '1.25rem'
                           }}>
-                            <div style={styles.stockLabel}>QUANTITY</div>
+                            <div style={{
+                              ...styles.stockLabel,
+                              position: 'absolute',
+                              top: 0,
+                              margin: 0
+                            }}>QUANTITY</div>
                             <div style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
                               <button
                                 onClick={() => openQuantityModal(item)}
@@ -4851,9 +4862,7 @@ chicken breast, 2 lbs`}
                           <div style={{
                             ...getStatusStyle(),
                             ...styles.statusBadge,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
+                            marginTop: isMobile ? '0' : '1.25rem'
                           }}>
                             {getStatusText()}
                           </div>
@@ -5313,9 +5322,16 @@ chicken breast, 2 lbs`}
                                 flexDirection: 'column',
                                 alignItems: 'center',
                                 gap: '0.5rem',
-                                minWidth: '120px'
+                                minWidth: '120px',
+                                position: 'relative',
+                                paddingTop: '1.25rem'
                               }}>
-                                <div style={styles.stockLabel}>
+                                <div style={{
+                                  ...styles.stockLabel,
+                                  position: 'absolute',
+                                  top: 0,
+                                  margin: 0
+                                }}>
                                   STOCK: {formatStockDisplay(item.currentCount, item.minCount)}
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -5363,7 +5379,8 @@ chicken breast, 2 lbs`}
                               
                               <div style={{
                                 ...getStatusStyle(),
-                                ...styles.statusBadge
+                                ...styles.statusBadge,
+                                marginTop: isMobile ? '0' : '1.25rem'
                               }}>
                                 {getStatusText()}
                               </div>
