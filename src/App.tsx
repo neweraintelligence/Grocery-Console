@@ -4339,8 +4339,8 @@ chicken breast, 2 lbs`}
           <button 
             style={{
               ...styles.addBtn,
-              background: 'linear-gradient(135deg, rgba(148, 163, 184, 0.4) 0%, rgba(100, 116, 139, 0.35) 100%)',
-              border: '2px solid rgba(148, 163, 184, 0.4)',
+              background: 'linear-gradient(135deg, rgba(96, 165, 250, 0.4) 0%, rgba(59, 130, 246, 0.5) 100%)',
+              border: '2px solid rgba(96, 165, 250, 0.4)',
               boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 4px rgba(0,0,0,0.2)',
               textShadow: '0 1px 1px rgba(0,0,0,0.3)',
             }}
