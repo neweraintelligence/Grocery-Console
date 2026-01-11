@@ -139,119 +139,35 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
     }
   };
 
-  // Preprocess image for better OCR results
-  const preprocessImage = (file: File): Promise<Blob> => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      const reader = new FileReader();
-      
-      reader.onload = (e) => {
-        img.onload = () => {
-          // Create canvas for image processing
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          
-          if (!ctx) {
-            reject(new Error('Failed to get canvas context'));
-            return;
-          }
-          
-          // Set canvas size to image size (or scale up for small images)
-          const scale = Math.max(1, 1500 / Math.max(img.width, img.height));
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
-          
-          // Draw image
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          
-          // Get image data for processing
-          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const data = imageData.data;
-          
-          // Convert to grayscale and increase contrast
-          for (let i = 0; i < data.length; i += 4) {
-            // Convert to grayscale using luminance formula
-            const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-            
-            // Increase contrast - make light pixels lighter, dark pixels darker
-            const contrast = 1.5; // Contrast factor
-            const factor = (259 * (contrast * 100 + 255)) / (255 * (259 - contrast * 100));
-            let newGray = factor * (gray - 128) + 128;
-            
-            // Apply threshold for better text recognition
-            // If pixel is above threshold, make it white, otherwise make it darker
-            if (newGray > 180) {
-              newGray = 255;
-            } else if (newGray < 100) {
-              newGray = 0;
-            }
-            
-            data[i] = newGray;     // R
-            data[i + 1] = newGray; // G
-            data[i + 2] = newGray; // B
-            // Alpha stays the same
-          }
-          
-          // Put processed image back
-          ctx.putImageData(imageData, 0, 0);
-          
-          // Convert canvas to blob
-          canvas.toBlob((blob) => {
-            if (blob) {
-              console.log('📷 Image preprocessed: original size', img.width, 'x', img.height, '→', canvas.width, 'x', canvas.height);
-              resolve(blob);
-            } else {
-              reject(new Error('Failed to create blob from canvas'));
-            }
-          }, 'image/png', 1.0);
-        };
-        
-        img.onerror = () => reject(new Error('Failed to load image'));
-        img.src = e.target?.result as string;
-      };
-      
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      reader.readAsDataURL(file);
-    });
-  };
-
   const processReceiptImage = async (file: File) => {
     setProcessing(true);
     setError(null);
 
     try {
       console.log('🔄 Starting OCR processing...');
+      console.log('📷 Image size:', file.size, 'bytes, type:', file.type);
       
-      // Preprocess image for better OCR
-      let processedImage: Blob;
-      try {
-        processedImage = await preprocessImage(file);
-        console.log('✅ Image preprocessing complete');
-      } catch (preprocessError) {
-        console.warn('⚠️ Image preprocessing failed, using original:', preprocessError);
-        processedImage = file;
-      }
-      
-      // Initialize Tesseract worker with better settings
+      // Initialize Tesseract worker - use the original image without preprocessing
+      // Tesseract works best with clean, unmodified images
       const worker = await createWorker('eng');
       
-      // Set Tesseract parameters for receipt recognition
-      // PSM 6: Assume a single uniform block of text (good for receipts)
-      // PSM 4: Assume a single column of text of variable sizes
-      await worker.setParameters({
-        tessedit_pageseg_mode: 6 as any, // PSM 6: Assume a single uniform block of text
-        preserve_interword_spaces: '1',
-      });
+      console.log('🔍 Running OCR on original image...');
       
-      console.log('🔍 Running OCR...');
+      // Perform OCR on the ORIGINAL image (no preprocessing - it was making things worse)
+      const { data: { text, confidence } } = await worker.recognize(file);
       
-      // Perform OCR on preprocessed image
-      const { data: { text, confidence } } = await worker.recognize(processedImage);
-      
-      console.log('📊 OCR confidence:', confidence);
+      console.log('📊 OCR confidence:', confidence, '%');
       
       // Terminate worker
       await worker.terminate();
+
+      // Check OCR confidence - if too low, the image quality is poor
+      if (confidence < 50) {
+        console.warn('⚠️ Low OCR confidence:', confidence, '%');
+        setError(`OCR confidence is very low (${Math.round(confidence)}%). The image may be blurry or poorly lit. Please try:\n• Better lighting\n• Hold camera steady\n• Ensure receipt is flat and in focus\n• Try uploading a clearer image`);
+        setProcessing(false);
+        return;
+      }
 
       // Log raw OCR text for debugging
       console.log('📄 Raw OCR text:', text);
@@ -268,7 +184,7 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
         if (lines.length < 3) {
           setError('OCR could not read the receipt clearly. Please try:\n• Better lighting\n• Hold camera steady\n• Ensure receipt is flat and in focus');
         } else {
-          setError('No grocery items found in receipt. The text was read but no items were recognized. You can add items manually.');
+          setError(`No grocery items found in receipt (confidence: ${Math.round(confidence)}%). The text was read but no items were recognized. You can add items manually.`);
         }
         setProcessing(false);
         return;
