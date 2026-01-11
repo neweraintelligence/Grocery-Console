@@ -2318,9 +2318,14 @@ function App() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/meal-plan/generate`, {
+      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/meal-plan/generate`;
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({ 
           pantry: pantryPayload, 
           dietaryPreferences,
@@ -2332,14 +2337,35 @@ function App() {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        console.error('Meal plan endpoint failed:', response.status);
+        const errorText = await response.text();
+        console.error('Meal plan endpoint failed:', response.status, errorText);
+        
+        // Show user-friendly error message
+        if (response.status === 502) {
+          alert('The meal planning service is temporarily unavailable. Please try again later.');
+        } else if (response.status === 0 || response.status === 500) {
+          alert('Unable to connect to the meal planning service. Please check your connection and try again.');
+        } else {
+          alert(`Failed to generate meal plan. Error: ${response.status}`);
+        }
+        
         setMealPlan(null);
       } else {
         const data = await response.json();
         setMealPlan(normalizeMealPlanResponse(data));
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating meal plan:', error);
+      
+      // Handle specific error types
+      if (error.name === 'AbortError') {
+        alert('Meal plan generation timed out. Please try again.');
+      } else if (error.message?.includes('Failed to fetch') || error.message?.includes('CORS')) {
+        alert('Unable to connect to the meal planning service. This may be a CORS or network issue. Please check if the API server is running.');
+      } else {
+        alert(`Error generating meal plan: ${error.message || 'Unknown error'}`);
+      }
+      
       setMealPlan(null);
     } finally {
       setLoadingMealPlan(false);
@@ -4604,8 +4630,18 @@ chicken breast, 2 lbs`}
               textShadow: '0 1px 1px rgba(0,0,0,0.3)',
             }}
             onClick={() => {
+              const wasHidden = !showMealPlan;
               setShowMealPlan(!showMealPlan);
-              if (!showMealPlan) generateMealPlan();
+              if (wasHidden) {
+                generateMealPlan();
+                // Scroll to meal plan section after a short delay to allow render
+                setTimeout(() => {
+                  const mealPlanElement = document.getElementById('meal-plan-section');
+                  if (mealPlanElement) {
+                    mealPlanElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }, 100);
+              }
             }}
           >
             <img src="/cupboard image 1.png" alt="Meal Plan Icon" style={{width: '18px', height: '18px', objectFit: 'contain', marginRight: '6px'}} />
@@ -4905,7 +4941,9 @@ chicken breast, 2 lbs`}
 
         {/* Meal Planning Section - Full Width Above All Tab Content */}
         {showMealPlan && (
-          <div style={{
+          <div 
+            id="meal-plan-section"
+            style={{
             ...styles.card,
             marginBottom: '1.5rem',
             background: 'linear-gradient(145deg, rgba(100,116,139,0.1), rgba(139,92,246,0.05))',
