@@ -1219,6 +1219,8 @@ function App() {
     category: string;
     currentCount?: number;
     minCount?: number;
+    notes?: string;
+    expiryDate?: string;
   }>>([]);
 
   // Action history for undo functionality
@@ -1648,6 +1650,15 @@ function App() {
     }
   };
 
+  // Store barcode scan result to be used in PantryModal
+  const [barcodeScanResult, setBarcodeScanResult] = useState<{
+    name: string;
+    category: string;
+    currentCount: number;
+    minCount: number;
+    unit: string;
+  } | null>(null);
+
   // Handle barcode scan success
   const handleBarcodeScanSuccess = (product: {
     name: string;
@@ -1656,14 +1667,12 @@ function App() {
     minCount: number;
     unit: string;
   }) => {
-    setFormData({
+    setBarcodeScanResult({
       name: product.name,
       category: product.category,
       currentCount: product.currentCount,
       minCount: product.minCount,
-      unit: product.unit,
-      notes: '',
-      expiryDate: ''
+      unit: product.unit
     });
     setPantryBulkMode(false); // Ensure single item mode
   };
@@ -1677,13 +1686,24 @@ function App() {
     category: string;
   }>) => {
     // Convert receipt items to pantry format for review
-    const pantryItems = items.map(item => ({
+    const pantryItems: Array<{
+      id: string;
+      name: string;
+      quantity: number;
+      unit: string;
+      category: string;
+      currentCount?: number;
+      minCount?: number;
+      notes?: string;
+      expiryDate?: string;
+    }> = items.map(item => ({
       id: item.id,
       name: item.name,
+      quantity: item.quantity, // Keep quantity for state type
+      unit: item.unit,
       category: item.category,
       currentCount: item.quantity,
       minCount: Math.max(0.25, Number((item.quantity * 0.3).toFixed(2))),
-      unit: item.unit,
       notes: '',
       expiryDate: ''
     }));
@@ -3097,6 +3117,22 @@ chicken breast, 2 lbs`}
       notes: '',
       expiryDate: ''
     });
+
+    // Populate form when barcode scan result is available
+    useEffect(() => {
+      if (barcodeScanResult) {
+        setFormData({
+          name: barcodeScanResult.name,
+          category: barcodeScanResult.category,
+          currentCount: barcodeScanResult.currentCount,
+          minCount: barcodeScanResult.minCount,
+          unit: barcodeScanResult.unit,
+          notes: '',
+          expiryDate: ''
+        });
+        setBarcodeScanResult(null); // Clear after using
+      }
+    }, [barcodeScanResult]);
 
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
