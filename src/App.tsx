@@ -1634,80 +1634,129 @@ function App() {
     }
   };
 
-  // Get category-specific emoji icon
+  // Get category-specific emoji icon with comprehensive subcategory support
   const getCategoryEmoji = (category: string): string => {
+    if (!category) return '🛒';
     const cat = category.toLowerCase();
     
-    // Fresh Produce
-    if (cat.includes('fresh') || cat.includes('produce')) return '🥬';
-    if (cat.includes('fruit')) return '🍎';
-    if (cat.includes('vegetable')) return '🥕';
+    // Specific subcategory mappings (check these first for exact matches)
+    
+    // Pantry subcategories
+    if (cat.includes('pantry – staples') || cat === 'pantry – staples') return '🌾';
+    if (cat.includes('pantry – oils') || cat.includes('pantry – vinegars') || cat.includes('pantry – condiments')) return '🫒';
+    if (cat.includes('pantry – cereals')) return '🥣';
+    if (cat.includes('pantry – pasta')) return '🍝';
+    if (cat.includes('pantry – rice') || cat.includes('pantry – grains')) return '🌾';
+    if (cat.includes('pantry – baking') || cat.includes('pantry – misc. dry goods') || cat.includes('pantry – misc dry goods')) return '🥖';
+    
+    // Fridge subcategories
+    if (cat.includes('fridge – dairy') || cat.includes('fridge – plant-based')) return '🥛';
+    if (cat.includes('fridge – sauces') || cat.includes('fridge – condiments')) return '🍯';
+    if (cat.includes('fridge – pickled') || cat.includes('fridge – preserved')) return '🥒';
+    
+    // Freezer subcategories
+    if (cat.includes('freezer – fruit')) return '🍓';
+    if (cat.includes('freezer – vegetables')) return '🥦';
+    if (cat.includes('freezer – meat')) return '🥩';
+    if (cat.includes('freezer – leftovers')) return '🍱';
+    if (cat.includes('freezer – baked goods')) return '🥐';
+    if (cat.includes('freezer – desserts')) return '🍨';
+    if (cat.includes('freezer – harvested items')) return '🌽';
+    if (cat.includes('freezer – general')) return '🧊';
+    
+    // Chocolate special category
+    if (cat.includes('chocolate') || cat.includes('💖')) return '🍫';
+    
+    // General category patterns (more specific first)
+    
+    // Fresh Produce & Fruits/Vegetables
+    if (cat.includes('produce') && !cat.includes('freezer')) return '🥬';
+    if (cat.includes('fruit') && !cat.includes('freezer')) return '🍎';
+    if (cat.includes('vegetable') && !cat.includes('freezer')) return '🥕';
+    if (cat.includes('fresh')) return '🥬';
     
     // Dairy & Eggs
-    if (cat.includes('dairy')) return '🥛';
+    if (cat.includes('dairy') || cat.includes('plant-based alternatives')) return '🥛';
     if (cat.includes('egg')) return '🥚';
     if (cat.includes('milk')) return '🥛';
     if (cat.includes('cheese')) return '🧀';
-    if (cat.includes('yogurt')) return '🍦';
+    if (cat.includes('yogurt') || cat.includes('yoghurt')) return '🍦';
     if (cat.includes('butter')) return '🧈';
+    if (cat.includes('cream')) return '🥛';
     
     // Meat & Seafood
-    if (cat.includes('meat')) return '🍖';
+    if (cat.includes('meat') && !cat.includes('freezer')) return '🍖';
     if (cat.includes('seafood') || cat.includes('fish')) return '🐟';
     if (cat.includes('chicken') || cat.includes('poultry')) return '🍗';
     if (cat.includes('beef')) return '🥩';
     if (cat.includes('pork')) return '🥓';
+    if (cat.includes('turkey')) return '🦃';
+    if (cat.includes('lamb')) return '🥩';
     
     // Pantry Staples & Grains
-    if (cat.includes('pantry') || cat.includes('staple')) return '🌾';
-    if (cat.includes('grain') || cat.includes('rice') || cat.includes('quinoa') || cat.includes('oats')) return '🌾';
-    if (cat.includes('pasta') || cat.includes('spaghetti') || cat.includes('fusilli') || cat.includes('noodle')) return '🍝';
+    if (cat.includes('staple')) return '🌾';
+    if (cat.includes('grain') || cat.includes('rice') || cat.includes('quinoa') || cat.includes('oats') || cat.includes('barley')) return '🌾';
+    if (cat.includes('pasta') || cat.includes('spaghetti') || cat.includes('fusilli') || cat.includes('noodle') || cat.includes('macaroni')) return '🍝';
     if (cat.includes('flour') || cat.includes('baking')) return '🥖';
+    if (cat.includes('cereal')) return '🥣';
+    
+    // Oils, Vinegars & Condiments
     if (cat.includes('oil') || cat.includes('vinegar')) return '🫒';
     if (cat.includes('spice') || cat.includes('herb') || cat.includes('seasoning')) return '🌿';
-    if (cat.includes('sauce') || cat.includes('condiment')) return '🍯';
-    if (cat.includes('can') || cat.includes('jar')) return '🥫';
+    if (cat.includes('sauce') || cat.includes('condiment') || cat.includes('ketchup') || cat.includes('mustard') || cat.includes('mayo')) return '🍯';
+    if (cat.includes('can') || cat.includes('jar') || cat.includes('canned')) return '🥫';
+    if (cat.includes('pickle') || cat.includes('preserved')) return '🥒';
     
     // Bakery
     if (cat.includes('bakery') || cat.includes('bread')) return '🍞';
     if (cat.includes('bagel')) return '🥯';
     if (cat.includes('muffin') || cat.includes('pastry')) return '🧁';
     if (cat.includes('cake')) return '🎂';
-    if (cat.includes('cookie')) return '🍪';
+    if (cat.includes('cookie') || cat.includes('biscuit')) return '🍪';
+    if (cat.includes('croissant')) return '🥐';
+    if (cat.includes('donut') || cat.includes('doughnut')) return '🍩';
     
     // Beverages
     if (cat.includes('beverage') || cat.includes('drink')) return '🥤';
     if (cat.includes('juice')) return '🧃';
-    if (cat.includes('soda') || cat.includes('soft drink')) return '🥤';
+    if (cat.includes('soda') || cat.includes('soft drink') || cat.includes('pop')) return '🥤';
     if (cat.includes('water')) return '💧';
     if (cat.includes('coffee')) return '☕';
     if (cat.includes('tea')) return '🍵';
     if (cat.includes('beer')) return '🍺';
     if (cat.includes('wine')) return '🍷';
+    if (cat.includes('energy drink')) return '⚡';
     
     // Frozen Foods
-    if (cat.includes('frozen')) return '🧊';
+    if (cat.includes('frozen') && !cat.includes('freezer')) return '🧊';
     if (cat.includes('ice cream')) return '🍨';
-    if (cat.includes('popsicle')) return '🍭';
+    if (cat.includes('popsicle') || cat.includes('ice pop')) return '🍭';
     
     // Snacks
     if (cat.includes('snack')) return '🍿';
-    if (cat.includes('chip')) return '🥨';
+    if (cat.includes('chip') || cat.includes('crisp')) return '🥨';
     if (cat.includes('cracker')) return '🍘';
-    if (cat.includes('nut')) return '🥜';
-    if (cat.includes('candy') || cat.includes('sweet')) return '🍬';
+    if (cat.includes('nut') || cat.includes('almond') || cat.includes('peanut')) return '🥜';
+    if (cat.includes('candy') || cat.includes('sweet') || cat.includes('gummy')) return '🍬';
     if (cat.includes('chocolate')) return '🍫';
     if (cat.includes('popcorn')) return '🍿';
+    if (cat.includes('pretzel')) return '🥨';
+    if (cat.includes('trail mix')) return '🥜';
     
     // Health & Personal Care
     if (cat.includes('health') || cat.includes('pharmacy') || cat.includes('medicine')) return '💊';
-    if (cat.includes('vitamin')) return '💊';
+    if (cat.includes('vitamin') || cat.includes('supplement')) return '💊';
     if (cat.includes('personal') || cat.includes('hygiene')) return '🧴';
+    if (cat.includes('shampoo') || cat.includes('soap') || cat.includes('body wash')) return '🧴';
     
     // Household & Cleaning
     if (cat.includes('household') || cat.includes('cleaning')) return '🧽';
-    if (cat.includes('detergent') || cat.includes('soap')) return '🧼';
-    if (cat.includes('paper') || cat.includes('tissue')) return '🧻';
+    if (cat.includes('detergent') || cat.includes('laundry')) return '🧼';
+    if (cat.includes('paper') || cat.includes('tissue') || cat.includes('toilet paper')) return '🧻';
+    if (cat.includes('trash bag') || cat.includes('garbage bag')) return '🗑️';
+    
+    // Misc categories
+    if (cat.includes('other') || cat.includes('misc') || cat.includes('miscellaneous')) return '📦';
     
     // Default fallback
     return '🛒';
@@ -2629,7 +2678,7 @@ function App() {
                     <option value="" disabled style={{background: '#1e293b'}}>📂 Select Category</option>
                     {pantryCategories.filter(cat => cat !== 'all').map((category) => (
                       <option key={category} value={category} style={{background: '#1e293b'}}>
-                        {category}
+                        {getCategoryEmoji(category)} {category}
                       </option>
                     ))}
                   </select>
@@ -3148,7 +3197,7 @@ chicken breast, 2 lbs`}
                   <option value="" disabled style={{background: '#1e293b'}}>🎪 Select Category</option>
                   {pantryCategories.filter(cat => cat !== 'all').map((category) => (
                     <option key={category} value={category} style={{background: '#1e293b'}}>
-                      {category}
+                      {getCategoryEmoji(category)} {category}
                     </option>
                   ))}
                 </select>
@@ -5018,7 +5067,7 @@ chicken breast, 2 lbs`}
                                 ...styles.itemBadge,
                                 ...(item.source === 'pantry' ? styles.itemBadgeSource : styles.itemBadgeManual)
                               }}>
-                                {item.source === 'pantry' ? '🏠 Pantry' : `📦 ${(item.category || 'Other').replace(/^(Pantry|Fridge|Freezer)\s*–\s*/, '')}`}
+                                {item.source === 'pantry' ? '🏠 Pantry' : `${getCategoryEmoji(item.category || 'other')} ${(item.category || 'Other').replace(/^(Pantry|Fridge|Freezer)\s*–\s*/, '')}`}
                               </span>
                               <span style={{fontSize: '0.8125rem', color: 'rgba(255,255,255,0.4)', fontWeight: '600'}}>
                                 {getDescription()}
@@ -5356,6 +5405,7 @@ chicken breast, 2 lbs`}
                             .replace(/^Pantry\s*–\s*/,'')
                             .replace(/^Freezer\s*–\s*/,'');
                           const isSelected = pantryCategoryFilter.includes(category);
+                          const categoryIcon = getCategoryEmoji(category);
                           return (
                           <label key={category} style={{
                             display: 'inline-flex', alignItems: 'center', gap: '0.5rem', 
@@ -5370,6 +5420,7 @@ chicken breast, 2 lbs`}
                             transition: 'all 0.2s ease'
                           }}>
                             <input type="checkbox" checked={isSelected} onChange={() => handleCategoryFilterChange(category)} style={{ width: 14, height: 14, accentColor: '#3b82f6' }} />
+                            <span style={{ fontSize: '0.875rem' }}>{categoryIcon}</span>
                             {labelText}
                           </label>
                           );
@@ -5486,9 +5537,12 @@ chicken breast, 2 lbs`}
                                     borderRadius: '0.5rem',
                                     fontSize: '0.7rem',
                                     fontWeight: '600',
-                                    border: '1px solid rgba(255, 255, 255, 0.08)'
+                                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.25rem'
                                   }}>
-                                    📦 {item.category.replace(/^(Pantry|Fridge|Freezer)\s*–\s*/, '')}
+                                    {getCategoryEmoji(item.category || 'other')} {item.category.replace(/^(Pantry|Fridge|Freezer)\s*–\s*/, '')}
                                   </span>
                                   {editingExpiry === item.id ? (
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
