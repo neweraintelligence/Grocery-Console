@@ -706,25 +706,25 @@ const styles = {
     '&:hover': { color: '#60a5fa' },
   },
   tabShoppingActive: {
-    background: 'rgba(59, 130, 246, 0.25)',
+    background: 'rgba(59, 130, 246, 0.35)',
     color: '#60a5fa',
-    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4)',
   },
   tabPantry: {
     '&:hover': { color: '#94a3b8' },
   },
   tabPantryActive: {
-    background: 'rgba(148, 163, 184, 0.25)',
-    color: '#cbd5e1',
-    boxShadow: '0 4px 12px rgba(148, 163, 184, 0.3)',
+    background: 'rgba(148, 163, 184, 0.45)',
+    color: '#ffffff',
+    boxShadow: '0 4px 15px rgba(148, 163, 184, 0.5)',
   },
   tabRecipes: {
     '&:hover': { color: '#93c5fd' },
   },
   tabRecipesActive: {
-    background: 'rgba(59, 130, 246, 0.15)',
+    background: 'rgba(59, 130, 246, 0.25)',
     color: '#93c5fd',
-    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.2)',
+    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
   },
   // Bulk Add Modal Styles
   bulkTextarea: {
