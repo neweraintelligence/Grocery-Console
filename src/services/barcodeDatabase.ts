@@ -1,6 +1,12 @@
 // Multi-database barcode lookup service
 // Queries multiple free databases in sequence for maximum coverage
 // Also maintains a local cache for user-added products
+//
+// To enable Barcode Spider (100 free lookups/day):
+// 1. Sign up at https://www.barcodespider.com/api
+// 2. Get your API token
+// 3. Set it: localStorage.setItem('barcode_spider_token', 'YOUR_TOKEN_HERE')
+// Or set it in browser console: window.BARCODE_SPIDER_TOKEN = 'YOUR_TOKEN_HERE'
 
 export interface ProductInfo {
   name: string;
@@ -189,8 +195,12 @@ async function fetchFromUPCItemDB(barcode: string): Promise<ProductInfo | null> 
     
     const item = data.items[0];
     
+    // Validate we have a product name
+    const name = item.title || (item.brand && item.model ? `${item.brand} ${item.model}` : null);
+    if (!name || name === 'Unknown Product') return null;
+    
     return {
-      name: item.title || item.brand + ' ' + item.model || 'Unknown Product',
+      name,
       category: item.category || 'Other',
       quantity: item.weight || item.size,
       unit: 'units',
@@ -200,6 +210,67 @@ async function fetchFromUPCItemDB(barcode: string): Promise<ProductInfo | null> 
     };
   } catch (error) {
     console.log('UPC Item DB lookup failed:', error);
+    return null;
+  }
+}
+
+/**
+ * Fetch product from Barcode Spider (excellent coverage, millions of products)
+ * Free tier: 100 lookups/day
+ * Requires API token (optional - will skip if not configured)
+ */
+async function fetchFromBarcodeSpider(barcode: string): Promise<ProductInfo | null> {
+  try {
+    // Get API token from environment or localStorage (optional)
+    // If no token, gracefully skip
+    const apiToken = (window as any).BARCODE_SPIDER_TOKEN || 
+                     localStorage.getItem('barcode_spider_token');
+    
+    if (!apiToken) {
+      // No token configured - skip silently
+      return null;
+    }
+    
+    const url = `https://api.barcodespider.com/v1/lookup?upc=${barcode}`;
+    const response = await fetch(url, {
+      headers: {
+        'token': apiToken,
+        'Accept': 'application/json',
+      }
+    });
+    
+    if (!response.ok) {
+      if (response.status === 429) {
+        console.log('Barcode Spider rate limit reached');
+      } else if (response.status === 401) {
+        console.log('Barcode Spider: Invalid API token');
+      }
+      return null;
+    }
+    
+    const data = await response.json();
+    
+    if (!data.item_response || data.item_response.code !== 'OK' || !data.item_response.item) {
+      return null;
+    }
+    
+    const item = data.item_response.item;
+    
+    // Validate we have a product name
+    const name = item.description || item.title || item.alias || null;
+    if (!name) return null;
+    
+    return {
+      name,
+      category: item.category || item.type || 'Other',
+      quantity: item.size || item.weight,
+      unit: 'units',
+      imageUrl: item.images?.[0] || item.image,
+      brand: item.brand || item.manufacturer || '',
+      source: 'Barcode Spider'
+    };
+  } catch (error) {
+    console.log('Barcode Spider lookup failed:', error);
     return null;
   }
 }
@@ -290,7 +361,7 @@ async function fetchFromNutritionix(barcode: string): Promise<ProductInfo | null
 /**
  * Main function: Fetch product by barcode from multiple databases
  * Tries each database in sequence until a product is found
- * Priority: Local cache → Open Food Facts → UPC Item DB → Other databases
+ * Priority: Local cache → Open Food Facts → UPC Item DB → Barcode Spider → Other databases
  */
 export async function fetchProductByBarcode(barcode: string): Promise<ProductInfo | null> {
   console.log(`🔍 Looking up barcode: ${barcode}`);
@@ -314,11 +385,19 @@ export async function fetchProductByBarcode(barcode: string): Promise<ProductInf
     return product;
   }
   
-  // Try UPC Item DB (good general coverage)
+  // Try UPC Item DB (good general coverage, 100/day free)
   console.log('  → Trying UPC Item DB...');
   product = await fetchFromUPCItemDB(cleanBarcode);
   if (product) {
     console.log(`  ✅ Found in UPC Item DB: ${product.name}`);
+    return product;
+  }
+  
+  // Try Barcode Spider (excellent coverage, millions of products, 100/day free)
+  console.log('  → Trying Barcode Spider...');
+  product = await fetchFromBarcodeSpider(cleanBarcode);
+  if (product) {
+    console.log(`  ✅ Found in Barcode Spider: ${product.name}`);
     return product;
   }
   
