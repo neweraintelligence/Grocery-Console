@@ -28,30 +28,23 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
     isUnmountingRef.current = false;
     return () => {
       isUnmountingRef.current = true;
-      // Cleanup on unmount - stop scanner immediately
+      // Cleanup on unmount - stop scanner synchronously before React unmounts
       if (scannerRef.current) {
         const scanner = scannerRef.current;
         scannerRef.current = null;
         
-        // Use requestAnimationFrame to ensure DOM operations happen after React
-        requestAnimationFrame(() => {
-          try {
-            scanner.stop().catch(() => {
-              // Ignore stop errors during cleanup
-            });
-          } catch (e) {
-            // Ignore any errors during cleanup
-          }
-          
-          // Clear after a delay to let stop complete
-          setTimeout(() => {
-            try {
-              scanner.clear();
-            } catch (e) {
-              // Ignore clear errors - DOM may already be cleaned up by React
-            }
-          }, 200);
-        });
+        // Stop scanner immediately and synchronously
+        try {
+          // Try to stop - but don't wait for it
+          scanner.stop().catch(() => {
+            // Ignore stop errors
+          });
+        } catch (e) {
+          // Ignore errors
+        }
+        
+        // Don't call clear() - let React handle DOM cleanup
+        // html5-qrcode's clear() tries to remove nodes that React is managing
       }
     };
   }, []);
@@ -150,8 +143,11 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
         } catch (e) {
           // Ignore
         }
+        // Don't call clear() - manually clear container instead
         try {
-          scannerRef.current.clear();
+          if (container) {
+            container.innerHTML = '';
+          }
         } catch (e) {
           // Ignore
         }
@@ -226,16 +222,18 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
         }
       }
       
-      // Use requestAnimationFrame to ensure DOM operations happen after React updates
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          try {
-            scanner.clear();
-          } catch (err) {
-            // Ignore clear errors - DOM may already be cleaned up
-          }
-        }, 150);
-      });
+      // Don't call clear() - it causes DOM conflicts with React
+      // The container will be cleaned up by React when component unmounts
+      // Just clear the innerHTML manually if needed
+      try {
+        const container = document.getElementById('barcode-scanner');
+        if (container) {
+          // Clear container content manually instead of using scanner.clear()
+          container.innerHTML = '';
+        }
+      } catch (err) {
+        // Ignore errors
+      }
     }
     setScanning(false);
     setLoading(false);
