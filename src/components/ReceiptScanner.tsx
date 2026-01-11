@@ -139,23 +139,124 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
     }
   };
 
+  // Preprocess image for better OCR results
+  const preprocessImage = (file: File): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        img.onload = () => {
+          // Create canvas for image processing
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          if (!ctx) {
+            reject(new Error('Failed to get canvas context'));
+            return;
+          }
+          
+          // Set canvas size to image size (or scale up for small images)
+          const scale = Math.max(1, 1500 / Math.max(img.width, img.height));
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          
+          // Draw image
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          
+          // Get image data for processing
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imageData.data;
+          
+          // Convert to grayscale and increase contrast
+          for (let i = 0; i < data.length; i += 4) {
+            // Convert to grayscale using luminance formula
+            const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+            
+            // Increase contrast - make light pixels lighter, dark pixels darker
+            const contrast = 1.5; // Contrast factor
+            const factor = (259 * (contrast * 100 + 255)) / (255 * (259 - contrast * 100));
+            let newGray = factor * (gray - 128) + 128;
+            
+            // Apply threshold for better text recognition
+            // If pixel is above threshold, make it white, otherwise make it darker
+            if (newGray > 180) {
+              newGray = 255;
+            } else if (newGray < 100) {
+              newGray = 0;
+            }
+            
+            data[i] = newGray;     // R
+            data[i + 1] = newGray; // G
+            data[i + 2] = newGray; // B
+            // Alpha stays the same
+          }
+          
+          // Put processed image back
+          ctx.putImageData(imageData, 0, 0);
+          
+          // Convert canvas to blob
+          canvas.toBlob((blob) => {
+            if (blob) {
+              console.log('📷 Image preprocessed: original size', img.width, 'x', img.height, '→', canvas.width, 'x', canvas.height);
+              resolve(blob);
+            } else {
+              reject(new Error('Failed to create blob from canvas'));
+            }
+          }, 'image/png', 1.0);
+        };
+        
+        img.onerror = () => reject(new Error('Failed to load image'));
+        img.src = e.target?.result as string;
+      };
+      
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
+  };
+
   const processReceiptImage = async (file: File) => {
     setProcessing(true);
     setError(null);
 
     try {
-      // Initialize Tesseract worker
+      console.log('🔄 Starting OCR processing...');
+      
+      // Preprocess image for better OCR
+      let processedImage: Blob;
+      try {
+        processedImage = await preprocessImage(file);
+        console.log('✅ Image preprocessing complete');
+      } catch (preprocessError) {
+        console.warn('⚠️ Image preprocessing failed, using original:', preprocessError);
+        processedImage = file;
+      }
+      
+      // Initialize Tesseract worker with better settings
       const worker = await createWorker('eng');
       
-      // Perform OCR
-      const { data: { text } } = await worker.recognize(file);
+      // Set Tesseract parameters for receipt recognition
+      // PSM 6: Assume a single uniform block of text (good for receipts)
+      // PSM 4: Assume a single column of text of variable sizes
+      await worker.setParameters({
+        tessedit_pageseg_mode: 6 as any, // PSM 6: Assume a single uniform block of text
+        preserve_interword_spaces: '1',
+      });
+      
+      console.log('🔍 Running OCR...');
+      
+      // Perform OCR on preprocessed image
+      const { data: { text, confidence } } = await worker.recognize(processedImage);
+      
+      console.log('📊 OCR confidence:', confidence);
       
       // Terminate worker
       await worker.terminate();
 
       // Log raw OCR text for debugging
       console.log('📄 Raw OCR text:', text);
-      console.log('📄 OCR lines:', text.split('\n').filter(l => l.trim()));
+      const lines = text.split('\n').filter(l => l.trim());
+      console.log('📄 OCR lines (' + lines.length + '):', lines);
 
       // Parse the extracted text into items
       const items = parseReceiptText(text);
@@ -163,7 +264,12 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
       console.log('📦 Parsed items:', items);
       
       if (items.length === 0) {
-        setError('No items found in receipt. Please try a clearer image or add items manually.');
+        // If no items found, show more detailed error
+        if (lines.length < 3) {
+          setError('OCR could not read the receipt clearly. Please try:\n• Better lighting\n• Hold camera steady\n• Ensure receipt is flat and in focus');
+        } else {
+          setError('No grocery items found in receipt. The text was read but no items were recognized. You can add items manually.');
+        }
         setProcessing(false);
         return;
       }
@@ -181,100 +287,129 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
     const lines = text.split('\n').filter(line => line.trim());
     const items: ReceiptItem[] = [];
     
-    // Common patterns in receipts:
-    // - Item name followed by price
-    // - Item name, quantity, price
-    // - Item name with quantity embedded
+    console.log('🔍 Parsing', lines.length, 'lines from OCR');
     
-    // Skip common receipt headers and footers
+    // Skip common receipt headers and footers - more comprehensive list
     const skipPatterns = [
-      /^(TOTAL|SUBTOTAL|TAX|CHANGE|CASH|CARD|RECEIPT|DATE|TIME|STORE|THANK|YOU|APPROVED|RESULT|TERM|SEQUENCE|DEBIT|CREDIT|PAYMENT)/i,
-      /^(FARMER|TABLE|ADDRESS|TEL|PHONE|EMAIL|@|\.com|\.ca|\.org)/i, // Store info
-      /^\d{1,2}\/\d{1,2}\/\d{2,4}/, // Dates
-      /^\d{2}:\d{2}:\d{2}/, // Times
-      /^[A-Z]{2,}\s*\d+$/, // Transaction IDs like "FE010003"
-      /^(WE VALUE|PLEASE EMAIL|FEEDBACK|COMMENTS)/i,
+      /^(TOTAL|SUBTOTAL|SUB TOTAL|TAX|GST|HST|PST|CHANGE|CASH|CARD|RECEIPT|DATE|TIME|STORE|THANK|YOU|APPROVED|RESULT|TERM|SEQUENCE|DEBIT|CREDIT|PAYMENT)/i,
+      /^(FARMER|TABLE|ADDRESS|TEL|PHONE|EMAIL|@|\.com|\.ca|\.org|WWW)/i,
+      /^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}/, // Dates
+      /^\d{2}:\d{2}(:\d{2})?/, // Times
+      /^[A-Z]{2,}\s*\d{4,}$/, // Transaction IDs like "FE010003"
+      /^(WE VALUE|PLEASE EMAIL|FEEDBACK|COMMENTS|VISIT|SURVEY)/i,
       /^\$?\d+\.\d{2}$/, // Just a price
-      /^\d+$/, // Just numbers
-      /^[A-Z\s]{20,}$/, // All caps long strings (likely headers)
-      /^[^a-z]{10,}$/ // No lowercase letters (likely headers/IDs)
+      /^\d{5,}$/, // Long number sequences
+      /^#?\d{4,}$/, // Order/receipt numbers
+      /^(VISA|MASTERCARD|AMEX|INTERAC|CHIP)/i,
     ];
     
-    for (const line of lines) {
-      const trimmed = line.trim();
+    // Skip exact matches (case insensitive)
+    const skipExact = new Set([
+      'sub total', 'subtotal', 'total', 'tax', 'gst', 'hst', 'pst',
+      'cash', 'change', 'thank you', 'thanks', 'approved', 'declined',
+      'debit', 'credit', 'visa', 'mastercard', 'amex', 'interac',
+    ]);
+    
+    for (let i = 0; i < lines.length; i++) {
+      const trimmed = lines[i].trim();
       
       // Skip empty or very short lines
-      if (trimmed.length < 3) {
+      if (trimmed.length < 2) {
+        continue;
+      }
+      
+      // Skip exact matches
+      if (skipExact.has(trimmed.toLowerCase())) {
+        console.log('⏭️ Skipping (exact match):', trimmed);
         continue;
       }
       
       // Skip lines matching skip patterns
       if (skipPatterns.some(pattern => pattern.test(trimmed))) {
+        console.log('⏭️ Skipping (pattern):', trimmed);
         continue;
       }
       
       // Skip lines that are clearly addresses, phone numbers, or emails
       if (
-        trimmed.match(/\d{3,}.*(AVE|ST|RD|BLVD|STREET|AVENUE)/i) || // Addresses
-        trimmed.match(/TEL|PHONE.*\d{3}[-.\s]?\d{3}[-.\s]?\d{4}/i) || // Phone numbers
+        trimmed.match(/\d{3,}.*(AVE|ST|RD|BLVD|STREET|AVENUE|DRIVE|DR|LANE|LN)/i) ||
+        trimmed.match(/[A-Z]\d[A-Z]\s*\d[A-Z]\d/i) || // Postal codes
+        trimmed.match(/\d{3}[-.\s]?\d{3}[-.\s]?\d{4}/) || // Phone numbers
         trimmed.match(/@.*\.(com|ca|org|net)/i) || // Emails
-        trimmed.match(/^\d{5,}/) // Long number sequences (transaction IDs)
+        trimmed.match(/^Sequence/i) ||
+        trimmed.match(/^Result/i) ||
+        trimmed.match(/^Term/i)
       ) {
+        console.log('⏭️ Skipping (address/phone/email):', trimmed);
         continue;
       }
 
       // Try to extract item name and quantity
-      // Pattern 1: "Item Name $X.XX" or "Item Name X.XX"
-      // Pattern 2: "Item Name Qty X" or "Item Name X units"
-      // Pattern 3: "X Item Name"
-      // Pattern 4: "Item Name .XXX kg @ $X.XX/kg" (weight-based items)
-      // Pattern 5: "Item Name X@ Y/$Z.ZZ" (quantity deals)
-      
       let itemName = '';
       let quantity = 1;
       let unit = 'units';
 
-      // Remove price at the end (e.g., "$5.99" or "5.99")
-      // Also handle patterns like "@ $4.39/kg" or "3/$2.50"
+      // Remove price at the end (various formats)
       let withoutPrice = trimmed
-        .replace(/\s+\$?\d+\.\d{2}\s*$/, '') // Remove trailing price
+        .replace(/\s+\$?\d+\.\d{2}\s*[A-Z]?\s*$/, '') // Remove trailing price (with optional letter like "F")
+        .replace(/\s+\$\d+\.\d{2}.*$/, '') // Remove $ price and anything after
+        .replace(/\s+\d+\.\d{2}\s*$/, '') // Remove trailing decimal price
         .replace(/\s+@\s+\$?\d+\.\d+\/[a-z]+/gi, '') // Remove "@ $X.XX/unit" patterns
         .replace(/\s+\d+@\s+\d+\/\$?\d+\.\d+/gi, '') // Remove "X@ Y/$Z.ZZ" patterns
+        .replace(/\s+\d+\/\$?\d+\.\d+/gi, '') // Remove "3/$2.50" patterns
         .trim();
       
-      // Try to find quantity patterns
-      // Pattern: "X.XXX kg" or "X kg" at the start
-      const weightPattern = withoutPrice.match(/^(\d+\.?\d*)\s*(kg|g|lb|lbs|oz)\s+(.+)$/i);
+      // Extract weight-based quantity patterns like ".370 kg" at the start
+      const weightPattern = withoutPrice.match(/^\.?(\d+\.?\d*)\s*(kg|g|lb|lbs|oz)\b\s*(.*)$/i);
       if (weightPattern) {
         quantity = parseFloat(weightPattern[1]);
         unit = weightPattern[2].toLowerCase();
         itemName = weightPattern[3].trim();
-      }
-      // Pattern: "X Item Name" at the start
-      else {
-        const qtyPattern1 = withoutPrice.match(/^(\d+(?:\.\d+)?)\s+(.+)$/i); // "2 Apples"
-        if (qtyPattern1) {
-          quantity = parseFloat(qtyPattern1[1]);
-          itemName = qtyPattern1[2].trim();
-        }
-        // Pattern: "Item Name X units" or "Item Name X pcs"
-        else {
-          const qtyPattern2 = withoutPrice.match(/^(.+?)\s+(\d+(?:\.\d+)?)\s*(pcs?|units?|lbs?|oz|kg|g|ml|l|pack|packs|box|boxes|bottle|bottles|can|cans)$/i);
-          if (qtyPattern2) {
-            itemName = qtyPattern2[1].trim();
-            quantity = parseFloat(qtyPattern2[2]);
-            unit = qtyPattern2[3]?.toLowerCase() || 'units';
+        // If itemName is empty, this might be a continuation - skip for now
+        if (!itemName) {
+          // Check if this is a weight line for previous item
+          if (items.length > 0) {
+            items[items.length - 1].quantity = quantity;
+            items[items.length - 1].unit = unit;
+            console.log('📏 Added weight to previous item:', items[items.length - 1].name);
           }
-          // Pattern: "Item Name x 2"
+          continue;
+        }
+      }
+      // Pattern: "Item Name .XXX kg" - weight at end
+      else {
+        const weightEndPattern = withoutPrice.match(/^(.+?)\s+\.?(\d+\.?\d*)\s*(kg|g|lb|lbs|oz)\b/i);
+        if (weightEndPattern) {
+          itemName = weightEndPattern[1].trim();
+          quantity = parseFloat(weightEndPattern[2]);
+          unit = weightEndPattern[3].toLowerCase();
+        }
+        // Pattern: "X Item Name" at the start (but not if X is very large like a product code)
+        else {
+          const qtyPattern1 = withoutPrice.match(/^(\d{1,2}(?:\.\d+)?)\s+(.+)$/i);
+          if (qtyPattern1 && parseFloat(qtyPattern1[1]) <= 50) {
+            quantity = parseFloat(qtyPattern1[1]);
+            itemName = qtyPattern1[2].trim();
+          }
+          // Pattern: "Item Name X units" or "Item Name X pcs"
           else {
-            const qtyPattern3 = withoutPrice.match(/^(.+?)\s+x\s*(\d+)$/i);
-            if (qtyPattern3) {
-              itemName = qtyPattern3[1].trim();
-              quantity = parseFloat(qtyPattern3[2]);
+            const qtyPattern2 = withoutPrice.match(/^(.+?)\s+(\d+(?:\.\d+)?)\s*(pcs?|units?|lbs?|oz|kg|g|ml|l|pack|packs|box|boxes|bottle|bottles|can|cans)$/i);
+            if (qtyPattern2) {
+              itemName = qtyPattern2[1].trim();
+              quantity = parseFloat(qtyPattern2[2]);
+              unit = qtyPattern2[3]?.toLowerCase() || 'units';
             }
-            // No quantity found, use the whole line as item name
+            // Pattern: "Item Name x 2"
             else {
-              itemName = withoutPrice;
+              const qtyPattern3 = withoutPrice.match(/^(.+?)\s+x\s*(\d+)$/i);
+              if (qtyPattern3) {
+                itemName = qtyPattern3[1].trim();
+                quantity = parseFloat(qtyPattern3[2]);
+              }
+              // No quantity found, use the whole line as item name
+              else {
+                itemName = withoutPrice;
+              }
             }
           }
         }
@@ -283,31 +418,38 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
       // Clean up item name (remove common receipt artifacts)
       itemName = itemName
         .replace(/\s+/g, ' ')
-        .replace(/^[@#*]\s*/, '')
-        .replace(/\s*\([^)]*\)\s*$/, '') // Remove trailing parentheses like "(Green)"
-        .replace(/\s*REGULAR\s*$/i, '') // Remove trailing "REGULAR"
-        .replace(/\s*\d{6,}\s*$/, '') // Remove trailing long numbers (like "135250")
-        .replace(/\s*(SOU|REG|KG|LB|OZ|PC|PCS|UNIT|UNITS)\s*$/i, '') // Remove trailing unit abbreviations
+        .replace(/^[@#*\-]\s*/, '')
+        .replace(/\s*\([^)]*\)\s*$/, '') // Remove trailing parentheses
+        .replace(/\s*REGULAR\s*$/i, '')
+        .replace(/\s*REG\s*$/i, '')
+        .replace(/\s*\d{5,}\s*$/, '') // Remove trailing long numbers
+        .replace(/\s*(SOU|KG|LB|OZ|PC|PCS|UNIT|UNITS|EA|EACH)\s*$/i, '')
+        .replace(/^\d+\s*@\s*/, '') // Remove leading "1@ " patterns
+        .replace(/\s*[A-Z]\s*$/, '') // Remove single trailing letter (often tax indicator)
         .trim();
 
-      // Skip if item name is too short, looks invalid, or is clearly not an item
+      // Skip if item name is too short or looks invalid
       if (
         itemName.length < 2 || 
-        itemName.match(/^\d+$/) ||
-        itemName.match(/^[A-Z\s]{15,}$/) || // All caps long strings
-        itemName.match(/^[^a-z]{10,}$/) || // No lowercase (likely codes/IDs)
-        itemName.match(/^(FARMER|TABLE|ADDRESS|TEL|PHONE|EMAIL)/i) || // Store info
-        itemName.match(/^\d{5,}/) // Starts with long number
+        itemName.match(/^\d+$/) || // Just numbers
+        itemName.match(/^\d+\.\d+$/) || // Just decimal number
+        itemName.match(/^\$/) || // Starts with $
+        itemName.match(/^[A-Z\s]{20,}$/) || // All caps very long strings
+        skipExact.has(itemName.toLowerCase()) ||
+        skipPatterns.some(pattern => pattern.test(itemName))
       ) {
+        console.log('⏭️ Skipping (invalid item name):', itemName);
         continue;
       }
 
       // Categorize the item
       const category = categorizeItem(itemName);
 
+      console.log('✅ Found item:', itemName, 'qty:', quantity, unit, 'cat:', category);
+
       items.push({
         id: `receipt-${Date.now()}-${items.length}`,
-        name: itemName,
+        name: itemName.charAt(0).toUpperCase() + itemName.slice(1).toLowerCase(), // Proper case
         quantity,
         unit,
         category
@@ -320,52 +462,97 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
   const categorizeItem = (itemName: string): string => {
     const name = itemName.toLowerCase();
     
-    if (name.includes('apple') || name.includes('banana') || name.includes('orange') || 
-        name.includes('grape') || name.includes('berry') || name.includes('fruit') ||
-        name.includes('lettuce') || name.includes('spinach') || name.includes('carrot') ||
-        name.includes('tomato') || name.includes('cucumber') || name.includes('pepper') ||
-        name.includes('onion') || name.includes('potato') || name.includes('broccoli')) {
+    // Fresh Produce - expanded list
+    const produceKeywords = [
+      'apple', 'banana', 'orange', 'grape', 'berry', 'fruit', 'lemon', 'lime', 'mango',
+      'peach', 'pear', 'plum', 'cherry', 'melon', 'watermelon', 'kiwi', 'avocado',
+      'lettuce', 'spinach', 'carrot', 'tomato', 'cucumber', 'pepper', 'onion', 'potato',
+      'broccoli', 'celery', 'mushroom', 'zucchini', 'squash', 'cabbage', 'corn', 'bean',
+      'pea', 'asparagus', 'garlic', 'ginger', 'herbs', 'basil', 'cilantro', 'parsley',
+      'kale', 'arugula', 'radish', 'beet', 'turnip', 'eggplant', 'cauliflower', 'leek',
+      'green', 'produce', 'organic', 'fresh', 'salad'
+    ];
+    if (produceKeywords.some(kw => name.includes(kw))) {
       return 'Fresh Produce';
     }
     
-    if (name.includes('milk') || name.includes('cheese') || name.includes('yogurt') ||
-        name.includes('butter') || name.includes('cream') || name.includes('egg')) {
+    // Dairy & Eggs - expanded list
+    const dairyKeywords = [
+      'milk', 'cheese', 'yogurt', 'yoghurt', 'butter', 'cream', 'egg', 'margarine',
+      'sour cream', 'cottage', 'ricotta', 'mozzarella', 'cheddar', 'feta', 'parmesan',
+      'brie', 'gouda', 'swiss', 'provolone', 'dairy', 'lactose', 'whipping'
+    ];
+    if (dairyKeywords.some(kw => name.includes(kw))) {
       return 'Dairy & Eggs';
     }
     
-    if (name.includes('chicken') || name.includes('beef') || name.includes('pork') ||
-        name.includes('fish') || name.includes('salmon') || name.includes('tuna') ||
-        name.includes('shrimp') || name.includes('meat') || name.includes('turkey')) {
+    // Meat & Seafood - expanded list
+    const meatKeywords = [
+      'chicken', 'beef', 'pork', 'fish', 'salmon', 'tuna', 'shrimp', 'meat', 'turkey',
+      'bacon', 'ham', 'sausage', 'steak', 'ground', 'lamb', 'veal', 'duck', 'cod',
+      'tilapia', 'halibut', 'trout', 'crab', 'lobster', 'scallop', 'clam', 'mussel',
+      'prawn', 'seafood', 'deli', 'roast', 'breast', 'thigh', 'wing', 'drumstick'
+    ];
+    if (meatKeywords.some(kw => name.includes(kw))) {
       return 'Meat & Seafood';
     }
     
-    if (name.includes('rice') || name.includes('pasta') || name.includes('flour') ||
-        name.includes('sugar') || name.includes('salt') || name.includes('oil') ||
-        name.includes('vinegar') || name.includes('sauce') || name.includes('spice')) {
+    // Pantry Staples - expanded list
+    const pantryKeywords = [
+      'rice', 'pasta', 'flour', 'sugar', 'salt', 'oil', 'vinegar', 'sauce', 'spice',
+      'olive', 'vegetable oil', 'canola', 'coconut', 'noodle', 'spaghetti', 'penne',
+      'cereal', 'oat', 'oatmeal', 'granola', 'honey', 'syrup', 'jam', 'jelly', 'peanut',
+      'almond', 'canned', 'beans', 'lentil', 'chickpea', 'tomato sauce', 'soup', 'broth',
+      'stock', 'ketchup', 'mustard', 'mayo', 'mayonnaise', 'dressing', 'soy sauce',
+      'seasoning', 'pepper', 'cinnamon', 'paprika', 'cumin', 'oregano', 'thyme',
+      'baking', 'yeast', 'cornstarch', 'vanilla', 'cocoa', 'quick'
+    ];
+    if (pantryKeywords.some(kw => name.includes(kw))) {
       return 'Pantry Staples';
     }
     
-    if (name.includes('bread') || name.includes('bagel') || name.includes('muffin') ||
-        name.includes('croissant') || name.includes('cake') || name.includes('cookie')) {
+    // Bakery - expanded list
+    const bakeryKeywords = [
+      'bread', 'bagel', 'muffin', 'croissant', 'cake', 'cookie', 'donut', 'doughnut',
+      'pastry', 'bun', 'roll', 'loaf', 'tortilla', 'pita', 'naan', 'flatbread',
+      'baguette', 'sourdough', 'rye', 'whole wheat', 'multigrain', 'danish', 'scone',
+      'pie', 'tart', 'brownie', 'cupcake'
+    ];
+    if (bakeryKeywords.some(kw => name.includes(kw))) {
       return 'Bakery';
     }
     
-    if (name.includes('juice') || name.includes('soda') || name.includes('water') ||
-        name.includes('coffee') || name.includes('tea') || name.includes('beer') ||
-        name.includes('wine') || name.includes('drink')) {
+    // Beverages - expanded list
+    const beverageKeywords = [
+      'juice', 'soda', 'water', 'coffee', 'tea', 'beer', 'wine', 'drink', 'pop',
+      'cola', 'sprite', 'fanta', 'ginger ale', 'tonic', 'sparkling', 'mineral',
+      'energy', 'sports', 'smoothie', 'lemonade', 'iced tea', 'kombucha', 'milk alt',
+      'almond milk', 'oat milk', 'soy milk', 'coconut water'
+    ];
+    if (beverageKeywords.some(kw => name.includes(kw))) {
       return 'Beverages';
     }
     
-    if (name.includes('frozen') || name.includes('ice cream')) {
+    // Frozen Foods - expanded list
+    const frozenKeywords = [
+      'frozen', 'ice cream', 'pizza', 'fries', 'nugget', 'popsicle', 'gelato',
+      'sorbet', 'frozen veg', 'frozen fruit', 'freezer', 'ice'
+    ];
+    if (frozenKeywords.some(kw => name.includes(kw))) {
       return 'Frozen Foods';
     }
     
-    if (name.includes('chip') || name.includes('cracker') || name.includes('nut') ||
-        name.includes('candy') || name.includes('chocolate')) {
+    // Snacks - expanded list
+    const snackKeywords = [
+      'chip', 'chips', 'cracker', 'nut', 'candy', 'chocolate', 'pretzel', 'popcorn',
+      'trail mix', 'granola bar', 'protein bar', 'gummy', 'licorice', 'snack',
+      'tortilla chip', 'nacho', 'salsa', 'dip', 'hummus'
+    ];
+    if (snackKeywords.some(kw => name.includes(kw))) {
       return 'Snacks';
     }
     
-    return 'Other';
+    return 'Pantry Staples'; // Default to pantry staples instead of "Other"
   };
 
   // Cleanup camera on unmount
