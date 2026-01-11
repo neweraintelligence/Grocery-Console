@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { createWorker } from 'tesseract.js';
+import { matchReceiptItems } from '../services/smartMatcher';
 
 interface ReceiptItem {
   id: string;
@@ -298,11 +299,11 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
       console.log('📄 OCR lines (' + lines.length + '):', lines);
 
       // Parse the extracted text into items
-      const items = parseReceiptText(text);
+      const rawItems = parseReceiptText(text);
       
-      console.log('📦 Parsed items:', items);
+      console.log('📦 Parsed items (raw):', rawItems);
       
-      if (items.length === 0) {
+      if (rawItems.length === 0) {
         // If no items found, show more detailed error with raw text preview
         if (lines.length < 3) {
           setError(`OCR could not read the receipt clearly (only ${lines.length} lines detected). Please try:\n• Better lighting\n• Hold camera steady\n• Ensure receipt is flat and in focus\n• Try uploading a higher resolution image`);
@@ -314,6 +315,24 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
         setProcessing(false);
         return;
       }
+
+      // Smart matching: match OCR items against existing pantry and shopping list
+      console.log('🧠 Starting smart matching...');
+      const matchedItems = await matchReceiptItems(rawItems);
+      
+      // Convert matched items back to ReceiptItem format
+      const items: ReceiptItem[] = matchedItems.map((item, index) => ({
+        id: `receipt-${Date.now()}-${index}`,
+        name: item.name,
+        quantity: item.quantity,
+        unit: item.unit,
+        category: item.category,
+      }));
+      
+      console.log('📦 Matched items:', items);
+      console.log('📊 Match summary:', matchedItems.map(i => 
+        `${i.originalName || i.name} → ${i.name} (${i.confidence}% via ${i.source})`
+      ));
 
       // Pass items to parent for review
       onItemsExtracted(items);
@@ -330,25 +349,48 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
     
     console.log('🔍 Parsing', lines.length, 'lines from OCR');
     
+    // Helper function to check if text contains receipt footer/header keywords (fuzzy matching for OCR errors)
+    const containsReceiptKeyword = (text: string): boolean => {
+      const lower = text.toLowerCase();
+      // Common receipt keywords that should be skipped (including OCR error variations)
+      const keywords = [
+        'total', 'subtotal', 'sub total', 'sus total', 'sus total',
+        'tax', 'gst', 'hst', 'pst',
+        'debit', 'debi', 'credit', 'card', 'payment', 'pay',
+        'approved', 'approve', 'result', 'resul', 'sesult',
+        'cash', 'change', 'thank', 'thanks',
+        'visa', 'mastercard', 'amex', 'interac', 'chip',
+        'sequence', 'term', 'id',
+        'value', 'feedback', 'email', 'comments', 'please',
+        'sednack', 'paase', 'ema', // OCR errors for "feedback", "please", "email"
+      ];
+      return keywords.some(keyword => lower.includes(keyword));
+    };
+    
     // Skip common receipt headers and footers - more comprehensive list
     const skipPatterns = [
-      /^(TOTAL|SUBTOTAL|SUB TOTAL|TAX|GST|HST|PST|CHANGE|CASH|CARD|RECEIPT|DATE|TIME|STORE|THANK|YOU|APPROVED|RESULT|TERM|SEQUENCE|DEBIT|CREDIT|PAYMENT)/i,
+      /^(TOTAL|SUBTOTAL|SUB\s*TOTAL|SUS\s*TOTAL|TAX|GST|HST|PST|CHANGE|CASH|CARD|RECEIPT|DATE|TIME|STORE|THANK|YOU|APPROVED|APPROVE|RESULT|RESUL|SESULT|TERM|SEQUENCE|DEBIT|DEBI|CREDIT|PAYMENT)/i,
       /^(FARMER|TABLE|ADDRESS|TEL|PHONE|EMAIL|@|\.com|\.ca|\.org|WWW)/i,
       /^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}/, // Dates
       /^\d{2}:\d{2}(:\d{2})?/, // Times
       /^[A-Z]{2,}\s*\d{4,}$/, // Transaction IDs like "FE010003"
-      /^(WE VALUE|PLEASE EMAIL|FEEDBACK|COMMENTS|VISIT|SURVEY)/i,
+      /^(WE\s*VALUE|PLEASE\s*EMAIL|FEEDBACK|COMMENTS|VISIT|SURVEY|VALUE\s*YOUR|SEDNACK|PAASE|EMA)/i,
       /^\$?\d+\.\d{2}$/, // Just a price
       /^\d{5,}$/, // Long number sequences
       /^#?\d{4,}$/, // Order/receipt numbers
       /^(VISA|MASTERCARD|AMEX|INTERAC|CHIP)/i,
+      // Lines that are mostly numbers with $ (like prices)
+      /^\$?\d{3,}$/, // Large numbers that are likely prices without decimals
+      // Lines ending with common receipt terms
+      /(TOTAL|CARD|APPROVED|RESULT|SEQUENCE|TERM)\s*$/i,
     ];
     
-    // Skip exact matches (case insensitive)
+    // Skip exact matches (case insensitive) - including OCR error variations
     const skipExact = new Set([
-      'sub total', 'subtotal', 'total', 'tax', 'gst', 'hst', 'pst',
-      'cash', 'change', 'thank you', 'thanks', 'approved', 'declined',
-      'debit', 'credit', 'visa', 'mastercard', 'amex', 'interac',
+      'sub total', 'subtotal', 'sus total', 'total', 'tax', 'gst', 'hst', 'pst',
+      'cash', 'change', 'thank you', 'thanks', 'approved', 'approve', 'declined',
+      'debit', 'debi', 'credit', 'visa', 'mastercard', 'amex', 'interac',
+      'result', 'resul', 'sesult', 'card', 'debi card',
     ]);
     
     for (let i = 0; i < lines.length; i++) {
@@ -382,6 +424,25 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
         trimmed.match(/^Term/i)
       ) {
         console.log('⏭️ Skipping (address/phone/email):', trimmed);
+        continue;
+      }
+      
+      // Skip lines that contain receipt keywords (fuzzy matching for OCR errors)
+      // This catches things like "Sus total", "Debi card", "Sesult approve", "Ve value your sednack"
+      if (containsReceiptKeyword(trimmed)) {
+        // But allow if it's clearly an item name that happens to contain a keyword
+        // e.g., "Total cereal" should not be skipped
+        const isLikelyItem = trimmed.match(/^[A-Za-z][A-Za-z\s&]+(?:\([^)]+\))?\s*\$?\d+\.?\d*/);
+        if (!isLikelyItem) {
+          console.log('⏭️ Skipping (contains receipt keyword):', trimmed);
+          continue;
+        }
+      }
+      
+      // Skip lines that are just large numbers (likely prices without item names)
+      // e.g., "$2100", "2100", but allow "$4.50" or "4.50" if they have item names
+      if (trimmed.match(/^\$?\d{3,}\s*$/) && !trimmed.match(/[A-Za-z]/)) {
+        console.log('⏭️ Skipping (just large number):', trimmed);
         continue;
       }
 
