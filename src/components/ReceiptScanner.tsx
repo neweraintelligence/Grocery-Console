@@ -32,36 +32,57 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      console.warn('⚠️ No file selected');
+      return;
+    }
+
+    console.log('📁 File selected:', {
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      lastModified: new Date(file.lastModified).toISOString()
+    });
 
     // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setError('Please select an image file');
+    if (!file.type || !file.type.startsWith('image/')) {
+      setError('Please select an image file (JPG, PNG, etc.)');
+      // Reset the input so user can try again
+      event.target.value = '';
       return;
     }
 
-    // Validate file size
-    if (file.size === 0) {
-      setError('Selected file is empty. Please choose a valid image.');
-      return;
-    }
-
-    console.log('📁 Selected file size:', file.size, 'bytes, type:', file.type);
+    // Note: File size validation is handled in processReceiptImage
+    // This allows the processing function to provide better error messages
 
     // Stop camera if running
     if (cameraStream) {
       stopCamera();
     }
 
-    // Create preview
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setPreview(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
+    // Clear any previous errors
+    setError(null);
+    setProcessing(true);
 
-    // Process the image
-    await processReceiptImage(file);
+    try {
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreview(e.target?.result as string);
+      };
+      reader.onerror = () => {
+        setError('Failed to read image file. Please try again.');
+        setProcessing(false);
+      };
+      reader.readAsDataURL(file);
+
+      // Process the image
+      await processReceiptImage(file);
+    } catch (err: any) {
+      console.error('Error in handleFileSelect:', err);
+      setError(err.message || 'Failed to process image. Please try again.');
+      setProcessing(false);
+    }
   };
 
   const startCamera = async () => {
