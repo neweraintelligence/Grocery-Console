@@ -18,6 +18,7 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [lastScanned, setLastScanned] = useState<string | null>(null);
+  const [cameraMode, setCameraMode] = useState<'back' | 'front'>('back'); // Default to back camera
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const scanIdRef = useRef<string | null>(null);
 
@@ -119,8 +120,7 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
       const scanner = new Html5Qrcode('barcode-scanner');
       scannerRef.current = scanner;
 
-      // Use back camera on mobile, default camera on laptop/desktop
-      const isMobile = isMobileDevice();
+      // Use user-selected camera mode
       const scanCallback = createScanCallback();
       const errorCallback = (errorMessage: string) => {
         // Ignore scanning errors (they're frequent during scanning)
@@ -130,10 +130,10 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
         qrbox: { width: 250, height: 250 }
       };
 
-      // Try preferred config first
-      let cameraConfig: any = isMobile 
-        ? { facingMode: 'environment' } // Back camera on mobile
-        : { facingMode: 'user' }; // Front camera on desktop
+      // Use selected camera mode
+      const cameraConfig: any = cameraMode === 'back'
+        ? { facingMode: 'environment' } // Back camera
+        : { facingMode: 'user' }; // Front camera
 
       try {
         await scanner.start(cameraConfig, config, scanCallback, errorCallback);
@@ -142,19 +142,19 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
       } catch (configError: any) {
         // If OverconstrainedError, try alternative facing mode
         if (configError.name === 'OverconstrainedError' || configError.message?.includes('Overconstrained')) {
-          console.warn('Preferred camera config failed, trying alternative:', configError);
+          console.warn('Selected camera config failed, trying alternative:', configError);
           try {
             // Try the opposite facing mode
-            const alternativeConfig = isMobile 
-              ? { facingMode: 'user' } // Try front camera on mobile if back fails
-              : { facingMode: 'environment' }; // Try back camera on desktop if front fails
+            const alternativeConfig = cameraMode === 'back'
+              ? { facingMode: 'user' } // Try front camera if back fails
+              : { facingMode: 'environment' }; // Try back camera if front fails
             
             await scanner.start(alternativeConfig, config, scanCallback, errorCallback);
             setLoading(false);
             return;
           } catch (fallbackError: any) {
             console.error('Fallback camera config also failed:', fallbackError);
-            setError('Failed to access camera. Please check permissions or try a different browser.');
+            setError('Failed to access camera. Please check permissions or try switching camera mode.');
             setScanning(false);
             setLoading(false);
             return;
@@ -218,7 +218,9 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '1rem'
+          marginBottom: '1rem',
+          flexWrap: 'wrap',
+          gap: '1rem'
         }}>
           <h2 style={{
             color: 'white',
@@ -228,23 +230,65 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
           }}>
             📷 Barcode Scanner
           </h2>
-          <button
-            onClick={() => {
-              stopScanning();
-              onClose();
-            }}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              borderRadius: '0.5rem',
-              color: 'white',
-              cursor: 'pointer',
-              fontSize: '1rem'
-            }}
-          >
-            ✕ Close
-          </button>
+          <div style={{
+            display: 'flex',
+            gap: '0.5rem',
+            alignItems: 'center'
+          }}>
+            {/* Camera Toggle */}
+            <button
+              onClick={async () => {
+                if (scanning) {
+                  // If scanning, stop first, then switch
+                  await stopScanning();
+                }
+                setCameraMode(prev => prev === 'back' ? 'front' : 'back');
+                // If we were scanning, restart with new camera
+                if (scanning) {
+                  setTimeout(() => {
+                    startScanning();
+                  }, 500);
+                }
+              }}
+              disabled={loading}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: scanning 
+                  ? 'rgba(59, 130, 246, 0.3)' 
+                  : 'rgba(59, 130, 246, 0.2)',
+                border: '1px solid rgba(59, 130, 246, 0.4)',
+                borderRadius: '0.5rem',
+                color: '#60a5fa',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                opacity: loading ? 0.5 : 1
+              }}
+              title={cameraMode === 'back' ? 'Switch to front camera' : 'Switch to back camera'}
+            >
+              {cameraMode === 'back' ? '📷 Back' : '📱 Front'}
+            </button>
+            <button
+              onClick={() => {
+                stopScanning();
+                onClose();
+              }}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '0.5rem',
+                color: 'white',
+                cursor: 'pointer',
+                fontSize: '1rem'
+              }}
+            >
+              ✕ Close
+            </button>
+          </div>
         </div>
 
         {error && (
@@ -323,7 +367,10 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
           borderRadius: '0.5rem'
         }}>
           <p style={{ margin: '0 0 0.5rem 0' }}>
-            💡 Point {isMobileDevice() ? 'your back camera' : 'your camera'} at a product barcode
+            💡 Point your {cameraMode === 'back' ? 'back camera' : 'front camera'} at a product barcode
+          </p>
+          <p style={{ margin: '0.5rem 0', fontSize: '0.8rem' }}>
+            💡 Tip: Use the camera toggle to switch between back and front cameras
           </p>
           <p style={{ margin: 0, fontSize: '0.8rem' }}>
             Using Open Food Facts - Free & Open Source Product Database
