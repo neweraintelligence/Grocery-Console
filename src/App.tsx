@@ -78,8 +78,8 @@ const QuantityDisplay = ({ quantity, className = '', style = {} }: {
         ...style,
         fontSize: isFraction ? '1.25rem' : style.fontSize,
         fontWeight: '800',
-        color: isFraction ? '#fbbf24' : style.color || 'white',
-        textShadow: isFraction ? '0 0 12px rgba(251, 191, 36, 0.3)' : 'none',
+        color: isFraction ? '#60a5fa' : style.color || 'white',
+        textShadow: isFraction ? '0 0 12px rgba(59, 130, 246, 0.3)' : 'none',
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center'
@@ -173,7 +173,7 @@ const styles = {
     right: '-10rem',
     width: '35rem',
     height: '35rem',
-    background: 'radial-gradient(circle, rgba(249, 115, 22, 0.15) 0%, rgba(236, 72, 153, 0.1) 100%)',
+    background: 'radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.1) 100%)',
     borderRadius: '50%',
     filter: 'blur(5rem)',
     animation: 'pulse 6s ease-in-out infinite',
@@ -184,7 +184,7 @@ const styles = {
     left: '-10rem',
     width: '35rem',
     height: '35rem',
-    background: 'radial-gradient(circle, rgba(34, 197, 94, 0.15) 0%, rgba(59, 130, 246, 0.1) 100%)',
+    background: 'radial-gradient(circle, rgba(148, 163, 184, 0.15) 0%, rgba(100, 116, 139, 0.1) 100%)',
     borderRadius: '50%',
     filter: 'blur(5rem)',
     animation: 'pulse 6s ease-in-out infinite 2s',
@@ -254,14 +254,14 @@ const styles = {
   },
   quickAddBtn: {
     padding: '0.625rem 1.25rem',
-    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.8), rgba(5, 150, 105, 0.8))',
+    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(37, 99, 235, 0.8))',
     color: 'white',
     borderRadius: '0.75rem',
     fontWeight: '600',
     fontSize: '0.875rem',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     cursor: 'pointer',
-    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
+    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)',
     transition: 'all 0.3s ease',
   },
   spreadsheetBtn: {
@@ -376,8 +376,8 @@ const styles = {
   },
   addBtn: {
     padding: '0.75rem 1.5rem',
-    background: 'rgba(255, 255, 255, 0.05)',
-    color: 'white',
+    background: 'rgba(255, 255, 255, 0.04)',
+    color: '#cbd5e1',
     borderRadius: '0.875rem',
     fontWeight: '600',
     fontSize: '0.875rem',
@@ -387,11 +387,12 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '0.5rem',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
   },
   pantryBtn: {
     padding: '0.75rem 1.5rem',
-    background: 'rgba(255, 255, 255, 0.05)',
-    color: 'white',
+    background: 'rgba(255, 255, 255, 0.04)',
+    color: '#cbd5e1',
     borderRadius: '0.875rem',
     fontWeight: '600',
     fontSize: '0.875rem',
@@ -401,6 +402,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '0.5rem',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
   },
   buttonGroup: {
     display: 'flex',
@@ -419,7 +421,7 @@ const styles = {
     borderRadius: '1.25rem',
     padding: '1.25rem 1.5rem',
     border: '1px solid rgba(255, 255, 255, 0.06)',
-    borderLeft: '4px solid rgba(16, 185, 129, 0.5)',
+    borderLeft: '4px solid rgba(59, 130, 246, 0.5)',
     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     cursor: 'pointer',
@@ -544,20 +546,20 @@ const styles = {
     border: '1px solid rgba(255, 255, 255, 0.1)',
   },
   statusLow: {
-    background: 'rgba(245, 158, 11, 0.1)',
-    color: '#fbbf24',
-    border: '1px solid rgba(245, 158, 11, 0.2)',
+    background: 'rgba(148, 163, 184, 0.1)',
+    color: '#94a3b8',
+    border: '1px solid rgba(148, 163, 184, 0.2)',
   },
   statusOut: {
-    background: 'rgba(239, 68, 68, 0.1)',
-    color: '#f87171',
-    border: '1px solid rgba(239, 68, 68, 0.2)',
+    background: 'rgba(71, 85, 105, 0.15)',
+    color: '#cbd5e1',
+    border: '1px solid rgba(148, 163, 184, 0.2)',
     animation: 'pulse 2s ease-in-out infinite',
   },
   statusGood: {
-    background: 'rgba(16, 185, 129, 0.1)',
-    color: '#34d399',
-    border: '1px solid rgba(16, 185, 129, 0.2)',
+    background: 'rgba(59, 130, 246, 0.1)',
+    color: '#60a5fa',
+    border: '1px solid rgba(59, 130, 246, 0.2)',
   },
   sidebar: {
     display: 'flex',
@@ -701,28 +703,28 @@ const styles = {
     fontFamily: "'Fredoka', system-ui, sans-serif",
   },
   tabShopping: {
-    '&:hover': { color: '#fb923c' },
+    '&:hover': { color: '#60a5fa' },
   },
   tabShoppingActive: {
-    background: 'rgba(251, 146, 60, 0.35)',
-    color: '#fb923c',
-    boxShadow: '0 4px 12px rgba(251, 146, 60, 0.4)',
+    background: 'rgba(59, 130, 246, 0.25)',
+    color: '#60a5fa',
+    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
   },
   tabPantry: {
-    '&:hover': { color: '#10b981' },
+    '&:hover': { color: '#94a3b8' },
   },
   tabPantryActive: {
-    background: 'rgba(16, 185, 129, 0.35)',
-    color: '#10b981',
-    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)',
+    background: 'rgba(148, 163, 184, 0.25)',
+    color: '#cbd5e1',
+    boxShadow: '0 4px 12px rgba(148, 163, 184, 0.3)',
   },
   tabRecipes: {
-    '&:hover': { color: '#a855f7' },
+    '&:hover': { color: '#93c5fd' },
   },
   tabRecipesActive: {
-    background: 'rgba(168, 85, 247, 0.15)',
-    color: '#a855f7',
-    boxShadow: '0 4px 12px rgba(168, 85, 247, 0.2)',
+    background: 'rgba(59, 130, 246, 0.15)',
+    color: '#93c5fd',
+    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.2)',
   },
   // Bulk Add Modal Styles
   bulkTextarea: {
@@ -1070,7 +1072,7 @@ const PantryAnalytics = ({ pantryItems }: { pantryItems: PantryItem[] }) => {
                       ? 'linear-gradient(to right, #6366f1, #a855f7)'
                       : value < (item.minCount || 1)
                         ? 'linear-gradient(to right, #f87171, #ef4444)'
-                        : 'linear-gradient(to right, #34d399, #10b981)',
+                        : 'linear-gradient(to right, #60a5fa, #3b82f6)',
                     height: '100%',
                     width: `${Math.max(5, percentage)}%`,
                     borderRadius: '9999px',
@@ -1154,7 +1156,7 @@ const CategoryGroupCheckbox = ({ checked, indeterminate, onChange }: { checked: 
       ref={checkboxRef}
       checked={checked}
       onChange={onChange}
-      style={{ width: 16, height: 16, accentColor: '#10b981', cursor: 'pointer' }}
+      style={{ width: 16, height: 16, accentColor: '#3b82f6', cursor: 'pointer' }}
     />
   );
 };
@@ -2324,14 +2326,14 @@ function App() {
             top: '0',
             left: '50%',
             transform: 'translateX(-50%) translateY(-50%)',
-            background: 'linear-gradient(135deg, #10b981, #059669)',
+            background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
             padding: '0.6rem 2rem',
             borderRadius: '9999px',
             border: '1px solid rgba(255, 255, 255, 0.2)',
             fontSize: '0.875rem',
             fontWeight: '800',
             color: 'white',
-            boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.4)',
+            boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)',
             letterSpacing: '0.1em',
             zIndex: 10
           }}>
@@ -2584,12 +2586,12 @@ function App() {
                   padding: '0.875rem',
                   borderRadius: '0.75rem',
                   border: 'none',
-                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
                   color: 'white',
                   fontWeight: '700',
                   fontSize: '0.875rem',
                   cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)',
+                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)',
                   transition: 'all 0.2s ease'
                 }}
               >
@@ -2672,7 +2674,7 @@ chicken breast, 2 lbs`}
                   <li>"bread" (defaults to 1 piece)</li>
                 </ul>
                 <p style={{
-                  color: '#34d399',
+                  color: '#60a5fa',
                   fontSize: '0.75rem',
                   margin: '1rem 0 0 0',
                   fontStyle: 'italic',
@@ -2716,7 +2718,7 @@ chicken breast, 2 lbs`}
                       : 'rgba(255, 255, 255, 0.05)',
                     color: bulkText.trim() ? 'white' : 'rgba(255, 255, 255, 0.2)',
                     cursor: bulkText.trim() ? 'pointer' : 'not-allowed',
-                    boxShadow: bulkText.trim() ? '0 4px 12px rgba(16, 185, 129, 0.25)' : 'none',
+                    boxShadow: bulkText.trim() ? '0 4px 12px rgba(59, 130, 246, 0.25)' : 'none',
                     border: bulkText.trim() ? 'none' : '1px solid rgba(255, 255, 255, 0.05)'
                   }}
                 >
@@ -3398,14 +3400,14 @@ chicken breast, 2 lbs`}
             top: '0',
             left: '50%',
             transform: 'translateX(-50%) translateY(-50%)',
-            background: 'linear-gradient(135deg, #10b981, #059669)',
+            background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
             padding: '0.6rem 2.5rem',
             borderRadius: '9999px',
             border: '1px solid rgba(255, 255, 255, 0.2)',
             fontSize: '0.875rem',
             fontWeight: '800',
             color: 'white',
-            boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.4)',
+            boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)',
             letterSpacing: '0.1em',
             zIndex: 10
           }}>
@@ -3587,7 +3589,7 @@ chicken breast, 2 lbs`}
                       <span style={{ color: 'rgba(255, 255, 255, 0.6)' }}>{item.category}</span> • {item.unit || 'units'}
                       {item.expiryDate && (
                         <span style={{
-                          color: '#fbbf24',
+                          color: '#94a3b8',
                           fontWeight: '700',
                           marginLeft: '0.5rem'
                         }}>
@@ -3651,7 +3653,7 @@ chicken breast, 2 lbs`}
                         height: '2.25rem',
                         borderRadius: '0.75rem',
                         border: 'none',
-                        background: 'rgba(16, 185, 129, 0.1)',
+                        background: 'rgba(59, 130, 246, 0.1)',
                         color: '#4ade80',
                         cursor: 'pointer',
                         fontSize: '1.25rem',
@@ -3751,7 +3753,7 @@ chicken breast, 2 lbs`}
                   fontWeight: '800',
                   fontSize: '1rem',
                   transition: 'all 0.3s ease',
-                  boxShadow: reviewItems.filter(item => item.quantity > 0).length > 0 ? '0 10px 25px -5px rgba(16, 185, 129, 0.4)' : 'none'
+                  boxShadow: reviewItems.filter(item => item.quantity > 0).length > 0 ? '0 10px 25px -5px rgba(59, 130, 246, 0.4)' : 'none'
                 }}
               >
                 Stock {reviewItems.filter(item => item.quantity > 0).length} Items
@@ -3839,10 +3841,10 @@ chicken breast, 2 lbs`}
                       <div style={{
                         padding: '0.5rem 1rem',
                         borderRadius: '0.75rem',
-                        background: item.confidence > 0.8 ? 'rgba(16, 185, 129, 0.1)' : 
+                        background: item.confidence > 0.8 ? 'rgba(59, 130, 246, 0.1)' : 
                                    item.confidence > 0.6 ? 'rgba(245, 158, 11, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                        color: item.confidence > 0.8 ? '#34d399' : 
-                               item.confidence > 0.6 ? '#fbbf24' : '#f87171',
+                        color: item.confidence > 0.8 ? '#60a5fa' : 
+                               item.confidence > 0.6 ? '#94a3b8' : '#cbd5e1',
                         border: '1px solid currentColor',
                         fontSize: '0.75rem',
                         fontWeight: '800'
@@ -3892,7 +3894,7 @@ chicken breast, 2 lbs`}
                 color: detectedItems.length > 0 ? 'white' : 'rgba(255, 255, 255, 0.2)',
                 fontWeight: '800',
                 cursor: detectedItems.length > 0 ? 'pointer' : 'not-allowed',
-                boxShadow: detectedItems.length > 0 ? '0 10px 25px -5px rgba(16, 185, 129, 0.4)' : 'none'
+                boxShadow: detectedItems.length > 0 ? '0 10px 25px -5px rgba(59, 130, 246, 0.4)' : 'none'
               }}
             >
               Add {detectedItems.length} Items
@@ -3993,7 +3995,7 @@ chicken breast, 2 lbs`}
                 e.currentTarget.style.border = styles.quickStatCard.border;
               }}
             >
-              <div style={{...styles.quickStatValue, color: '#fbbf24'}}>
+              <div style={{...styles.quickStatValue, color: '#94a3b8'}}>
                 {pantryItems.filter(item => item.currentCount < item.minCount).length}
               </div>
               <div style={styles.quickStatLabel}>Running Low</div>
@@ -4077,10 +4079,9 @@ chicken breast, 2 lbs`}
           <button 
             style={{
               ...styles.addBtn,
-              background: `linear-gradient(135deg, rgba(34,197,94,0.4) 0%, rgba(22,163,74,0.5) 100%), 
-                           repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px)`,
-              border: '2px solid rgba(34,197,94,0.4)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), 0 2px 4px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.1)',
+              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.5) 0%, rgba(37, 99, 235, 0.4) 100%)',
+              border: '2px solid rgba(59, 130, 246, 0.5)',
+              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 4px rgba(0,0,0,0.2)',
               textShadow: '0 1px 1px rgba(0,0,0,0.3)',
             }}
             onClick={() => {
@@ -4094,9 +4095,9 @@ chicken breast, 2 lbs`}
           <button 
             style={{
               ...styles.addBtn,
-              background: 'linear-gradient(135deg, rgba(20,184,166,0.8) 0%, rgba(15,118,110,0.7) 100%)',
-              border: '2px solid rgba(20,184,166,0.7)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), 0 2px 4px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.1)',
+              background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.4) 0%, rgba(14, 165, 233, 0.5) 100%)',
+              border: '2px solid rgba(56, 189, 248, 0.4)',
+              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 4px rgba(0,0,0,0.2), 0 0 0 1px rgba(255, 255, 255, 0.1)',
               textShadow: '0 1px 1px rgba(0,0,0,0.3)',
             }}
             onClick={() => {
@@ -4110,9 +4111,9 @@ chicken breast, 2 lbs`}
           <button 
             style={{
               ...styles.addBtn,
-              background: 'linear-gradient(135deg, rgba(100,116,139,0.4) 0%, rgba(71,85,105,0.35) 100%)',
-              border: '2px solid rgba(100,116,139,0.4)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), 0 2px 4px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.1)',
+              background: 'linear-gradient(135deg, rgba(148, 163, 184, 0.4) 0%, rgba(100, 116, 139, 0.35) 100%)',
+              border: '2px solid rgba(148, 163, 184, 0.4)',
+              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 4px rgba(0,0,0,0.2)',
               textShadow: '0 1px 1px rgba(0,0,0,0.3)',
             }}
             onClick={() => {
@@ -4126,10 +4127,10 @@ chicken breast, 2 lbs`}
           <button 
             style={{
               ...styles.addBtn,
-              background: `linear-gradient(135deg, rgba(59,130,246,0.4) 0%, rgba(37,99,235,0.5) 100%), 
-                           repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.05) 2px, rgba(255,255,255,0.05) 4px)`,
-              border: '2px solid rgba(59,130,246,0.4)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), 0 2px 4px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.1)',
+              background: `linear-gradient(135deg, rgba(59, 130, 246, 0.4) 0%, rgba(37, 99, 235, 0.5) 100%), 
+                           repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255, 255, 255, 0.03) 2px, rgba(255, 255, 255, 0.03) 4px)`,
+              border: '2px solid rgba(59, 130, 246, 0.4)',
+              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 4px rgba(0,0,0,0.2)',
               textShadow: '0 1px 1px rgba(0,0,0,0.3)',
             }}
             onClick={() => setShowAnalytics(!showAnalytics)}
@@ -4344,7 +4345,7 @@ chicken breast, 2 lbs`}
                               border: '1px solid rgba(100,116,139,0.2)'
                             }}>
                               <span style={{
-                                color: recipe.availableIngredients.includes(ingredient) ? '#10b981' : '#f59e0b',
+                                color: recipe.availableIngredients.includes(ingredient) ? '#60a5fa' : '#94a3b8',
                                 fontSize: '1.2rem'
                               }}>
                                 {recipe.availableIngredients.includes(ingredient) ? '✅' : '⚠️'}
@@ -4522,7 +4523,7 @@ chicken breast, 2 lbs`}
                       </p>
                     )}
                     {mealPlan.totalEstimatedCost && (
-                      <p style={{color: '#34d399', textAlign: 'center', fontSize: '1.1rem', marginBottom: '1rem'}}>
+                      <p style={{color: '#60a5fa', textAlign: 'center', fontSize: '1.1rem', marginBottom: '1rem'}}>
                         Estimated shopping cost: ${mealPlan.totalEstimatedCost}
                       </p>
                     )}
@@ -4598,7 +4599,7 @@ chicken breast, 2 lbs`}
                       borderRadius: '0.75rem',
                       padding: '1.5rem'
                     }}>
-                      <h4 style={{color: '#34d399', fontSize: '1.2rem', marginBottom: '1rem'}}>
+                      <h4 style={{color: '#60a5fa', fontSize: '1.2rem', marginBottom: '1rem'}}>
                         📋 Shopping List ({mealPlan.shoppingList.length} items)
                       </h4>
                       <div style={{
@@ -4655,13 +4656,18 @@ chicken breast, 2 lbs`}
               </div>
               <div style={styles.buttonGroup}>
                 <button 
-                  style={styles.addBtn}
+                  style={{
+                    ...styles.addBtn,
+                    background: 'rgba(59, 130, 246, 0.1)',
+                    borderColor: 'rgba(59, 130, 246, 0.3)',
+                    color: '#60a5fa'
+                  }}
                   onClick={() => {
                     setModalType('loot');
                     setShowAddModal(true);
                   }}
                 >
-                  <span style={{ fontSize: '1.1rem' }}>➕</span>
+                  <span style={{ fontSize: '1.25rem', fontWeight: '800', marginRight: '4px', color: '#60a5fa' }}>+</span>
                   Add to List
                 </button>
                 {shoppingList.length > 0 && (
@@ -4669,9 +4675,10 @@ chicken breast, 2 lbs`}
                     <button 
                       style={{
                         ...styles.addBtn,
-                        background: 'rgba(251, 191, 36, 0.1)',
-                        color: '#fbbf24',
-                        borderColor: 'rgba(251, 191, 36, 0.2)'
+                        background: 'rgba(148, 163, 184, 0.12)',
+                        color: '#94a3b8',
+                        borderColor: 'rgba(148, 163, 184, 0.25)',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
                       }}
                       onClick={() => {
                         setShowPriceComparison(!showPriceComparison);
@@ -4688,9 +4695,9 @@ chicken breast, 2 lbs`}
                     <button 
                       style={{
                         ...styles.pantryBtn,
-                        background: 'rgba(16, 185, 129, 0.1)',
-                        color: '#34d399',
-                        borderColor: 'rgba(16, 185, 129, 0.2)'
+                        background: 'rgba(59, 130, 246, 0.1)',
+                        color: '#60a5fa',
+                        borderColor: 'rgba(59, 130, 246, 0.2)'
                       }}
                       onClick={() => {
                         setReviewItems([...shoppingList]);
@@ -4763,8 +4770,8 @@ chicken breast, 2 lbs`}
                     return `${qty} ${uom}`;
                   };
                   
-                  const statusColor = getStatusText() === 'Out' || getStatusText() === 'High' ? '#f87171' : 
-                                     getStatusText() === 'Low' || getStatusText() === 'Medium' ? '#fbbf24' : '#4ade80';
+                  const statusColor = getStatusText() === 'Out' || getStatusText() === 'High' ? '#cbd5e1' : 
+                                     getStatusText() === 'Low' || getStatusText() === 'Medium' ? '#94a3b8' : '#60a5fa';
                   
                   return (
                     <div key={item.id || index} style={{
@@ -4792,7 +4799,7 @@ chicken breast, 2 lbs`}
                                 <span style={{
                                   ...styles.itemBadge,
                                   background: 'rgba(251, 191, 36, 0.1)',
-                                  color: '#fbbf24',
+                                  color: '#94a3b8',
                                   border: '1px solid rgba(251, 191, 36, 0.2)',
                                 }}>
                                   📅 Expires: {new Date(item.expiryDate).toLocaleDateString()}
@@ -4850,9 +4857,9 @@ chicken breast, 2 lbs`}
                                 onClick={() => openQuantityModal(item)}
                                 style={{
                                   ...styles.mobileButton,
-                                  background: 'rgba(16, 185, 129, 0.1)',
+                                  background: 'rgba(59, 130, 246, 0.1)',
                                   color: '#4ade80',
-                                  border: '1px solid rgba(16, 185, 129, 0.2)'
+                                  border: '1px solid rgba(59, 130, 246, 0.2)'
                                 }}
                               >
                                 +
@@ -5069,13 +5076,13 @@ chicken breast, 2 lbs`}
                   display: 'inline-flex', alignItems: 'center', gap: '0.75rem',
                   padding: '0.75rem 1rem', borderRadius: '0.875rem',
                   border: '1px solid',
-                  borderColor: pantryCategoryFilter.includes('all') ? 'rgba(16, 185, 129, 0.3)' : 'rgba(255,255,255,0.08)',
-                  background: pantryCategoryFilter.includes('all') ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.03)',
-                  color: pantryCategoryFilter.includes('all') ? '#34d399' : 'rgba(255,255,255,0.6)',
+                  borderColor: pantryCategoryFilter.includes('all') ? 'rgba(59, 130, 246, 0.3)' : 'rgba(255,255,255,0.08)',
+                  background: pantryCategoryFilter.includes('all') ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255,255,255,0.03)',
+                  color: pantryCategoryFilter.includes('all') ? '#60a5fa' : 'rgba(255,255,255,0.6)',
                   fontSize: '0.875rem', fontWeight: '600', cursor: 'pointer',
                   transition: 'all 0.2s ease'
                 }}>
-                  <input type="checkbox" checked={pantryCategoryFilter.includes('all')} onChange={() => handleCategoryFilterChange('all')} style={{ width: 18, height: 18, accentColor: '#10b981' }} />
+                  <input type="checkbox" checked={pantryCategoryFilter.includes('all')} onChange={() => handleCategoryFilterChange('all')} style={{ width: 18, height: 18, accentColor: '#3b82f6' }} />
                   📦 All Items
                 </label>
 
@@ -5228,8 +5235,8 @@ chicken breast, 2 lbs`}
                         return <span style={{fontSize: '1.5rem'}}>{emoji}</span>;
                       };
                       
-                      const statusColor = item.currentCount === 0 ? '#ef4444' : 
-                                         item.currentCount < item.minCount ? '#f59e0b' : '#10b981';
+                      const statusColor = item.currentCount === 0 ? '#cbd5e1' : 
+                                         item.currentCount < item.minCount ? '#94a3b8' : '#60a5fa';
                       
                       return (
                         <div key={item.id || index} style={{
@@ -5274,7 +5281,7 @@ chicken breast, 2 lbs`}
                                         onClick={() => handleExpiryDateUpdate(item.id, newExpiryDate)}
                                         style={{
                                           width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', border: 'none',
-                                          background: '#10b981', color: 'white', fontSize: '0.75rem', cursor: 'pointer'
+                                          background: '#3b82f6', color: 'white', fontSize: '0.75rem', cursor: 'pointer'
                                         }}
                                       >✓</button>
                                       <button
@@ -5369,9 +5376,9 @@ chicken breast, 2 lbs`}
                                     }}
                                     style={{
                                       ...styles.mobileButton,
-                                      background: 'rgba(16, 185, 129, 0.1)',
+                                      background: 'rgba(59, 130, 246, 0.1)',
                                       color: '#4ade80',
-                                      border: '1px solid rgba(16, 185, 129, 0.2)'
+                                      border: '1px solid rgba(59, 130, 246, 0.2)'
                                     }}
                                   >+</button>
                                 </div>

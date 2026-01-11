@@ -144,30 +144,30 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
 
   const getUrgencyColor = (urgency: string) => {
     switch (urgency) {
-      case 'critical': return 'rgba(239, 68, 68, 0.2)';
-      case 'high': return 'rgba(249, 115, 22, 0.2)';
-      case 'medium': return 'rgba(234, 179, 8, 0.2)';
-      case 'low': return 'rgba(34, 197, 94, 0.2)';
+      case 'critical': return 'rgba(148, 163, 184, 0.2)';
+      case 'high': return 'rgba(59, 130, 246, 0.2)';
+      case 'medium': return 'rgba(148, 163, 184, 0.15)';
+      case 'low': return 'rgba(59, 130, 246, 0.1)';
       default: return 'rgba(156, 163, 175, 0.1)';
     }
   };
 
   const getUrgencyTextColor = (urgency: string) => {
     switch (urgency) {
-      case 'critical': return '#f87171';
-      case 'high': return '#fb923c';
-      case 'medium': return '#fbbf24';
-      case 'low': return '#4ade80';
+      case 'critical': return '#cbd5e1';
+      case 'high': return '#60a5fa';
+      case 'medium': return '#94a3b8';
+      case 'low': return '#93c5fd';
       default: return '#9ca3af';
     }
   };
 
   const getUrgencyEmoji = (urgency: string) => {
     switch (urgency) {
-      case 'critical': return '🚨';
-      case 'high': return '🔴';
-      case 'medium': return '🟡';
-      case 'low': return '🟢';
+      case 'critical': return '🔹';
+      case 'high': return '🔵';
+      case 'medium': return '◽';
+      case 'low': return '▫️';
       default: return '⚪';
     }
   };
@@ -218,14 +218,14 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
           top: '0',
           left: '50%',
           transform: 'translateX(-50%) translateY(-50%)',
-          background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+          background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
           padding: '0.75rem 2.5rem',
           borderRadius: '9999px',
           border: '1px solid rgba(255, 255, 255, 0.2)',
           fontSize: '1rem',
           fontWeight: '800',
-          color: '#451a03',
-          boxShadow: '0 10px 25px -5px rgba(245, 158, 11, 0.4)',
+          color: 'white',
+          boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)',
           whiteSpace: 'nowrap',
           zIndex: 10,
           letterSpacing: '0.05em'
@@ -271,7 +271,7 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
             fontSize: '2.5rem',
             fontWeight: '800',
             margin: '0 0 0.75rem 0',
-            background: 'linear-gradient(to right, #fff, #fbbf24)',
+            background: 'linear-gradient(to right, #fff, #93c5fd)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             letterSpacing: '-0.02em'
@@ -308,7 +308,7 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
             </div>
           </div>
           <div style={{ textAlign: 'center', borderLeft: '1px solid rgba(255, 255, 255, 0.08)', borderRight: '1px solid rgba(255, 255, 255, 0.08)' }}>
-            <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#f87171' }}>
+            <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#cbd5e1' }}>
               {predictions.filter(p => p.urgency === 'critical').length}
             </div>
             <div style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '700', marginTop: '0.25rem' }}>
@@ -316,7 +316,7 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
             </div>
           </div>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#fbbf24' }}>
+            <div style={{ fontSize: '1.75rem', fontWeight: '800', color: '#60a5fa' }}>
               {predictions.filter(p => p.urgency === 'high').length}
             </div>
             <div style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '700', marginTop: '0.25rem' }}>
@@ -472,7 +472,7 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
               style={{
                 width: '1.125rem',
                 height: '1.125rem',
-                accentColor: '#fbbf24',
+                accentColor: '#3b82f6',
                 cursor: 'pointer'
               }}
             />
@@ -510,8 +510,8 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
                 padding: '1rem 2.5rem',
                 background: isGeneratingPDF 
                   ? 'rgba(255, 255, 255, 0.1)' 
-                  : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
-                color: isGeneratingPDF ? 'rgba(255, 255, 255, 0.4)' : '#451a03',
+                  : 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                color: 'white',
                 border: 'none',
                 borderRadius: '1rem',
                 cursor: isGeneratingPDF || predictions.length === 0 ? 'not-allowed' : 'pointer',
@@ -521,24 +521,24 @@ export const WeeksListBox: React.FC<WeeksListBoxProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.75rem',
-                boxShadow: isGeneratingPDF ? 'none' : '0 10px 25px -5px rgba(245, 158, 11, 0.4)'
+                boxShadow: isGeneratingPDF ? 'none' : '0 10px 25px -5px rgba(59, 130, 246, 0.4)'
               }}
               onMouseEnter={(e) => {
                 if (!isGeneratingPDF && predictions.length > 0) {
                   e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 15px 30px -5px rgba(245, 158, 11, 0.5)';
+                  e.currentTarget.style.boxShadow = '0 15px 30px -5px rgba(59, 130, 246, 0.5)';
                 }
               }}
               onMouseLeave={(e) => {
                 if (!isGeneratingPDF && predictions.length > 0) {
                   e.currentTarget.style.transform = 'none';
-                  e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(245, 158, 11, 0.4)';
+                  e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(59, 130, 246, 0.4)';
                 }
               }}
             >
               {isGeneratingPDF ? (
                 <>
-                  <Spinner size={18} color="rgba(69, 26, 3, 0.6)" />
+                  <Spinner size={18} color="rgba(255, 255, 255, 0.6)" />
                   Generating...
                 </>
               ) : (
