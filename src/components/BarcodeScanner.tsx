@@ -25,8 +25,19 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
     return () => {
       // Cleanup on unmount
       if (scannerRef.current) {
-        scannerRef.current.stop().catch(() => {});
-        scannerRef.current.clear();
+        try {
+          scannerRef.current.stop().catch(() => {
+            // Ignore stop errors during cleanup
+          });
+        } catch (e) {
+          // Ignore any errors during cleanup
+        }
+        try {
+          scannerRef.current.clear();
+        } catch (e) {
+          // Ignore clear errors
+        }
+        scannerRef.current = null;
       }
     };
   }, []);
@@ -35,6 +46,68 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
   const isMobileDevice = () => {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
            (window.matchMedia && window.matchMedia('(max-width: 768px)').matches);
+  };
+
+  // Common scan callback handler
+  const createScanCallback = () => {
+    return async (decodedText: string) => {
+      // Prevent duplicate scans
+      if (decodedText === lastScanned) {
+        return;
+      }
+      
+      setLastScanned(decodedText);
+      setLoading(true);
+      
+      if (!scannerRef.current) return;
+      
+      // Stop scanning temporarily
+      try {
+        await scannerRef.current.stop();
+      } catch (e) {
+        // Ignore stop errors
+      }
+      setScanning(false);
+      
+      // Fetch product info
+      const productInfo = await fetchProductByBarcode(decodedText);
+      
+      if (productInfo) {
+        // Parse quantity if available
+        let currentCount = 1;
+        let unit = productInfo.unit || 'units';
+        
+        if (productInfo.quantity) {
+          const qtyMatch = productInfo.quantity.match(/(\d+(?:\.\d+)?)\s*(\w+)/);
+          if (qtyMatch) {
+            currentCount = parseFloat(qtyMatch[1]);
+            unit = qtyMatch[2] || unit;
+          }
+        }
+        
+        const category = productInfo.category 
+          ? mapToAppCategory(productInfo.category)
+          : 'Other';
+        
+        onScanSuccess({
+          name: productInfo.name,
+          category,
+          currentCount,
+          minCount: Math.max(0.25, Number((currentCount * 0.3).toFixed(2))),
+          unit
+        });
+        
+        // Close scanner after successful scan
+        onClose();
+      } else {
+        setError(`Product not found for barcode: ${decodedText}. You can add it manually.`);
+        setLoading(false);
+        // Resume scanning after a delay
+        setTimeout(() => {
+          startScanning();
+        }, 2000);
+      }
+    };
   };
 
   const startScanning = async () => {
@@ -48,91 +121,48 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
 
       // Use back camera on mobile, default camera on laptop/desktop
       const isMobile = isMobileDevice();
-      let cameraConfig: any;
-      
-      if (isMobile) {
-        cameraConfig = { facingMode: 'environment' }; // Back camera on mobile
-      } else {
-        // For desktop, try to get available cameras and use the first one
-        try {
-          const devices = await navigator.mediaDevices.enumerateDevices();
-          const videoDevices = devices.filter(device => device.kind === 'videoinput');
-          if (videoDevices.length > 0) {
-            cameraConfig = { deviceId: { exact: videoDevices[0].deviceId } };
-          } else {
-            // Fallback: use user-facing camera
-            cameraConfig = { facingMode: 'user' };
-          }
-        } catch (err) {
-          // If enumeration fails, use user-facing camera
-          cameraConfig = { facingMode: 'user' };
-        }
-      }
+      const scanCallback = createScanCallback();
+      const errorCallback = (errorMessage: string) => {
+        // Ignore scanning errors (they're frequent during scanning)
+      };
+      const config = {
+        fps: 10,
+        qrbox: { width: 250, height: 250 }
+      };
 
-      await scanner.start(
-        cameraConfig,
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 }
-        },
-        async (decodedText) => {
-          // Prevent duplicate scans
-          if (decodedText === lastScanned) {
+      // Try preferred config first
+      let cameraConfig: any = isMobile 
+        ? { facingMode: 'environment' } // Back camera on mobile
+        : { facingMode: 'user' }; // Front camera on desktop
+
+      try {
+        await scanner.start(cameraConfig, config, scanCallback, errorCallback);
+        setLoading(false);
+        return;
+      } catch (configError: any) {
+        // If OverconstrainedError, try alternative facing mode
+        if (configError.name === 'OverconstrainedError' || configError.message?.includes('Overconstrained')) {
+          console.warn('Preferred camera config failed, trying alternative:', configError);
+          try {
+            // Try the opposite facing mode
+            const alternativeConfig = isMobile 
+              ? { facingMode: 'user' } // Try front camera on mobile if back fails
+              : { facingMode: 'environment' }; // Try back camera on desktop if front fails
+            
+            await scanner.start(alternativeConfig, config, scanCallback, errorCallback);
+            setLoading(false);
+            return;
+          } catch (fallbackError: any) {
+            console.error('Fallback camera config also failed:', fallbackError);
+            setError('Failed to access camera. Please check permissions or try a different browser.');
+            setScanning(false);
+            setLoading(false);
             return;
           }
-          
-          setLastScanned(decodedText);
-          setLoading(true);
-          
-          // Stop scanning temporarily
-          await scanner.stop();
-          setScanning(false);
-          
-          // Fetch product info
-          const productInfo = await fetchProductByBarcode(decodedText);
-          
-          if (productInfo) {
-            // Parse quantity if available
-            let currentCount = 1;
-            let unit = productInfo.unit || 'units';
-            
-            if (productInfo.quantity) {
-              const qtyMatch = productInfo.quantity.match(/(\d+(?:\.\d+)?)\s*(\w+)/);
-              if (qtyMatch) {
-                currentCount = parseFloat(qtyMatch[1]);
-                unit = qtyMatch[2] || unit;
-              }
-            }
-            
-            const category = productInfo.category 
-              ? mapToAppCategory(productInfo.category)
-              : 'Other';
-            
-            onScanSuccess({
-              name: productInfo.name,
-              category,
-              currentCount,
-              minCount: Math.max(0.25, Number((currentCount * 0.3).toFixed(2))),
-              unit
-            });
-            
-            // Close scanner after successful scan
-            onClose();
-          } else {
-            setError(`Product not found for barcode: ${decodedText}. You can add it manually.`);
-            setLoading(false);
-            // Resume scanning after a delay
-            setTimeout(() => {
-              startScanning();
-            }, 2000);
-          }
-        },
-        (errorMessage) => {
-          // Ignore scanning errors (they're frequent during scanning)
         }
-      );
-      
-      setLoading(false);
+        // For other errors, rethrow
+        throw configError;
+      }
     } catch (err: any) {
       console.error('Error starting scanner:', err);
       setError(err.message || 'Failed to start camera. Please check permissions.');
