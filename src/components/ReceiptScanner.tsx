@@ -153,8 +153,14 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
       // Terminate worker
       await worker.terminate();
 
+      // Log raw OCR text for debugging
+      console.log('📄 Raw OCR text:', text);
+      console.log('📄 OCR lines:', text.split('\n').filter(l => l.trim()));
+
       // Parse the extracted text into items
       const items = parseReceiptText(text);
+      
+      console.log('📦 Parsed items:', items);
       
       if (items.length === 0) {
         setError('No items found in receipt. Please try a clearer image or add items manually.');
@@ -180,15 +186,39 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
     // - Item name, quantity, price
     // - Item name with quantity embedded
     
+    // Skip common receipt headers and footers
+    const skipPatterns = [
+      /^(TOTAL|SUBTOTAL|TAX|CHANGE|CASH|CARD|RECEIPT|DATE|TIME|STORE|THANK|YOU|APPROVED|RESULT|TERM|SEQUENCE|DEBIT|CREDIT|PAYMENT)/i,
+      /^(FARMER|TABLE|ADDRESS|TEL|PHONE|EMAIL|@|\.com|\.ca|\.org)/i, // Store info
+      /^\d{1,2}\/\d{1,2}\/\d{2,4}/, // Dates
+      /^\d{2}:\d{2}:\d{2}/, // Times
+      /^[A-Z]{2,}\s*\d+$/, // Transaction IDs like "FE010003"
+      /^(WE VALUE|PLEASE EMAIL|FEEDBACK|COMMENTS)/i,
+      /^\$?\d+\.\d{2}$/, // Just a price
+      /^\d+$/, // Just numbers
+      /^[A-Z\s]{20,}$/, // All caps long strings (likely headers)
+      /^[^a-z]{10,}$/ // No lowercase letters (likely headers/IDs)
+    ];
+    
     for (const line of lines) {
       const trimmed = line.trim();
       
-      // Skip lines that are clearly not items
+      // Skip empty or very short lines
+      if (trimmed.length < 3) {
+        continue;
+      }
+      
+      // Skip lines matching skip patterns
+      if (skipPatterns.some(pattern => pattern.test(trimmed))) {
+        continue;
+      }
+      
+      // Skip lines that are clearly addresses, phone numbers, or emails
       if (
-        trimmed.match(/^(TOTAL|SUBTOTAL|TAX|CHANGE|CASH|CARD|RECEIPT|DATE|TIME|STORE|THANK|YOU)/i) ||
-        trimmed.match(/^\$?\d+\.\d{2}$/) || // Just a price
-        trimmed.length < 3 ||
-        trimmed.match(/^\d+$/) // Just numbers
+        trimmed.match(/\d{3,}.*(AVE|ST|RD|BLVD|STREET|AVENUE)/i) || // Addresses
+        trimmed.match(/TEL|PHONE.*\d{3}[-.\s]?\d{3}[-.\s]?\d{4}/i) || // Phone numbers
+        trimmed.match(/@.*\.(com|ca|org|net)/i) || // Emails
+        trimmed.match(/^\d{5,}/) // Long number sequences (transaction IDs)
       ) {
         continue;
       }
@@ -197,42 +227,78 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
       // Pattern 1: "Item Name $X.XX" or "Item Name X.XX"
       // Pattern 2: "Item Name Qty X" or "Item Name X units"
       // Pattern 3: "X Item Name"
+      // Pattern 4: "Item Name .XXX kg @ $X.XX/kg" (weight-based items)
+      // Pattern 5: "Item Name X@ Y/$Z.ZZ" (quantity deals)
       
       let itemName = '';
       let quantity = 1;
       let unit = 'units';
 
       // Remove price at the end (e.g., "$5.99" or "5.99")
-      const withoutPrice = trimmed.replace(/\s+\$?\d+\.\d{2}\s*$/, '').trim();
+      // Also handle patterns like "@ $4.39/kg" or "3/$2.50"
+      let withoutPrice = trimmed
+        .replace(/\s+\$?\d+\.\d{2}\s*$/, '') // Remove trailing price
+        .replace(/\s+@\s+\$?\d+\.\d+\/[a-z]+/gi, '') // Remove "@ $X.XX/unit" patterns
+        .replace(/\s+\d+@\s+\d+\/\$?\d+\.\d+/gi, '') // Remove "X@ Y/$Z.ZZ" patterns
+        .trim();
       
       // Try to find quantity patterns
-      const qtyPattern1 = withoutPrice.match(/^(\d+(?:\.\d+)?)\s+(.+)$/i); // "2 Apples"
-      const qtyPattern2 = withoutPrice.match(/^(.+?)\s+(\d+(?:\.\d+)?)\s*(pcs?|units?|lbs?|oz|kg|g|ml|l|pack|packs|box|boxes|bottle|bottles|can|cans)$/i); // "Apples 2 pcs"
-      const qtyPattern3 = withoutPrice.match(/^(.+?)\s+x\s*(\d+)$/i); // "Apples x 2"
-      
-      if (qtyPattern1) {
-        quantity = parseFloat(qtyPattern1[1]);
-        itemName = qtyPattern1[2].trim();
-      } else if (qtyPattern2) {
-        itemName = qtyPattern2[1].trim();
-        quantity = parseFloat(qtyPattern2[2]);
-        unit = qtyPattern2[3]?.toLowerCase() || 'units';
-      } else if (qtyPattern3) {
-        itemName = qtyPattern3[1].trim();
-        quantity = parseFloat(qtyPattern3[2]);
-      } else {
-        // No quantity found, use the whole line as item name
-        itemName = withoutPrice;
+      // Pattern: "X.XXX kg" or "X kg" at the start
+      const weightPattern = withoutPrice.match(/^(\d+\.?\d*)\s*(kg|g|lb|lbs|oz)\s+(.+)$/i);
+      if (weightPattern) {
+        quantity = parseFloat(weightPattern[1]);
+        unit = weightPattern[2].toLowerCase();
+        itemName = weightPattern[3].trim();
+      }
+      // Pattern: "X Item Name" at the start
+      else {
+        const qtyPattern1 = withoutPrice.match(/^(\d+(?:\.\d+)?)\s+(.+)$/i); // "2 Apples"
+        if (qtyPattern1) {
+          quantity = parseFloat(qtyPattern1[1]);
+          itemName = qtyPattern1[2].trim();
+        }
+        // Pattern: "Item Name X units" or "Item Name X pcs"
+        else {
+          const qtyPattern2 = withoutPrice.match(/^(.+?)\s+(\d+(?:\.\d+)?)\s*(pcs?|units?|lbs?|oz|kg|g|ml|l|pack|packs|box|boxes|bottle|bottles|can|cans)$/i);
+          if (qtyPattern2) {
+            itemName = qtyPattern2[1].trim();
+            quantity = parseFloat(qtyPattern2[2]);
+            unit = qtyPattern2[3]?.toLowerCase() || 'units';
+          }
+          // Pattern: "Item Name x 2"
+          else {
+            const qtyPattern3 = withoutPrice.match(/^(.+?)\s+x\s*(\d+)$/i);
+            if (qtyPattern3) {
+              itemName = qtyPattern3[1].trim();
+              quantity = parseFloat(qtyPattern3[2]);
+            }
+            // No quantity found, use the whole line as item name
+            else {
+              itemName = withoutPrice;
+            }
+          }
+        }
       }
 
       // Clean up item name (remove common receipt artifacts)
       itemName = itemName
         .replace(/\s+/g, ' ')
         .replace(/^[@#*]\s*/, '')
+        .replace(/\s*\([^)]*\)\s*$/, '') // Remove trailing parentheses like "(Green)"
+        .replace(/\s*REGULAR\s*$/i, '') // Remove trailing "REGULAR"
+        .replace(/\s*\d{6,}\s*$/, '') // Remove trailing long numbers (like "135250")
+        .replace(/\s*(SOU|REG|KG|LB|OZ|PC|PCS|UNIT|UNITS)\s*$/i, '') // Remove trailing unit abbreviations
         .trim();
 
-      // Skip if item name is too short or looks invalid
-      if (itemName.length < 2 || itemName.match(/^\d+$/)) {
+      // Skip if item name is too short, looks invalid, or is clearly not an item
+      if (
+        itemName.length < 2 || 
+        itemName.match(/^\d+$/) ||
+        itemName.match(/^[A-Z\s]{15,}$/) || // All caps long strings
+        itemName.match(/^[^a-z]{10,}$/) || // No lowercase (likely codes/IDs)
+        itemName.match(/^(FARMER|TABLE|ADDRESS|TEL|PHONE|EMAIL)/i) || // Store info
+        itemName.match(/^\d{5,}/) // Starts with long number
+      ) {
         continue;
       }
 
