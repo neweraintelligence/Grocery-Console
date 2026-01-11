@@ -356,8 +356,233 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
     }
   };
 
+  // ============================================
+  // SUPERSTORE RECEIPT PARSER
+  // Specialized parser for Real Canadian Superstore receipts
+  // ============================================
+  const parseSuperstoreReceipt = (text: string): ReceiptItem[] => {
+    const lines = text.split('\n').filter(line => line.trim());
+    const items: ReceiptItem[] = [];
+    let currentCategory = 'Pantry Staples';
+    
+    console.log('🏪 Parsing as Superstore receipt...');
+    
+    // Section headers map to categories
+    const sectionCategories: Record<string, string> = {
+      '21-grocery': 'Pantry Staples',
+      '22-dairy': 'Dairy & Eggs',
+      '23-frozen': 'Frozen Foods',
+      '27-produce': 'Fresh Produce',
+      '31-meats': 'Meat & Seafood',
+      '35-deli': 'Deli',
+      '41-home': 'Household',
+      '02-baby': 'Baby',
+      '49-other': 'Other',
+    };
+    
+    // Common Superstore abbreviations expansion
+    const abbreviations: Record<string, string> = {
+      'pc': 'President\'s Choice',
+      'pco': 'PC Organics',
+      'nn': 'No Name',
+      'chk': 'Chicken',
+      'drm': 'Drumsticks',
+      'drum': 'Drumsticks',
+      'brst': 'Breast',
+      'thgh': 'Thighs',
+      'grnd': 'Ground',
+      'bby': 'Baby',
+      'car': 'Carrots',
+      'pot': 'Potatoes',
+      'tom': 'Tomatoes',
+      'grn': 'Green',
+      'grns': 'Greens',
+      'fld': 'Field',
+      'sld': 'Salad',
+      'spnch': 'Spinach',
+      'tc': 'Thin Crust',
+      'pep': 'Pepperoni',
+      'chs': 'Cheese',
+      'chz': 'Cheese',
+      'crm': 'Cream',
+      'whl': 'Whole',
+      'wht': 'White',
+      'brn': 'Brown',
+      'org': 'Organic',
+      'nat': 'Natural',
+      'frz': 'Frozen',
+      'frsh': 'Fresh',
+      'veg': 'Vegetable',
+      'dair': 'Dairy',
+      'whp': 'Whip',
+      'whip': 'Whipped',
+      'kft': 'Kraft',
+      'sig': 'Signature',
+      'vin': 'Vinaigrette',
+      'rasp': 'Raspberry',
+      'stl': 'Style',
+      'par': 'Parmesan',
+      'splendido': 'Splendido',
+      'bocc': 'Bocconcini',
+      'bocconcini': 'Bocconcini',
+      'boursin': 'Boursin',
+      'pmpr': 'Pampers',
+      'dipr': 'Diapers',
+      'nnj': 'Newborn',
+      'lays': 'Lays',
+      'chip': 'Chips',
+      'chips': 'Chips',
+      'ketchp': 'Ketchup',
+      'ruffles': 'Ruffles',
+      'tagliatelle': 'Tagliatelle',
+      'fiber': 'Fiber',
+      'oats': 'Oats',
+      'cho': 'Chocolate',
+      'canola': 'Canola',
+      'vegetable': 'Vegetable',
+      'oil': 'Oil',
+      'express': 'Express',
+      'plastic': 'Plastic',
+      'bags': 'Bags',
+      'service': 'Service',
+      'fee': 'Fee',
+    };
+    
+    // Tax codes that appear at end of item lines (to be removed)
+    const taxCodes = /\s+(MRJ|HMRJ|RQ|HRQ|GMRJ|GPMRJ|KB|H|G|P)\s*$/i;
+    
+    // Lines to skip completely
+    const skipPatterns = [
+      /^real\s*canadian/i,
+      /^superstore/i,
+      /^rcss/i,
+      /big\s*on\s*fresh/i,
+      /low\s*on\s*price/i,
+      /welcome/i,
+      /^\d{3}[-.\s]?\d{3}[-.\s]?\d{4}/, // Phone numbers
+      /^\d+\s+(willowbrook|drive|avenue|street|rd|blvd)/i, // Addresses
+      /^(subtotal|total|hst|gst|pst|h=hst|g=gst|p=pst)/i,
+      /transaction\s*record/i,
+      /global\s*payments/i,
+      /merchant/i,
+      /peterborough/i,
+      /^term\s/i,
+      /^slip\s*#/i,
+      /retain\s*this/i,
+      /\*\*\s*purchase/i,
+      /\*\*\s*proximity/i,
+      /^default/i,
+      /^card\s*#/i,
+      /^trans\.?\s*type/i,
+      /^cad\$/i,
+      /^\$\d+\.\d{2}\s*(ea|lmt|@)/i, // Price lines like "$3.28 ea" or "$24.99 lmt 4"
+      /^\d+\s*@\s*\$/i, // "1 @ $3.28"
+      /^\d+\/\$\d+/i, // "2/$5.96"
+      /^loyalty/i,
+      /^e-?comm?/i,
+      /^pc\s*express\s*\d+\s*points/i,
+      /service\s*fee/i,
+      /^\d{8,}$/, // Just a barcode
+      /^\d+\.\d{2}$/, // Just a price
+    ];
+    
+    for (const line of lines) {
+      const trimmed = line.trim();
+      
+      // Skip empty or very short lines
+      if (trimmed.length < 3) continue;
+      
+      // Check for section headers (e.g., "21-GROCERY", "22-DAIRY")
+      const sectionMatch = trimmed.toLowerCase().match(/^(\d{2}-[a-z]+)/);
+      if (sectionMatch) {
+        const section = sectionMatch[1];
+        if (sectionCategories[section]) {
+          currentCategory = sectionCategories[section];
+          console.log(`📂 Section: ${section} → ${currentCategory}`);
+        }
+        continue;
+      }
+      
+      // Skip lines matching skip patterns
+      if (skipPatterns.some(pattern => pattern.test(trimmed))) {
+        console.log('⏭️ Skipping (superstore pattern):', trimmed.substring(0, 40));
+        continue;
+      }
+      
+      // Parse item line: [barcode] [ITEM NAME] [tax code] [price]
+      // Example: "06041001777 LAYS CHIP KETCHP HMRJ 2.78"
+      // Or sometimes: "PC TC SPINACH MRJ" (no barcode, price on next line)
+      
+      // Remove leading barcode if present
+      let itemText = trimmed.replace(/^\d{6,14}\s+/, '');
+      
+      // Remove trailing price
+      itemText = itemText.replace(/\s+\d+\.\d{2}\s*$/, '');
+      
+      // Remove tax codes
+      itemText = itemText.replace(taxCodes, '');
+      
+      // Skip if nothing left or just numbers
+      if (!itemText || itemText.length < 2 || /^\d+$/.test(itemText)) {
+        continue;
+      }
+      
+      // Skip if it's a price/quantity line
+      if (/^\$?\d+\.\d{2}/.test(itemText)) {
+        continue;
+      }
+      
+      // Expand abbreviations
+      let expandedName = itemText;
+      const words = itemText.toLowerCase().split(/\s+/);
+      const expandedWords = words.map(word => {
+        // Remove any remaining numbers
+        const cleanWord = word.replace(/\d+/g, '').trim();
+        return abbreviations[cleanWord] || cleanWord;
+      }).filter(w => w.length > 0);
+      
+      if (expandedWords.length > 0) {
+        // Capitalize first letter of each word
+        expandedName = expandedWords
+          .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(' ');
+      }
+      
+      // Skip if the expanded name is too short or looks invalid
+      if (expandedName.length < 3) continue;
+      if (/^(mrj|hmrj|rq|hrq|kb|h|g|p)$/i.test(expandedName)) continue;
+      
+      console.log(`✅ Superstore item: "${trimmed.substring(0, 40)}" → "${expandedName}" (${currentCategory})`);
+      
+      items.push({
+        id: `receipt-${Date.now()}-${items.length}`,
+        name: expandedName,
+        quantity: 1,
+        unit: 'units',
+        category: currentCategory
+      });
+    }
+    
+    return items;
+  };
+  
+  // ============================================
+  // GENERIC RECEIPT PARSER
+  // For non-Superstore receipts
+  // ============================================
   const parseReceiptText = (text: string): ReceiptItem[] => {
     const lines = text.split('\n').filter(line => line.trim());
+    
+    // Check if this is a Superstore receipt
+    const isSuperstoreReceipt = /real\s*canadian|superstore|rcss/i.test(text);
+    
+    if (isSuperstoreReceipt) {
+      console.log('🏪 Detected Real Canadian Superstore receipt');
+      return parseSuperstoreReceipt(text);
+    }
+    
+    console.log('🔍 Parsing as generic receipt...');
+    
     const items: ReceiptItem[] = [];
     
     console.log('🔍 Parsing', lines.length, 'lines from OCR');
