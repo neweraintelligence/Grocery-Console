@@ -40,6 +40,14 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
       return;
     }
 
+    // Validate file size
+    if (file.size === 0) {
+      setError('Selected file is empty. Please choose a valid image.');
+      return;
+    }
+
+    console.log('📁 Selected file size:', file.size, 'bytes, type:', file.type);
+
     // Stop camera if running
     if (cameraStream) {
       stopCamera();
@@ -109,29 +117,36 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
       canvas.height = video.videoHeight;
       const ctx = canvas.getContext('2d');
       
-      if (ctx) {
-        ctx.drawImage(video, 0, 0);
-        
-        // Convert canvas to blob
-        canvas.toBlob(async (blob) => {
-          if (!blob) {
-            setError('Failed to capture image');
-            setProcessing(false);
-            return;
-          }
-
-          // Create preview
-          const previewUrl = URL.createObjectURL(blob);
-          setPreview(previewUrl);
-
-          // Stop camera
-          stopCamera();
-
-          // Process the image
-          const file = new File([blob], 'receipt.jpg', { type: 'image/jpeg' });
-          await processReceiptImage(file);
-        }, 'image/jpeg', 0.9);
+      if (!ctx) {
+        setError('Failed to get canvas context');
+        setProcessing(false);
+        return;
       }
+      
+      ctx.drawImage(video, 0, 0);
+      
+      // Convert canvas to blob using Promise-based approach
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            reject(new Error('Failed to create blob from canvas'));
+          } else {
+            resolve(blob);
+          }
+        }, 'image/jpeg', 0.95); // Higher quality for better OCR
+      });
+
+      console.log('📷 Captured image blob size:', blob.size, 'bytes');
+
+      // Create preview
+      const previewUrl = URL.createObjectURL(blob);
+      setPreview(previewUrl);
+
+      // Stop camera
+      stopCamera();
+
+      // Process the image - pass blob directly or create proper File
+      await processReceiptImage(blob);
     } catch (err: any) {
       console.error('Error capturing photo:', err);
       setError('Failed to capture photo. Please try again.');
@@ -139,35 +154,122 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
     }
   };
 
-  const processReceiptImage = async (file: File) => {
+  // Helper function to scale image if too small (improves OCR accuracy)
+  const scaleImageIfNeeded = async (fileOrBlob: File | Blob): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = fileOrBlob instanceof File 
+        ? URL.createObjectURL(fileOrBlob)
+        : URL.createObjectURL(fileOrBlob);
+      
+      img.onload = () => {
+        // If image is small, scale it up for better OCR
+        const minDimension = Math.min(img.width, img.height);
+        const maxDimension = Math.max(img.width, img.height);
+        
+        // If image is too small, scale it up
+        if (maxDimension < 1000) {
+          const scale = 2000 / maxDimension;
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          const ctx = canvas.getContext('2d');
+          
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            canvas.toBlob((blob) => {
+              URL.revokeObjectURL(url);
+              if (blob) {
+                console.log(`📏 Scaled image: ${img.width}x${img.height} → ${canvas.width}x${canvas.height}`);
+                resolve(blob);
+              } else {
+                reject(new Error('Failed to create scaled image'));
+              }
+            }, 'image/png', 1.0);
+          } else {
+            URL.revokeObjectURL(url);
+            reject(new Error('Failed to get canvas context'));
+          }
+        } else {
+          // Image is large enough, use as-is
+          URL.revokeObjectURL(url);
+          resolve(fileOrBlob instanceof Blob ? fileOrBlob : new Blob([fileOrBlob]));
+        }
+      };
+      
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error('Failed to load image'));
+      };
+      
+      img.src = url;
+    });
+  };
+
+  const processReceiptImage = async (fileOrBlob: File | Blob) => {
     setProcessing(true);
     setError(null);
 
     try {
       console.log('🔄 Starting OCR processing...');
-      console.log('📷 Image size:', file.size, 'bytes, type:', file.type);
+      console.log('📷 Image size:', fileOrBlob.size, 'bytes, type:', fileOrBlob.type);
       
-      // Initialize Tesseract worker - use the original image without preprocessing
-      // Tesseract works best with clean, unmodified images
+      // Validate file/blob has content
+      if (fileOrBlob.size === 0) {
+        setError('Image file is empty. Please try capturing or uploading again.');
+        setProcessing(false);
+        return;
+      }
+      
+      // Scale image if too small (improves OCR)
+      let imageToProcess: Blob;
+      try {
+        imageToProcess = await scaleImageIfNeeded(fileOrBlob);
+      } catch (scaleError) {
+        console.warn('⚠️ Image scaling failed, using original:', scaleError);
+        imageToProcess = fileOrBlob instanceof Blob ? fileOrBlob : new Blob([fileOrBlob]);
+      }
+      
+      // Initialize Tesseract worker
       const worker = await createWorker('eng');
       
-      console.log('🔍 Running OCR on original image...');
+      // Try different PSM modes for better receipt recognition
+      const psmModes = [4, 6, 11]; // PSM 4: single column, PSM 6: uniform block, PSM 11: sparse text
+      let bestResult: { text: string; confidence: number } | null = null;
       
-      // Perform OCR on the ORIGINAL image (no preprocessing - it was making things worse)
-      const { data: { text, confidence } } = await worker.recognize(file);
-      
-      console.log('📊 OCR confidence:', confidence, '%');
+      for (const psmMode of psmModes) {
+        try {
+          await worker.setParameters({
+            tessedit_pageseg_mode: psmMode as any,
+            preserve_interword_spaces: '1',
+          });
+          
+          console.log(`🔍 Trying OCR with PSM ${psmMode}...`);
+          const result = await worker.recognize(imageToProcess);
+          
+          if (!bestResult || result.data.confidence > bestResult.confidence) {
+            bestResult = {
+              text: result.data.text,
+              confidence: result.data.confidence
+            };
+            console.log(`✅ PSM ${psmMode} confidence: ${result.data.confidence.toFixed(1)}%`);
+          }
+        } catch (err) {
+          console.log(`⚠️ PSM ${psmMode} failed:`, err);
+        }
+      }
       
       // Terminate worker
       await worker.terminate();
 
-      // Check OCR confidence - if too low, the image quality is poor
-      if (confidence < 50) {
-        console.warn('⚠️ Low OCR confidence:', confidence, '%');
-        setError(`OCR confidence is very low (${Math.round(confidence)}%). The image may be blurry or poorly lit. Please try:\n• Better lighting\n• Hold camera steady\n• Ensure receipt is flat and in focus\n• Try uploading a clearer image`);
+      if (!bestResult || !bestResult.text || bestResult.text.trim().length < 10) {
+        setError('OCR could not extract readable text from the receipt. Please try:\n• Better lighting\n• Hold camera steady\n• Ensure receipt is flat and in focus\n• Try uploading a higher resolution image');
         setProcessing(false);
         return;
       }
+
+      const { text, confidence } = bestResult;
+      console.log('📊 Best OCR confidence:', confidence.toFixed(1), '%');
 
       // Log raw OCR text for debugging
       console.log('📄 Raw OCR text:', text);
@@ -180,11 +282,13 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
       console.log('📦 Parsed items:', items);
       
       if (items.length === 0) {
-        // If no items found, show more detailed error
+        // If no items found, show more detailed error with raw text preview
         if (lines.length < 3) {
-          setError('OCR could not read the receipt clearly. Please try:\n• Better lighting\n• Hold camera steady\n• Ensure receipt is flat and in focus');
+          setError(`OCR could not read the receipt clearly (only ${lines.length} lines detected). Please try:\n• Better lighting\n• Hold camera steady\n• Ensure receipt is flat and in focus\n• Try uploading a higher resolution image`);
         } else {
-          setError(`No grocery items found in receipt (confidence: ${Math.round(confidence)}%). The text was read but no items were recognized. You can add items manually.`);
+          // Show first few lines of OCR text to help debug
+          const preview = lines.slice(0, 5).join('\n');
+          setError(`No grocery items found in receipt (confidence: ${Math.round(confidence)}%).\n\nOCR extracted text:\n${preview}${lines.length > 5 ? '\n...' : ''}\n\nYou can add items manually.`);
         }
         setProcessing(false);
         return;
