@@ -26,25 +26,32 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
 
   useEffect(() => {
     isUnmountingRef.current = false;
+    
     return () => {
       isUnmountingRef.current = true;
-      // Cleanup on unmount - stop scanner synchronously before React unmounts
+      
+      // Cleanup on unmount
       if (scannerRef.current) {
         const scanner = scannerRef.current;
         scannerRef.current = null;
         
-        // Stop scanner immediately and synchronously
+        // Stop scanner - don't wait for it
         try {
-          // Try to stop - but don't wait for it
-          scanner.stop().catch(() => {
-            // Ignore stop errors
-          });
+          scanner.stop().catch(() => {});
         } catch (e) {
           // Ignore errors
         }
-        
-        // Don't call clear() - let React handle DOM cleanup
-        // html5-qrcode's clear() tries to remove nodes that React is managing
+      }
+      
+      // Manually clear the scanner container's innerHTML
+      // This prevents html5-qrcode's leftover DOM from conflicting with React
+      try {
+        const container = document.getElementById('barcode-scanner');
+        if (container) {
+          container.innerHTML = '';
+        }
+      } catch (e) {
+        // Ignore errors
       }
     };
   }, []);
@@ -351,59 +358,76 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
           </div>
         )}
 
-        <div
-          ref={containerRef}
-          id="barcode-scanner"
-          key={`scanner-${cameraMode}`}
-          style={{
-            width: '100%',
-            maxWidth: '500px',
-            margin: '0 auto',
-            borderRadius: '1rem',
-            overflow: 'hidden',
-            backgroundColor: '#000',
-            minHeight: '400px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative'
-          }}
-        >
-          {!scanning && !loading && (
-            <div style={{
-              color: 'white',
-              textAlign: 'center',
-              padding: '2rem'
-            }}>
-              <p style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>
-                Click "Start Scanner" to begin
-              </p>
-              <button
-                onClick={startScanning}
-                style={{
-                  padding: '0.75rem 2rem',
-                  backgroundColor: '#3b82f6',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  color: 'white',
-                  fontSize: '1rem',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)'
-                }}
-              >
-                Start Scanner
-              </button>
-            </div>
-          )}
+        {/* Scanner container wrapper - keeps React content separate from html5-qrcode DOM */}
+        <div style={{
+          width: '100%',
+          maxWidth: '500px',
+          margin: '0 auto',
+          borderRadius: '1rem',
+          overflow: 'hidden',
+          backgroundColor: '#000',
+          minHeight: '400px',
+          position: 'relative'
+        }}>
+          {/* This div is ONLY for html5-qrcode - React never renders children here */}
+          <div
+            ref={containerRef}
+            id="barcode-scanner"
+            style={{
+              width: '100%',
+              minHeight: '400px',
+              display: scanning ? 'block' : 'none'
+            }}
+          />
           
-          {loading && (
+          {/* React-managed overlay - completely separate from scanner div */}
+          {!scanning && (
             <div style={{
-              color: 'white',
-              textAlign: 'center',
-              padding: '2rem'
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: '#000'
             }}>
-              <p style={{ fontSize: '1.1rem' }}>Loading product information...</p>
+              {!loading ? (
+                <div style={{
+                  color: 'white',
+                  textAlign: 'center',
+                  padding: '2rem'
+                }}>
+                  <p style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>
+                    Click "Start Scanner" to begin
+                  </p>
+                  <button
+                    onClick={startScanning}
+                    style={{
+                      padding: '0.75rem 2rem',
+                      backgroundColor: '#3b82f6',
+                      border: 'none',
+                      borderRadius: '0.5rem',
+                      color: 'white',
+                      fontSize: '1rem',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)'
+                    }}
+                  >
+                    Start Scanner
+                  </button>
+                </div>
+              ) : (
+                <div style={{
+                  color: 'white',
+                  textAlign: 'center',
+                  padding: '2rem'
+                }}>
+                  <p style={{ fontSize: '1.1rem' }}>Loading product information...</p>
+                </div>
+              )}
             </div>
           )}
         </div>
