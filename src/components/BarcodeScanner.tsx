@@ -24,22 +24,24 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
 
   useEffect(() => {
     return () => {
-      // Cleanup on unmount
-      if (scannerRef.current) {
-        try {
-          scannerRef.current.stop().catch(() => {
-            // Ignore stop errors during cleanup
-          });
-        } catch (e) {
-          // Ignore any errors during cleanup
+      // Cleanup on unmount - use setTimeout to let React finish its cleanup first
+      setTimeout(() => {
+        if (scannerRef.current) {
+          try {
+            scannerRef.current.stop().catch(() => {
+              // Ignore stop errors during cleanup
+            });
+          } catch (e) {
+            // Ignore any errors during cleanup
+          }
+          try {
+            scannerRef.current.clear();
+          } catch (e) {
+            // Ignore clear errors
+          }
+          scannerRef.current = null;
         }
-        try {
-          scannerRef.current.clear();
-        } catch (e) {
-          // Ignore clear errors
-        }
-        scannerRef.current = null;
-      }
+      }, 100);
     };
   }, []);
 
@@ -306,6 +308,7 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
 
         <div
           id="barcode-scanner"
+          key={`scanner-${cameraMode}`}
           style={{
             width: '100%',
             maxWidth: '500px',
