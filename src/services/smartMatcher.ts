@@ -186,24 +186,60 @@ function findBestMatch(ocrText: string, items: GroceryItem[]): { item: GroceryIt
 }
 
 /**
- * Use OpenAI to match OCR text to known items (optional enhancement)
+ * Check if OpenAI API key is configured
  */
-async function matchWithOpenAI(
-  ocrItems: string[],
+function getOpenAIKey(): string | null {
+  return (import.meta.env.VITE_OPENAI_API_KEY as string) || 
+         (window as any).OPENAI_API_KEY || 
+         localStorage.getItem('openai_api_key') ||
+         null;
+}
+
+/**
+ * Use OpenAI to intelligently clean and match OCR text
+ * This is the primary matching method when API key is available
+ */
+async function smartMatchWithOpenAI(
+  ocrItems: Array<{ name: string; quantity: number; unit: string; category: string }>,
   knownItems: string[]
-): Promise<Map<string, string>> {
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY || 
-                 (window as any).OPENAI_API_KEY || 
-                 localStorage.getItem('openai_api_key');
+): Promise<Array<{ originalName: string; cleanedName: string; matchedTo: string | null; category: string; confidence: number }>> {
+  const apiKey = getOpenAIKey();
   
   if (!apiKey) {
-    console.log('⚠️ OpenAI API key not configured, skipping AI matching');
-    return new Map();
+    console.log('⚠️ OpenAI API key not configured, using fuzzy matching only');
+    return [];
   }
   
   try {
-    console.log('🤖 Using OpenAI to match OCR items...');
+    console.log('🤖 Using OpenAI for smart matching...');
+    console.log(`   Processing ${ocrItems.length} OCR items against ${knownItems.length} known items`);
     
+    const hasKnownItems = knownItems.length > 0;
+    
+    const systemPrompt = hasKnownItems 
+      ? `You are an expert grocery receipt OCR processor. Your job is to:
+1. Clean up OCR errors in item names (e.g., "aarut butler" → "Peanut Butter", "Quick oats $17%" → "Quick Oats")
+2. Match items to known inventory when possible
+3. Categorize items appropriately
+
+Known inventory items: ${knownItems.slice(0, 100).join(', ')}${knownItems.length > 100 ? '...' : ''}
+
+For each OCR item, return:
+- cleanedName: The corrected/cleaned item name (proper capitalization, no prices/junk)
+- matchedTo: The EXACT name from known items if it matches, or null if no match
+- category: One of: Fresh Produce, Dairy & Eggs, Meat & Seafood, Pantry Staples, Bakery, Beverages, Frozen Foods, Snacks, Household, Personal Care, Other
+- confidence: 0-100 how confident you are in the match/cleanup`
+      : `You are an expert grocery receipt OCR processor. Your job is to:
+1. Clean up OCR errors in item names (e.g., "aarut butler" → "Peanut Butter", "Quick oats $17%" → "Quick Oats", "chiken" → "Chicken")
+2. Remove prices, percentages, and junk characters
+3. Categorize items appropriately
+
+For each OCR item, return:
+- cleanedName: The corrected/cleaned item name (proper capitalization, no prices/junk)
+- matchedTo: null (no known inventory to match against)
+- category: One of: Fresh Produce, Dairy & Eggs, Meat & Seafood, Pantry Staples, Bakery, Beverages, Frozen Foods, Snacks, Household, Personal Care, Other
+- confidence: 0-100 how confident you are in the cleanup`;
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -213,69 +249,87 @@ async function matchWithOpenAI(
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [
-          {
-            role: 'system',
-            content: `You are a grocery item matcher. Given OCR-extracted text from a receipt and a list of known grocery items, match each OCR item to the most likely known item.
-
-Rules:
-- Only match if you're confident (>70% sure)
-- Account for OCR errors (e.g., "aarut butler" = "peanut butter", "Quick oats $17%" = "Quick Oats")
-- Ignore prices, quantities, and special characters
-- Return JSON object mapping OCR text to matched item name, or null if no confident match
-
-Known items: ${knownItems.join(', ')}`
-          },
+          { role: 'system', content: systemPrompt },
           {
             role: 'user',
-            content: `Match these OCR items:\n${ocrItems.map((item, i) => `${i + 1}. "${item}"`).join('\n')}\n\nReturn JSON: {"matches": {"ocr_text": "matched_item_or_null", ...}}`
+            content: `Process these OCR-extracted receipt items:\n${ocrItems.map((item, i) => `${i + 1}. "${item.name}"`).join('\n')}\n\nReturn JSON array: [{"originalName": "...", "cleanedName": "...", "matchedTo": "..." or null, "category": "...", "confidence": 0-100}, ...]`
           }
         ],
-        temperature: 0.3,
-        max_tokens: 500
+        temperature: 0.2,
+        max_tokens: 1500
       })
     });
     
     if (!response.ok) {
-      console.error('OpenAI API error:', response.status);
-      return new Map();
+      const errorText = await response.text();
+      console.error('OpenAI API error:', response.status, errorText);
+      return [];
     }
     
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || '';
     
-    // Parse JSON response
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    console.log('🤖 OpenAI response received');
+    
+    // Parse JSON response - handle both array and object formats
+    const jsonMatch = content.match(/\[[\s\S]*\]/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
-      const matches = new Map<string, string>();
-      
-      if (parsed.matches) {
-        for (const [ocr, matched] of Object.entries(parsed.matches)) {
-          if (matched && matched !== 'null') {
-            matches.set(ocr, matched as string);
-          }
-        }
-      }
-      
-      console.log(`🤖 AI matched ${matches.size}/${ocrItems.length} items`);
-      return matches;
+      console.log(`🤖 AI processed ${parsed.length} items`);
+      return parsed;
     }
+    
+    // Try object format with "items" key
+    const objMatch = content.match(/\{[\s\S]*\}/);
+    if (objMatch) {
+      const parsed = JSON.parse(objMatch[0]);
+      if (Array.isArray(parsed.items)) {
+        console.log(`🤖 AI processed ${parsed.items.length} items`);
+        return parsed.items;
+      }
+    }
+    
+    console.warn('⚠️ Could not parse OpenAI response:', content.substring(0, 200));
   } catch (error) {
-    console.error('OpenAI matching failed:', error);
+    console.error('OpenAI smart matching failed:', error);
   }
   
-  return new Map();
+  return [];
+}
+
+/**
+ * Legacy function for backward compatibility - now uses smartMatchWithOpenAI
+ */
+async function matchWithOpenAI(
+  ocrItems: string[],
+  knownItems: string[]
+): Promise<Map<string, string>> {
+  // Convert to new format and call smart match
+  const items = ocrItems.map(name => ({ name, quantity: 1, unit: 'units', category: 'Other' }));
+  const results = await smartMatchWithOpenAI(items, knownItems);
+  
+  const matches = new Map<string, string>();
+  for (const result of results) {
+    if (result.matchedTo) {
+      matches.set(result.originalName, result.matchedTo);
+    } else if (result.cleanedName !== result.originalName) {
+      matches.set(result.originalName, result.cleanedName);
+    }
+  }
+  
+  return matches;
 }
 
 /**
  * Main function: Match OCR-extracted items against known inventory
+ * Uses OpenAI as the PRIMARY method when available, with fuzzy matching as fallback
  */
 export async function matchReceiptItems(
   ocrItems: Array<{ name: string; quantity: number; unit: string; category: string }>
 ): Promise<Array<{ name: string; quantity: number; unit: string; category: string; confidence: number; source: string; originalName?: string }>> {
   console.log('🧠 Starting smart matching for', ocrItems.length, 'items');
   
-  // Refresh cache
+  // Refresh cache to get latest pantry/shopping list
   await refreshCache();
   
   // Combine pantry and shopping list for matching
@@ -284,89 +338,135 @@ export async function matchReceiptItems(
   
   console.log(`📋 Matching against ${allKnownItems.length} known items`);
   
-  // First pass: fuzzy string matching
-  const results: Array<{ name: string; quantity: number; unit: string; category: string; confidence: number; source: string; originalName?: string }> = [];
-  const unmatchedItems: string[] = [];
+  // Check if OpenAI is available
+  const hasOpenAI = !!getOpenAIKey();
   
-  for (const ocrItem of ocrItems) {
-    // Try to find a match in known items
-    const pantryMatch = findBestMatch(ocrItem.name, cachedPantryItems || []);
-    const shoppingMatch = findBestMatch(ocrItem.name, cachedShoppingList || []);
+  if (hasOpenAI) {
+    console.log('🤖 OpenAI API key detected - using AI-powered matching');
     
-    // Use the better match
-    let bestMatch = pantryMatch;
-    let source = 'pantry';
+    // PRIMARY: Use OpenAI for ALL items (best accuracy)
+    const aiResults = await smartMatchWithOpenAI(ocrItems, knownItemNames);
     
-    if (shoppingMatch && (!pantryMatch || shoppingMatch.score > pantryMatch.score)) {
-      bestMatch = shoppingMatch;
-      source = 'shopping-list';
-    }
-    
-    if (bestMatch && bestMatch.score >= 60) {
-      // Good match found
-      console.log(`✅ Matched "${ocrItem.name}" → "${bestMatch.item.name}" (${bestMatch.score}% confidence, ${source})`);
-      results.push({
-        name: bestMatch.item.name,
-        quantity: ocrItem.quantity,
-        unit: bestMatch.item.unit || ocrItem.unit,
-        category: bestMatch.item.category || ocrItem.category,
-        confidence: bestMatch.score,
-        source,
-        originalName: ocrItem.name !== bestMatch.item.name ? ocrItem.name : undefined
-      });
-    } else {
-      // No good match, keep for AI matching or use original
-      unmatchedItems.push(ocrItem.name);
-      results.push({
-        ...ocrItem,
-        confidence: bestMatch ? bestMatch.score : 0,
-        source: 'ocr-only',
-        originalName: ocrItem.name
-      });
-    }
-  }
-  
-  // Second pass: AI matching for unmatched items (if API key is available)
-  if (unmatchedItems.length > 0 && knownItemNames.length > 0) {
-    const aiMatches = await matchWithOpenAI(unmatchedItems, knownItemNames);
-    
-    // Update results with AI matches
-    for (let i = 0; i < results.length; i++) {
-      if (results[i].source === 'ocr-only' && aiMatches.has(results[i].originalName || results[i].name)) {
-        const matchedName = aiMatches.get(results[i].originalName || results[i].name)!;
-        const matchedItem = allKnownItems.find(item => 
-          item.name.toLowerCase() === matchedName.toLowerCase()
-        );
+    if (aiResults.length > 0) {
+      // Successfully got AI results - use them
+      const results: Array<{ name: string; quantity: number; unit: string; category: string; confidence: number; source: string; originalName?: string }> = [];
+      
+      for (let i = 0; i < ocrItems.length; i++) {
+        const ocrItem = ocrItems[i];
+        const aiResult = aiResults[i];
         
-        if (matchedItem) {
-          console.log(`🤖 AI matched "${results[i].name}" → "${matchedItem.name}"`);
-          results[i] = {
-            ...results[i],
-            name: matchedItem.name,
-            category: matchedItem.category,
-            unit: matchedItem.unit,
-            confidence: 85,
-            source: 'ai-matched'
-          };
+        if (aiResult) {
+          // AI processed this item
+          const matchedToInventory = aiResult.matchedTo && allKnownItems.find(
+            item => item.name.toLowerCase() === aiResult.matchedTo!.toLowerCase()
+          );
+          
+          if (matchedToInventory) {
+            // Matched to existing inventory item
+            console.log(`🤖 AI matched "${ocrItem.name}" → "${matchedToInventory.name}" (${aiResult.confidence}% confidence)`);
+            results.push({
+              name: matchedToInventory.name,
+              quantity: ocrItem.quantity,
+              unit: matchedToInventory.unit || ocrItem.unit,
+              category: matchedToInventory.category,
+              confidence: aiResult.confidence,
+              source: 'ai-matched',
+              originalName: ocrItem.name !== matchedToInventory.name ? ocrItem.name : undefined
+            });
+          } else {
+            // AI cleaned the name but no inventory match
+            const cleanedName = aiResult.cleanedName || ocrItem.name;
+            console.log(`🧹 AI cleaned "${ocrItem.name}" → "${cleanedName}" (category: ${aiResult.category})`);
+            results.push({
+              name: cleanedName,
+              quantity: ocrItem.quantity,
+              unit: ocrItem.unit,
+              category: aiResult.category || ocrItem.category,
+              confidence: aiResult.confidence,
+              source: 'ai-cleaned',
+              originalName: ocrItem.name !== cleanedName ? ocrItem.name : undefined
+            });
+          }
+        } else {
+          // AI didn't return a result for this item, use fuzzy matching fallback
+          const result = fuzzyMatchItem(ocrItem, allKnownItems);
+          results.push(result);
         }
       }
+      
+      return results;
     }
+    
+    console.log('⚠️ OpenAI returned no results, falling back to fuzzy matching');
   }
   
-  // Apply OCR error corrections to remaining unmatched items
-  for (let i = 0; i < results.length; i++) {
-    if (results[i].source === 'ocr-only') {
-      const corrected = applyOcrCorrections(results[i].name);
-      if (corrected !== results[i].name) {
-        console.log(`🔧 OCR correction: "${results[i].name}" → "${corrected}"`);
-        results[i].originalName = results[i].name;
-        results[i].name = corrected;
-        results[i].confidence = 50;
-      }
-    }
+  // FALLBACK: Fuzzy string matching (when OpenAI is not available or fails)
+  console.log('🔍 Using fuzzy string matching');
+  
+  const results: Array<{ name: string; quantity: number; unit: string; category: string; confidence: number; source: string; originalName?: string }> = [];
+  
+  for (const ocrItem of ocrItems) {
+    const result = fuzzyMatchItem(ocrItem, allKnownItems);
+    results.push(result);
   }
   
   return results;
+}
+
+/**
+ * Fuzzy match a single OCR item against known items
+ */
+function fuzzyMatchItem(
+  ocrItem: { name: string; quantity: number; unit: string; category: string },
+  allKnownItems: GroceryItem[]
+): { name: string; quantity: number; unit: string; category: string; confidence: number; source: string; originalName?: string } {
+  // Try to find a match in known items
+  const pantryMatch = findBestMatch(ocrItem.name, cachedPantryItems || []);
+  const shoppingMatch = findBestMatch(ocrItem.name, cachedShoppingList || []);
+  
+  // Use the better match
+  let bestMatch = pantryMatch;
+  let source = 'pantry';
+  
+  if (shoppingMatch && (!pantryMatch || shoppingMatch.score > pantryMatch.score)) {
+    bestMatch = shoppingMatch;
+    source = 'shopping-list';
+  }
+  
+  if (bestMatch && bestMatch.score >= 60) {
+    // Good match found
+    console.log(`✅ Fuzzy matched "${ocrItem.name}" → "${bestMatch.item.name}" (${bestMatch.score}% confidence, ${source})`);
+    return {
+      name: bestMatch.item.name,
+      quantity: ocrItem.quantity,
+      unit: bestMatch.item.unit || ocrItem.unit,
+      category: bestMatch.item.category || ocrItem.category,
+      confidence: bestMatch.score,
+      source,
+      originalName: ocrItem.name !== bestMatch.item.name ? ocrItem.name : undefined
+    };
+  }
+  
+  // No good match - apply OCR corrections
+  const corrected = applyOcrCorrections(ocrItem.name);
+  if (corrected !== ocrItem.name) {
+    console.log(`🔧 OCR correction: "${ocrItem.name}" → "${corrected}"`);
+    return {
+      ...ocrItem,
+      name: corrected,
+      confidence: 50,
+      source: 'ocr-corrected',
+      originalName: ocrItem.name
+    };
+  }
+  
+  // Return original with low confidence
+  return {
+    ...ocrItem,
+    confidence: bestMatch ? bestMatch.score : 0,
+    source: 'ocr-only',
+    originalName: ocrItem.name
+  };
 }
 
 /**
