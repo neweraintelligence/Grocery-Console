@@ -359,6 +359,7 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
   // ============================================
   // SUPERSTORE RECEIPT PARSER
   // Specialized parser for Real Canadian Superstore receipts
+  // Much stricter filtering to avoid OCR junk
   // ============================================
   const parseSuperstoreReceipt = (text: string): ReceiptItem[] => {
     const lines = text.split('\n').filter(line => line.trim());
@@ -369,20 +370,44 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
     
     // Section headers map to categories
     const sectionCategories: Record<string, string> = {
-      '21-grocery': 'Pantry Staples',
-      '22-dairy': 'Dairy & Eggs',
-      '23-frozen': 'Frozen Foods',
-      '27-produce': 'Fresh Produce',
-      '31-meats': 'Meat & Seafood',
-      '35-deli': 'Deli',
-      '41-home': 'Household',
-      '02-baby': 'Baby',
-      '49-other': 'Other',
+      'grocery': 'Pantry Staples',
+      'dairy': 'Dairy & Eggs',
+      'frozen': 'Frozen Foods',
+      'produce': 'Fresh Produce',
+      'meats': 'Meat & Seafood',
+      'deli': 'Deli',
+      'home': 'Household',
+      'baby': 'Baby',
+      'other': 'Other',
     };
+    
+    // Known product keywords that indicate a valid item (case insensitive)
+    const productKeywords = new Set([
+      // Chips/Snacks
+      'lays', 'chip', 'chips', 'ruffles', 'doritos', 'cheetos', 'pringles', 'ketchp', 'ketchup',
+      // Frozen
+      'spinach', 'pepperoni', 'pizza', 'frozen', 'tc', 'thin',
+      // Produce
+      'car', 'carrots', 'bby', 'baby', 'potato', 'potatoes', 'tomato', 'onion', 'apple', 'banana',
+      'lettuce', 'celery', 'broccoli', 'pepper', 'cucumber', 'grns', 'greens', 'salad', 'sld',
+      // Dairy
+      'milk', 'cream', 'cheese', 'yogurt', 'butter', 'eggs', 'whip', 'dair', 'bocconcini', 'boursin',
+      // Meat
+      'chicken', 'chk', 'beef', 'pork', 'drum', 'breast', 'thigh', 'ground', 'steak', 'bacon',
+      // Pantry
+      'pasta', 'rice', 'bread', 'cereal', 'oats', 'fiber', 'sauce', 'soup', 'beans', 'oil',
+      'canola', 'vegetable', 'olive', 'vinegar', 'vin', 'tagliatelle', 'noodle',
+      // Brands
+      'pc', 'pco', 'nn', 'kraft', 'kft', 'splendido', 'pampers', 'pmpr',
+      // Household
+      'plastic', 'bags', 'paper', 'towel', 'tissue', 'soap', 'detergent',
+      // Drinks
+      'juice', 'water', 'pop', 'soda', 'coffee', 'tea',
+    ]);
     
     // Common Superstore abbreviations expansion
     const abbreviations: Record<string, string> = {
-      'pc': 'President\'s Choice',
+      'pc': 'PC',
       'pco': 'PC Organics',
       'nn': 'No Name',
       'chk': 'Chicken',
@@ -414,7 +439,7 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
       'frsh': 'Fresh',
       'veg': 'Vegetable',
       'dair': 'Dairy',
-      'whp': 'Whip',
+      'whp': 'Whipped',
       'whip': 'Whipped',
       'kft': 'Kraft',
       'sig': 'Signature',
@@ -441,61 +466,67 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
       'canola': 'Canola',
       'vegetable': 'Vegetable',
       'oil': 'Oil',
-      'express': 'Express',
-      'plastic': 'Plastic',
-      'bags': 'Bags',
-      'service': 'Service',
-      'fee': 'Fee',
+      'pepperoni': 'Pepperoni',
+      'pepperont': 'Pepperoni', // OCR error
+      'spinach': 'Spinach',
     };
     
     // Tax codes that appear at end of item lines (to be removed)
-    const taxCodes = /\s+(MRJ|HMRJ|RQ|HRQ|GMRJ|GPMRJ|KB|H|G|P)\s*$/i;
+    const taxCodePattern = /\s*(MRJ|HMRJ|RQ|HRQ|GMRJ|GPMRJ|KB|H|G|P|HR|HH|RJ|AY|PY)\s*$/i;
     
-    // Lines to skip completely
-    const skipPatterns = [
-      /^real\s*canadian/i,
-      /^superstore/i,
-      /^rcss/i,
-      /big\s*on\s*fresh/i,
-      /low\s*on\s*price/i,
-      /welcome/i,
-      /^\d{3}[-.\s]?\d{3}[-.\s]?\d{4}/, // Phone numbers
-      /^\d+\s+(willowbrook|drive|avenue|street|rd|blvd)/i, // Addresses
-      /^(subtotal|total|hst|gst|pst|h=hst|g=gst|p=pst)/i,
-      /transaction\s*record/i,
-      /global\s*payments/i,
-      /merchant/i,
+    // Junk words/patterns to completely skip
+    const junkPatterns = [
+      /^[^a-zA-Z]*$/, // No letters at all
+      /^.{0,2}$/, // Too short
+      /^(ey|oo|by|fe|ig|cv|be|bret|aee|etn|terh|jrchase|xinity|payhents|herchant)$/i, // OCR garbage
+      /canadian/i,
+      /superstore/i,
       /peterborough/i,
-      /^term\s/i,
-      /^slip\s*#/i,
-      /retain\s*this/i,
-      /\*\*\s*purchase/i,
-      /\*\*\s*proximity/i,
-      /^default/i,
-      /^card\s*#/i,
-      /^trans\.?\s*type/i,
-      /^cad\$/i,
-      /^\$\d+\.\d{2}\s*(ea|lmt|@)/i, // Price lines like "$3.28 ea" or "$24.99 lmt 4"
-      /^\d+\s*@\s*\$/i, // "1 @ $3.28"
-      /^\d+\/\$\d+/i, // "2/$5.96"
-      /^loyalty/i,
-      /^e-?comm?/i,
-      /^pc\s*express\s*\d+\s*points/i,
-      /service\s*fee/i,
-      /^\d{8,}$/, // Just a barcode
-      /^\d+\.\d{2}$/, // Just a price
+      /willowbrook/i,
+      /fresh.*price/i,
+      /subtotal/i,
+      /^total/i,
+      /transaction/i,
+      /record/i,
+      /global/i,
+      /merchant/i,
+      /payment/i,
+      /avenue/i,
+      /drive/i,
+      /street/i,
+      /slip/i,
+      /retain/i,
+      /copy/i,
+      /purchase/i,
+      /default/i,
+      /proximity/i,
+      /grocery$/i, // Just "grocery" or "-grocery"
+      /produce$/i,
+      /frozen$/i,
+      /-home$/i,
+      /hst/i,
+      /gst/i,
+      /pst/i,
+      /^\$?\d/,  // Starts with price
+      /^\(/,     // Starts with parenthesis (often OCR junk)
+      /^[%:;.,\-\s]+/, // Starts with punctuation
+      /^\d+\s*@/, // "1 @" quantity lines
+      /\d+\/\$\d+/, // "2/$5.96" deal lines
+      /ea\s*or\s*\d+/i, // "ea or 2/" lines
     ];
     
     for (const line of lines) {
-      const trimmed = line.trim();
+      let trimmed = line.trim();
       
-      // Skip empty or very short lines
-      if (trimmed.length < 3) continue;
+      // Skip empty lines
+      if (!trimmed || trimmed.length < 4) {
+        continue;
+      }
       
-      // Check for section headers (e.g., "21-GROCERY", "22-DAIRY")
-      const sectionMatch = trimmed.toLowerCase().match(/^(\d{2}-[a-z]+)/);
+      // Check for section headers (e.g., "21-GROCERY", "22-DAIRY", or just "FROZEN")
+      const sectionMatch = trimmed.match(/(\d{2})?-?(grocery|dairy|frozen|produce|meats|deli|home|baby|other)/i);
       if (sectionMatch) {
-        const section = sectionMatch[1];
+        const section = sectionMatch[2].toLowerCase();
         if (sectionCategories[section]) {
           currentCategory = sectionCategories[section];
           console.log(`📂 Section: ${section} → ${currentCategory}`);
@@ -503,54 +534,63 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
         continue;
       }
       
-      // Skip lines matching skip patterns
-      if (skipPatterns.some(pattern => pattern.test(trimmed))) {
-        console.log('⏭️ Skipping (superstore pattern):', trimmed.substring(0, 40));
+      // Skip junk patterns
+      if (junkPatterns.some(pattern => pattern.test(trimmed))) {
+        console.log('⏭️ Skipping (junk):', trimmed.substring(0, 30));
         continue;
       }
       
-      // Parse item line: [barcode] [ITEM NAME] [tax code] [price]
-      // Example: "06041001777 LAYS CHIP KETCHP HMRJ 2.78"
-      // Or sometimes: "PC TC SPINACH MRJ" (no barcode, price on next line)
+      // Clean up the line
+      // Remove leading junk characters and numbers (barcodes)
+      let cleaned = trimmed
+        .replace(/^[^a-zA-Z]+/, '') // Remove leading non-letters
+        .replace(/^\(\d+\)[^a-zA-Z]*/, '') // Remove "(1)" prefix
+        .replace(/^\d{6,14}\s*/, '') // Remove barcode
+        .replace(/\s+\d+\.\d{2}\s*$/, '') // Remove trailing price
+        .replace(taxCodePattern, '') // Remove tax codes
+        .replace(/\s+[A-Z]{1,2}\s*$/, '') // Remove trailing 1-2 letter codes
+        .replace(/[;:,.\-]+$/, '') // Remove trailing punctuation
+        .replace(/\s+/g, ' ') // Normalize spaces
+        .trim();
       
-      // Remove leading barcode if present
-      let itemText = trimmed.replace(/^\d{6,14}\s+/, '');
-      
-      // Remove trailing price
-      itemText = itemText.replace(/\s+\d+\.\d{2}\s*$/, '');
-      
-      // Remove tax codes
-      itemText = itemText.replace(taxCodes, '');
-      
-      // Skip if nothing left or just numbers
-      if (!itemText || itemText.length < 2 || /^\d+$/.test(itemText)) {
+      // Skip if too short after cleaning
+      if (cleaned.length < 3) {
         continue;
       }
       
-      // Skip if it's a price/quantity line
-      if (/^\$?\d+\.\d{2}/.test(itemText)) {
+      // Check if this line contains any product keywords
+      const lowerCleaned = cleaned.toLowerCase();
+      const words = lowerCleaned.split(/\s+/);
+      const hasProductKeyword = words.some(word => {
+        const cleanWord = word.replace(/[^a-z]/g, '');
+        return productKeywords.has(cleanWord) || abbreviations[cleanWord];
+      });
+      
+      if (!hasProductKeyword) {
+        console.log('⏭️ Skipping (no product keyword):', cleaned.substring(0, 30));
         continue;
       }
       
-      // Expand abbreviations
-      let expandedName = itemText;
-      const words = itemText.toLowerCase().split(/\s+/);
+      // Expand abbreviations and clean up
       const expandedWords = words.map(word => {
-        // Remove any remaining numbers
-        const cleanWord = word.replace(/\d+/g, '').trim();
-        return abbreviations[cleanWord] || cleanWord;
+        const cleanWord = word.replace(/[^a-z]/g, '');
+        if (!cleanWord) return '';
+        const expanded = abbreviations[cleanWord];
+        if (expanded) return expanded;
+        // Capitalize first letter
+        return cleanWord.charAt(0).toUpperCase() + cleanWord.slice(1);
       }).filter(w => w.length > 0);
       
-      if (expandedWords.length > 0) {
-        // Capitalize first letter of each word
-        expandedName = expandedWords
-          .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-          .join(' ');
+      if (expandedWords.length === 0) {
+        continue;
       }
       
-      // Skip if the expanded name is too short or looks invalid
-      if (expandedName.length < 3) continue;
-      if (/^(mrj|hmrj|rq|hrq|kb|h|g|p)$/i.test(expandedName)) continue;
+      const expandedName = expandedWords.join(' ');
+      
+      // Final validation - must have at least 2 meaningful characters
+      if (expandedName.replace(/\s/g, '').length < 3) {
+        continue;
+      }
       
       console.log(`✅ Superstore item: "${trimmed.substring(0, 40)}" → "${expandedName}" (${currentCategory})`);
       

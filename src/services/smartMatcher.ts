@@ -2,7 +2,6 @@
 // Matches OCR-extracted text against existing pantry items and shopping list
 // Uses fuzzy string matching and optionally OpenAI for complex matches
 
-import { apiService } from './api';
 import type { GroceryItem } from './api';
 
 export interface MatchResult {
@@ -114,6 +113,55 @@ function normalizeItemName(name: string): string {
 }
 
 /**
+ * Fetch pantry items directly (more reliable than using apiService)
+ */
+async function fetchPantryItems(): Promise<GroceryItem[]> {
+  try {
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+    // Ensure URL ends with /api
+    const baseUrl = apiUrl.endsWith('/api') ? apiUrl : `${apiUrl}/api`;
+    const url = `${baseUrl}/pantry`;
+    
+    console.log('📦 Fetching pantry from:', url);
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      console.warn('Pantry fetch failed:', response.status);
+      return [];
+    }
+    
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.warn('Failed to fetch pantry:', error);
+    return [];
+  }
+}
+
+/**
+ * Fetch shopping list directly
+ */
+async function fetchShoppingList(): Promise<GroceryItem[]> {
+  try {
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+    const baseUrl = apiUrl.endsWith('/api') ? apiUrl : `${apiUrl}/api`;
+    const url = `${baseUrl}/shopping-list`;
+    
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      return [];
+    }
+    
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.warn('Failed to fetch shopping list:', error);
+    return [];
+  }
+}
+
+/**
  * Refresh the cache of pantry items and shopping list
  */
 async function refreshCache(): Promise<void> {
@@ -125,8 +173,8 @@ async function refreshCache(): Promise<void> {
   try {
     console.log('🔄 Refreshing pantry/shopping list cache...');
     const [pantry, shoppingList] = await Promise.all([
-      apiService.getGroceries().catch(() => []),
-      apiService.getShoppingList().catch(() => [])
+      fetchPantryItems(),
+      fetchShoppingList()
     ]);
     
     cachedPantryItems = pantry;
