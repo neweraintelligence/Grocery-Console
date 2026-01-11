@@ -21,27 +21,38 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
   const [cameraMode, setCameraMode] = useState<'back' | 'front'>('back'); // Default to back camera
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const scanIdRef = useRef<string | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const isUnmountingRef = useRef(false);
 
   useEffect(() => {
+    isUnmountingRef.current = false;
     return () => {
-      // Cleanup on unmount - use setTimeout to let React finish its cleanup first
-      setTimeout(() => {
-        if (scannerRef.current) {
+      isUnmountingRef.current = true;
+      // Cleanup on unmount - stop scanner immediately
+      if (scannerRef.current) {
+        const scanner = scannerRef.current;
+        scannerRef.current = null;
+        
+        // Use requestAnimationFrame to ensure DOM operations happen after React
+        requestAnimationFrame(() => {
           try {
-            scannerRef.current.stop().catch(() => {
+            scanner.stop().catch(() => {
               // Ignore stop errors during cleanup
             });
           } catch (e) {
             // Ignore any errors during cleanup
           }
-          try {
-            scannerRef.current.clear();
-          } catch (e) {
-            // Ignore clear errors
-          }
-          scannerRef.current = null;
-        }
-      }, 100);
+          
+          // Clear after a delay to let stop complete
+          setTimeout(() => {
+            try {
+              scanner.clear();
+            } catch (e) {
+              // Ignore clear errors - DOM may already be cleaned up by React
+            }
+          }, 200);
+        });
+      }
     };
   }, []);
 
@@ -119,7 +130,35 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
       setScanning(true);
       setLoading(true);
 
-      const scanner = new Html5Qrcode('barcode-scanner');
+      // Ensure container exists
+      const containerId = 'barcode-scanner';
+      let container = document.getElementById(containerId);
+      
+      // If container doesn't exist or was removed, create it
+      if (!container && containerRef.current) {
+        container = containerRef.current;
+      }
+      
+      if (!container) {
+        throw new Error('Scanner container not found');
+      }
+
+      // Clean up any existing scanner first
+      if (scannerRef.current) {
+        try {
+          await scannerRef.current.stop();
+        } catch (e) {
+          // Ignore
+        }
+        try {
+          scannerRef.current.clear();
+        } catch (e) {
+          // Ignore
+        }
+        scannerRef.current = null;
+      }
+
+      const scanner = new Html5Qrcode(containerId);
       scannerRef.current = scanner;
 
       // Use user-selected camera mode
@@ -175,20 +214,28 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
 
   const stopScanning = async () => {
     if (scannerRef.current) {
+      const scanner = scannerRef.current;
+      scannerRef.current = null; // Clear ref immediately to prevent double cleanup
+      
       try {
-        await scannerRef.current.stop();
+        await scanner.stop();
       } catch (err: any) {
         // Ignore "scanner is not running" errors
         if (!err.message?.includes('not running') && !err.message?.includes('not paused')) {
           console.error('Error stopping scanner:', err);
         }
       }
-      try {
-        await scannerRef.current.clear();
-      } catch (err) {
-        // Ignore clear errors
-      }
-      scannerRef.current = null;
+      
+      // Use requestAnimationFrame to ensure DOM operations happen after React updates
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          try {
+            scanner.clear();
+          } catch (err) {
+            // Ignore clear errors - DOM may already be cleaned up
+          }
+        }, 150);
+      });
     }
     setScanning(false);
     setLoading(false);
@@ -307,6 +354,7 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
         )}
 
         <div
+          ref={containerRef}
           id="barcode-scanner"
           key={`scanner-${cameraMode}`}
           style={{
@@ -319,7 +367,8 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
             minHeight: '400px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            position: 'relative'
           }}
         >
           {!scanning && !loading && (
