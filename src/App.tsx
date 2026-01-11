@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { WeeksListBox } from './components/WeeksListBox';
+import { BarcodeScanner } from './components/BarcodeScanner';
+import { ReceiptScanner } from './components/ReceiptScanner';
 
 // Smart quantity formatting utility
 const formatQuantity = (quantity: number): string => {
@@ -1206,6 +1208,18 @@ function App() {
   const [bulkText, setBulkText] = useState('');
   const [pantryBulkMode, setPantryBulkMode] = useState(false);
   const [pantryBulkText, setPantryBulkText] = useState('');
+  const [showBarcodeScanner, setShowBarcodeScanner] = useState(false);
+  const [showReceiptScanner, setShowReceiptScanner] = useState(false);
+  const [showReceiptReviewModal, setShowReceiptReviewModal] = useState(false);
+  const [receiptItems, setReceiptItems] = useState<Array<{
+    id: string;
+    name: string;
+    quantity: number;
+    unit: string;
+    category: string;
+    currentCount?: number;
+    minCount?: number;
+  }>>([]);
 
   // Action history for undo functionality
   interface ActionHistory {
@@ -1631,6 +1645,118 @@ function App() {
       }
     } catch (error) {
       console.error('Error adding bulk pantry items:', error);
+    }
+  };
+
+  // Handle barcode scan success
+  const handleBarcodeScanSuccess = (product: {
+    name: string;
+    category: string;
+    currentCount: number;
+    minCount: number;
+    unit: string;
+  }) => {
+    setFormData({
+      name: product.name,
+      category: product.category,
+      currentCount: product.currentCount,
+      minCount: product.minCount,
+      unit: product.unit,
+      notes: '',
+      expiryDate: ''
+    });
+    setPantryBulkMode(false); // Ensure single item mode
+  };
+
+  // Handle receipt items extracted
+  const handleReceiptItemsExtracted = (items: Array<{
+    id: string;
+    name: string;
+    quantity: number;
+    unit: string;
+    category: string;
+  }>) => {
+    // Convert receipt items to pantry format for review
+    const pantryItems = items.map(item => ({
+      id: item.id,
+      name: item.name,
+      category: item.category,
+      currentCount: item.quantity,
+      minCount: Math.max(0.25, Number((item.quantity * 0.3).toFixed(2))),
+      unit: item.unit,
+      notes: '',
+      expiryDate: ''
+    }));
+    setReceiptItems(pantryItems);
+    setShowReceiptReviewModal(true);
+    setShowReceiptScanner(false);
+  };
+
+  // Handle receipt review submission
+  const handleReceiptReviewSubmit = async () => {
+    const itemsToAdd = receiptItems.filter(item => item.currentCount && item.currentCount > 0);
+    
+    if (itemsToAdd.length === 0) {
+      alert('No items to add to pantry!');
+      return;
+    }
+
+    let successCount = 0;
+    const addedItemIds: string[] = [];
+    
+    try {
+      for (const item of itemsToAdd) {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: item.name,
+            category: item.category,
+            currentCount: item.currentCount || 1,
+            minCount: item.minCount || 1,
+            unit: item.unit,
+            notes: item.notes || '',
+            expiryDate: item.expiryDate || ''
+          }),
+        });
+        
+        if (response.ok) {
+          const newItem = await response.json();
+          if (newItem.id) {
+            addedItemIds.push(newItem.id);
+          }
+          successCount++;
+        }
+      }
+      
+      if (successCount > 0) {
+        // Record action for undo
+        setActionHistory(prev => [...prev, {
+          type: 'add_pantry',
+          timestamp: Date.now(),
+          data: { itemIds: addedItemIds, items: itemsToAdd },
+          reverse: async () => {
+            for (const itemId of addedItemIds) {
+              await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
+                method: 'DELETE',
+              });
+            }
+            await fetchPantryItems();
+          }
+        }]);
+        
+        setShowReceiptReviewModal(false);
+        setReceiptItems([]);
+        setShowAddModal(false);
+        setPantryBulkMode(false);
+        fetchPantryItems();
+        
+        console.log(`Successfully added ${successCount} items from receipt to pantry`);
+      }
+    } catch (error) {
+      console.error('Error adding receipt items to pantry:', error);
     }
   };
 
@@ -3155,25 +3281,49 @@ chicken breast, 2 lbs`}
           {!pantryBulkMode ? (
             <form onSubmit={handleSubmit}>
               <div style={{display: 'grid', gap: '1.25rem'}}>
-                <input
-                  type="text"
-                  placeholder="What would you like to add? (e.g., Extra Virgin Olive Oil)"
-                value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
-                required
-                style={{
-                  padding: '1.125rem 1.25rem',
-                  borderRadius: '1.125rem',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  backgroundColor: 'rgba(15, 23, 42, 0.6)',
-                  color: 'white',
-                  fontSize: '1rem',
-                  fontWeight: '500',
-                  outline: 'none',
-                  boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)',
-                  width: '100%'
-                }}
-              />
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'stretch' }}>
+                  <input
+                    type="text"
+                    placeholder="What would you like to add? (e.g., Extra Virgin Olive Oil)"
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    required
+                    style={{
+                      flex: 1,
+                      padding: '1.125rem 1.25rem',
+                      borderRadius: '1.125rem',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                      color: 'white',
+                      fontSize: '1rem',
+                      fontWeight: '500',
+                      outline: 'none',
+                      boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)'
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowBarcodeScanner(true)}
+                    style={{
+                      padding: '1.125rem 1.5rem',
+                      borderRadius: '1.125rem',
+                      border: '1px solid rgba(59, 130, 246, 0.3)',
+                      backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                      color: '#60a5fa',
+                      fontSize: '1.5rem',
+                      cursor: 'pointer',
+                      fontWeight: '600',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.2s ease',
+                      whiteSpace: 'nowrap'
+                    }}
+                    title="Scan Barcode"
+                  >
+                    📷
+                  </button>
+                </div>
               
               <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem'}}>
                 <select
@@ -3361,6 +3511,30 @@ chicken breast, 2 lbs`}
           </form>
           ) : (
             <div>
+              <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowReceiptScanner(true)}
+                  style={{
+                    flex: 1,
+                    padding: '1rem',
+                    borderRadius: '1rem',
+                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    color: '#60a5fa',
+                    fontSize: '0.9375rem',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  🧾 Scan Receipt
+                </button>
+              </div>
               <label style={{ 
                 color: 'rgba(255, 255, 255, 0.8)', 
                 fontSize: '0.9375rem', 
@@ -3370,7 +3544,7 @@ chicken breast, 2 lbs`}
                 textAlign: 'center',
                 fontFamily: "'Fredoka', system-ui, sans-serif"
               }}>
-                📝 Paste your pantry list (one item per line)
+                📝 Or paste your pantry list (one item per line)
               </label>
               <textarea
                 value={pantryBulkText}
@@ -5689,6 +5863,425 @@ chicken breast, 2 lbs`}
       <LootListModal />
       <PantryModal />
       <PantryReviewModal />
+      
+      {/* Barcode Scanner */}
+      {showBarcodeScanner && (
+        <BarcodeScanner
+          onScanSuccess={handleBarcodeScanSuccess}
+          onClose={() => setShowBarcodeScanner(false)}
+        />
+      )}
+      
+      {/* Receipt Scanner */}
+      {showReceiptScanner && (
+        <ReceiptScanner
+          onItemsExtracted={handleReceiptItemsExtracted}
+          onClose={() => setShowReceiptScanner(false)}
+        />
+      )}
+      
+      {/* Receipt Review Modal */}
+      {showReceiptReviewModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.85)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: 'rgba(30, 41, 59, 0.7)',
+            backdropFilter: 'blur(32px)',
+            borderRadius: '2.5rem',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            padding: '3rem',
+            width: '95%',
+            maxWidth: '850px',
+            maxHeight: '90vh',
+            overflow: 'hidden',
+            boxShadow: '0 50px 100px -20px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1)',
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <button
+              onClick={() => {
+                setShowReceiptReviewModal(false);
+                setReceiptItems([]);
+              }}
+              style={{
+                position: 'absolute',
+                top: '1.5rem',
+                right: '1.5rem',
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: 'white',
+                width: '2.5rem',
+                height: '2.5rem',
+                borderRadius: '50%',
+                cursor: 'pointer',
+                fontSize: '1.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s ease',
+                zIndex: 10
+              }}
+            >
+              ×
+            </button>
+
+            <div style={{
+              position: 'absolute',
+              top: '0',
+              left: '50%',
+              transform: 'translateX(-50%) translateY(-50%)',
+              background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+              padding: '0.6rem 2.5rem',
+              borderRadius: '9999px',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              fontSize: '0.875rem',
+              fontWeight: '800',
+              color: 'white',
+              boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)',
+              letterSpacing: '0.1em',
+              zIndex: 10
+            }}>
+              REVIEW RECEIPT ITEMS
+            </div>
+
+            <div style={{
+              textAlign: 'center',
+              marginBottom: '2.5rem',
+              marginTop: '0.5rem'
+            }}>
+              <h2 style={{
+                color: 'white',
+                fontFamily: "'Fredoka', system-ui, sans-serif",
+                fontSize: '2.25rem',
+                fontWeight: '800',
+                margin: '0 0 0.75rem 0',
+                letterSpacing: '-0.02em'
+              }}>
+                Review Receipt Items 🧾
+              </h2>
+              <p style={{
+                color: 'rgba(255, 255, 255, 0.5)',
+                fontSize: '1.125rem',
+                margin: '0',
+                fontWeight: '500'
+              }}>
+                Adjust quantities and details before adding to pantry
+              </p>
+            </div>
+
+            <div style={{
+              flex: 1,
+              overflowY: 'auto',
+              marginBottom: '2rem',
+              paddingRight: '0.75rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.75rem'
+            }}>
+              {receiptItems.map((item, index) => (
+                <div key={item.id || index} style={{
+                  background: 'rgba(255, 255, 255, 0.03)',
+                  borderRadius: '1.25rem',
+                  padding: '1.25rem',
+                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '1.5rem',
+                  transition: 'all 0.2s ease'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1.25rem',
+                    flex: 1,
+                    minWidth: 0
+                  }}>
+                    <div style={{
+                      width: '3.5rem',
+                      height: '3.5rem',
+                      borderRadius: '1rem',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '1.75rem',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      flexShrink: 0
+                    }}>
+                      {getCategoryEmoji(item.category || 'other')}
+                    </div>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <input
+                        type="text"
+                        value={item.name}
+                        onChange={(e) => {
+                          setReceiptItems(prev => prev.map(i => 
+                            i.id === item.id ? { ...i, name: e.target.value } : i
+                          ));
+                        }}
+                        style={{
+                          width: '100%',
+                          padding: '0.5rem 0.75rem',
+                          borderRadius: '0.5rem',
+                          border: '1px solid rgba(255, 255, 255, 0.1)',
+                          background: 'rgba(15, 23, 42, 0.4)',
+                          color: 'white',
+                          fontSize: '1.125rem',
+                          fontWeight: '700',
+                          outline: 'none'
+                        }}
+                      />
+                      <div style={{
+                        display: 'flex',
+                        gap: '0.75rem',
+                        marginTop: '0.5rem',
+                        alignItems: 'center'
+                      }}>
+                        <select
+                          value={item.category}
+                          onChange={(e) => {
+                            setReceiptItems(prev => prev.map(i => 
+                              i.id === item.id ? { ...i, category: e.target.value } : i
+                            ));
+                          }}
+                          style={{
+                            padding: '0.375rem 0.75rem',
+                            borderRadius: '0.5rem',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            background: 'rgba(15, 23, 42, 0.4)',
+                            color: 'white',
+                            fontSize: '0.875rem',
+                            outline: 'none',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {pantryCategories.filter(cat => cat !== 'all').map(cat => (
+                            <option key={cat} value={cat} style={{ background: '#1e293b' }}>
+                              {getCategoryEmoji(cat)} {cat}
+                            </option>
+                          ))}
+                        </select>
+                        <input
+                          type="text"
+                          value={item.unit}
+                          onChange={(e) => {
+                            setReceiptItems(prev => prev.map(i => 
+                              i.id === item.id ? { ...i, unit: e.target.value } : i
+                            ));
+                          }}
+                          placeholder="Unit"
+                          style={{
+                            padding: '0.375rem 0.75rem',
+                            borderRadius: '0.5rem',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            background: 'rgba(15, 23, 42, 0.4)',
+                            color: 'white',
+                            fontSize: '0.875rem',
+                            outline: 'none',
+                            width: '100px'
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    flexShrink: 0
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      background: 'rgba(15, 23, 42, 0.4)',
+                      borderRadius: '1rem',
+                      padding: '0.375rem',
+                      border: '1px solid rgba(255, 255, 255, 0.08)'
+                    }}>
+                      <button
+                        onClick={() => {
+                          setReceiptItems(prev => prev.map(i => 
+                            i.id === item.id ? { 
+                              ...i, 
+                              currentCount: Math.max(0, (i.currentCount || 1) - 1) 
+                            } : i
+                          ));
+                        }}
+                        style={{
+                          width: '2.25rem',
+                          height: '2.25rem',
+                          borderRadius: '0.75rem',
+                          border: 'none',
+                          background: 'rgba(239, 68, 68, 0.1)',
+                          color: '#f87171',
+                          cursor: 'pointer',
+                          fontSize: '1.25rem',
+                          fontWeight: 'bold',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        -
+                      </button>
+                      <input
+                        type="number"
+                        value={item.currentCount || 1}
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value) || 0;
+                          setReceiptItems(prev => prev.map(i => 
+                            i.id === item.id ? { ...i, currentCount: Math.max(0, val) } : i
+                          ));
+                        }}
+                        style={{
+                          width: '4rem',
+                          padding: '0.5rem',
+                          borderRadius: '0.5rem',
+                          border: '1px solid rgba(255, 255, 255, 0.1)',
+                          background: 'rgba(15, 23, 42, 0.6)',
+                          color: 'white',
+                          fontWeight: '800',
+                          fontSize: '1.125rem',
+                          textAlign: 'center',
+                          outline: 'none'
+                        }}
+                      />
+                      <button
+                        onClick={() => {
+                          setReceiptItems(prev => prev.map(i => 
+                            i.id === item.id ? { 
+                              ...i, 
+                              currentCount: (i.currentCount || 1) + 1 
+                            } : i
+                          ));
+                        }}
+                        style={{
+                          width: '2.25rem',
+                          height: '2.25rem',
+                          borderRadius: '0.75rem',
+                          border: 'none',
+                          background: 'rgba(59, 130, 246, 0.1)',
+                          color: '#4ade80',
+                          cursor: 'pointer',
+                          fontSize: '1.25rem',
+                          fontWeight: 'bold',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setReceiptItems(prev => prev.filter(i => i.id !== item.id));
+                      }}
+                      style={{
+                        width: '2.5rem',
+                        height: '2.5rem',
+                        borderRadius: '0.75rem',
+                        border: '1px solid rgba(239, 68, 68, 0.2)',
+                        background: 'rgba(239, 68, 68, 0.05)',
+                        color: '#f87171',
+                        cursor: 'pointer',
+                        fontSize: '1.25rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              paddingTop: '2rem',
+              borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+              gap: '1.5rem'
+            }}>
+              <div style={{
+                color: 'rgba(255, 255, 255, 0.4)',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
+              }}>
+                {receiptItems.filter(item => (item.currentCount || 0) > 0).length} items to add
+              </div>
+              <div style={{
+                display: 'flex',
+                gap: '1rem'
+              }}>
+                <button
+                  onClick={() => {
+                    setShowReceiptReviewModal(false);
+                    setReceiptItems([]);
+                  }}
+                  style={{
+                    padding: '1rem 1.5rem',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    color: 'white',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '1rem',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    fontSize: '0.9375rem'
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleReceiptReviewSubmit}
+                  disabled={receiptItems.filter(item => (item.currentCount || 0) > 0).length === 0}
+                  style={{
+                    padding: '1rem 1.5rem',
+                    background: receiptItems.filter(item => (item.currentCount || 0) > 0).length > 0
+                      ? 'linear-gradient(135deg, #3b82f6, #2563eb)'
+                      : 'rgba(255, 255, 255, 0.05)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '1rem',
+                    cursor: receiptItems.filter(item => (item.currentCount || 0) > 0).length > 0
+                      ? 'pointer'
+                      : 'not-allowed',
+                    fontWeight: '800',
+                    fontSize: '0.9375rem',
+                    boxShadow: receiptItems.filter(item => (item.currentCount || 0) > 0).length > 0
+                      ? '0 10px 25px -5px rgba(59, 130, 246, 0.4)'
+                      : 'none'
+                  }}
+                >
+                  Add to Pantry
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Quantity Edit Modal */}
       {showQuantityModal && editingItem && (
