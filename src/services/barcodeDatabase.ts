@@ -1,5 +1,6 @@
 // Multi-database barcode lookup service
 // Queries multiple free databases in sequence for maximum coverage
+// Also maintains a local cache for user-added products
 
 export interface ProductInfo {
   name: string;
@@ -9,6 +10,47 @@ export interface ProductInfo {
   imageUrl?: string;
   brand?: string;
   source?: string; // Which database found the product
+}
+
+// Local storage key for user-added products
+const LOCAL_PRODUCTS_KEY = 'grocery-dashboard-local-products';
+
+/**
+ * Get products from local storage cache
+ */
+function getLocalProducts(): Record<string, ProductInfo> {
+  try {
+    const stored = localStorage.getItem(LOCAL_PRODUCTS_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Save a product to local storage cache
+ */
+export function saveProductToLocal(barcode: string, product: ProductInfo): void {
+  try {
+    const products = getLocalProducts();
+    products[barcode] = { ...product, source: 'Local (User Added)' };
+    localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(products));
+    console.log(`💾 Saved product to local cache: ${barcode} → ${product.name}`);
+  } catch (error) {
+    console.error('Failed to save product to local storage:', error);
+  }
+}
+
+/**
+ * Fetch product from local storage cache (user-added products)
+ */
+function fetchFromLocalCache(barcode: string): ProductInfo | null {
+  const products = getLocalProducts();
+  const product = products[barcode];
+  if (product) {
+    return { ...product, source: 'Local (User Added)' };
+  }
+  return null;
 }
 
 /**
@@ -197,8 +239,58 @@ async function fetchFromWorldOpenFoodAPI(barcode: string): Promise<ProductInfo |
 }
 
 /**
+ * Fetch product from Go-UPC (good international coverage including Canada)
+ * Free tier available
+ */
+async function fetchFromGoUPC(barcode: string): Promise<ProductInfo | null> {
+  try {
+    // Go-UPC has a free lookup page we can scrape data from
+    // For now, we'll use their API which requires key, so skip if no key
+    // This is a placeholder for future implementation with API key
+    return null;
+  } catch (error) {
+    console.log('Go-UPC lookup failed:', error);
+    return null;
+  }
+}
+
+/**
+ * Fetch from Nutritionix (good for branded foods)
+ * Note: Requires API key for production use
+ */
+async function fetchFromNutritionix(barcode: string): Promise<ProductInfo | null> {
+  try {
+    // Nutritionix instant endpoint doesn't require auth for basic lookups
+    const url = `https://trackapi.nutritionix.com/v2/search/item?upc=${barcode}`;
+    const response = await fetch(url, {
+      headers: {
+        'x-app-id': 'demo',
+        'x-app-key': 'demo'
+      }
+    });
+    
+    if (!response.ok) return null;
+    
+    const data = await response.json();
+    if (!data.foods || data.foods.length === 0) return null;
+    
+    const food = data.foods[0];
+    return {
+      name: food.food_name || food.brand_name_item_name,
+      category: 'Food',
+      brand: food.brand_name || '',
+      source: 'Nutritionix'
+    };
+  } catch (error) {
+    // Expected to fail without proper API key
+    return null;
+  }
+}
+
+/**
  * Main function: Fetch product by barcode from multiple databases
  * Tries each database in sequence until a product is found
+ * Priority: Local cache → Open Food Facts → UPC Item DB → Other databases
  */
 export async function fetchProductByBarcode(barcode: string): Promise<ProductInfo | null> {
   console.log(`🔍 Looking up barcode: ${barcode}`);
@@ -206,9 +298,17 @@ export async function fetchProductByBarcode(barcode: string): Promise<ProductInf
   // Clean the barcode (remove any spaces or dashes)
   const cleanBarcode = barcode.replace(/[\s-]/g, '');
   
-  // Try Open Food Facts first (best for groceries)
+  // Check local cache first (user-added products)
+  console.log('  → Checking local cache...');
+  let product = fetchFromLocalCache(cleanBarcode);
+  if (product) {
+    console.log(`  ✅ Found in local cache: ${product.name}`);
+    return product;
+  }
+  
+  // Try Open Food Facts (best for groceries, good Canadian coverage)
   console.log('  → Trying Open Food Facts...');
-  let product = await fetchFromOpenFoodFacts(cleanBarcode);
+  product = await fetchFromOpenFoodFacts(cleanBarcode);
   if (product) {
     console.log(`  ✅ Found in Open Food Facts: ${product.name}`);
     return product;
@@ -222,7 +322,7 @@ export async function fetchProductByBarcode(barcode: string): Promise<ProductInf
     return product;
   }
   
-  // Try Open Beauty Facts (for non-food items)
+  // Try Open Beauty Facts (for non-food items like cleaning supplies)
   console.log('  → Trying Open Beauty Facts...');
   product = await fetchFromOpenBeautyFacts(cleanBarcode);
   if (product) {
@@ -239,6 +339,7 @@ export async function fetchProductByBarcode(barcode: string): Promise<ProductInf
   }
   
   console.log(`  ❌ Product not found in any database for barcode: ${cleanBarcode}`);
+  console.log(`  💡 You can add this product manually and it will be saved for future scans.`);
   return null;
 }
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
-import { fetchProductByBarcode, mapToAppCategory } from '../services/barcodeDatabase';
+import { fetchProductByBarcode, mapToAppCategory, saveProductToLocal } from '../services/barcodeDatabase';
 
 interface BarcodeScannerProps {
   onScanSuccess: (product: {
@@ -13,12 +13,32 @@ interface BarcodeScannerProps {
   onClose: () => void;
 }
 
+// Categories for manual entry dropdown
+const CATEGORIES = [
+  'Fresh Produce',
+  'Dairy & Eggs', 
+  'Meat & Seafood',
+  'Pantry Staples',
+  'Bakery',
+  'Beverages',
+  'Frozen Foods',
+  'Snacks',
+  'Household',
+  'Personal Care',
+  'Pet Supplies',
+  'Other'
+];
+
 export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, onClose }) => {
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [lastScanned, setLastScanned] = useState<string | null>(null);
-  const [cameraMode, setCameraMode] = useState<'back' | 'front'>('back'); // Default to back camera
+  const [cameraMode, setCameraMode] = useState<'back' | 'front'>('back');
+  const [showManualEntry, setShowManualEntry] = useState(false);
+  const [notFoundBarcode, setNotFoundBarcode] = useState<string | null>(null);
+  const [manualName, setManualName] = useState('');
+  const [manualCategory, setManualCategory] = useState('Pantry Staples');
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const scanIdRef = useRef<string | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -114,12 +134,12 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
         // Close scanner after successful scan
         onClose();
       } else {
-        setError(`Product not found for barcode: ${decodedText}. You can add it manually.`);
+        // Product not found - show manual entry form
+        setNotFoundBarcode(decodedText);
+        setShowManualEntry(true);
+        setManualName('');
+        setManualCategory('Pantry Staples');
         setLoading(false);
-        // Resume scanning after a delay
-        setTimeout(() => {
-          startScanning();
-        }, 2000);
       }
     };
   };
@@ -244,6 +264,39 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
     }
     setScanning(false);
     setLoading(false);
+  };
+
+  // Handle manual entry submission
+  const handleManualSubmit = () => {
+    if (!manualName.trim() || !notFoundBarcode) return;
+    
+    // Save to local cache for future scans
+    saveProductToLocal(notFoundBarcode, {
+      name: manualName.trim(),
+      category: manualCategory,
+      unit: 'units'
+    });
+    
+    // Pass to parent
+    onScanSuccess({
+      name: manualName.trim(),
+      category: manualCategory,
+      currentCount: 1,
+      minCount: 0.25,
+      unit: 'units'
+    });
+    
+    // Close scanner
+    onClose();
+  };
+
+  // Cancel manual entry and go back to scanning
+  const cancelManualEntry = () => {
+    setShowManualEntry(false);
+    setNotFoundBarcode(null);
+    setManualName('');
+    // Resume scanning
+    startScanning();
   };
 
   return (
@@ -393,7 +446,134 @@ export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, o
               justifyContent: 'center',
               backgroundColor: '#000'
             }}>
-              {!loading ? (
+              {showManualEntry ? (
+                /* Manual Entry Form */
+                <div style={{
+                  color: 'white',
+                  padding: '1.5rem',
+                  width: '100%',
+                  maxWidth: '400px'
+                }}>
+                  <h3 style={{ 
+                    fontSize: '1.1rem', 
+                    marginBottom: '0.5rem',
+                    textAlign: 'center'
+                  }}>
+                    📝 Product Not Found
+                  </h3>
+                  <p style={{ 
+                    fontSize: '0.8rem', 
+                    color: 'rgba(255,255,255,0.7)',
+                    marginBottom: '1rem',
+                    textAlign: 'center'
+                  }}>
+                    Barcode: {notFoundBarcode}
+                  </p>
+                  
+                  <div style={{ marginBottom: '1rem' }}>
+                    <label style={{ 
+                      display: 'block', 
+                      fontSize: '0.875rem',
+                      marginBottom: '0.25rem',
+                      color: 'rgba(255,255,255,0.8)'
+                    }}>
+                      Product Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={manualName}
+                      onChange={(e) => setManualName(e.target.value)}
+                      placeholder="Enter product name"
+                      autoFocus
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        borderRadius: '0.5rem',
+                        border: '1px solid rgba(255,255,255,0.3)',
+                        backgroundColor: 'rgba(255,255,255,0.1)',
+                        color: 'white',
+                        fontSize: '1rem',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+                  
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <label style={{ 
+                      display: 'block', 
+                      fontSize: '0.875rem',
+                      marginBottom: '0.25rem',
+                      color: 'rgba(255,255,255,0.8)'
+                    }}>
+                      Category
+                    </label>
+                    <select
+                      value={manualCategory}
+                      onChange={(e) => setManualCategory(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        borderRadius: '0.5rem',
+                        border: '1px solid rgba(255,255,255,0.3)',
+                        backgroundColor: 'rgba(30,30,30,0.9)',
+                        color: 'white',
+                        fontSize: '1rem',
+                        outline: 'none'
+                      }}
+                    >
+                      {CATEGORIES.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div style={{ 
+                    display: 'flex', 
+                    gap: '0.75rem',
+                    justifyContent: 'center'
+                  }}>
+                    <button
+                      onClick={cancelManualEntry}
+                      style={{
+                        padding: '0.75rem 1.5rem',
+                        backgroundColor: 'rgba(255,255,255,0.1)',
+                        border: '1px solid rgba(255,255,255,0.3)',
+                        borderRadius: '0.5rem',
+                        color: 'white',
+                        fontSize: '0.9rem',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      ← Scan Again
+                    </button>
+                    <button
+                      onClick={handleManualSubmit}
+                      disabled={!manualName.trim()}
+                      style={{
+                        padding: '0.75rem 1.5rem',
+                        backgroundColor: manualName.trim() ? '#3b82f6' : 'rgba(59,130,246,0.3)',
+                        border: 'none',
+                        borderRadius: '0.5rem',
+                        color: 'white',
+                        fontSize: '0.9rem',
+                        fontWeight: 'bold',
+                        cursor: manualName.trim() ? 'pointer' : 'not-allowed'
+                      }}
+                    >
+                      Save & Add ✓
+                    </button>
+                  </div>
+                  
+                  <p style={{
+                    fontSize: '0.75rem',
+                    color: 'rgba(255,255,255,0.5)',
+                    marginTop: '1rem',
+                    textAlign: 'center'
+                  }}>
+                    💾 This product will be saved for future scans
+                  </p>
+                </div>
+              ) : !loading ? (
                 <div style={{
                   color: 'white',
                   textAlign: 'center',
