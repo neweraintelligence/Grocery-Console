@@ -2,11 +2,11 @@
 // Queries multiple free databases in sequence for maximum coverage
 // Also maintains a local cache for user-added products
 //
-// To enable Barcode Spider (100 free lookups/day):
-// 1. Sign up at https://www.barcodespider.com/api
-// 2. Get your API token
-// 3. Set it: localStorage.setItem('barcode_spider_token', 'YOUR_TOKEN_HERE')
-// Or set it in browser console: window.BARCODE_SPIDER_TOKEN = 'YOUR_TOKEN_HERE'
+// To enable SearchUPCData (1,000 free lookups/month):
+// 1. Sign up at https://searchupcdata.com/api-docs
+// 2. Get your free API key (1,000 requests/month)
+// 3. Add it to Render environment variables as VITE_SEARCH_UPC_DATA_API_KEY
+// Or set it in browser console: window.SEARCH_UPC_DATA_API_KEY = 'YOUR_KEY_HERE'
 
 export interface ProductInfo {
   name: string;
@@ -215,62 +215,58 @@ async function fetchFromUPCItemDB(barcode: string): Promise<ProductInfo | null> 
 }
 
 /**
- * Fetch product from Barcode Spider (excellent coverage, millions of products)
- * Free tier: 100 lookups/day
- * Requires API token (optional - will skip if not configured)
+ * Fetch product from SearchUPCData.com (excellent coverage, millions of products)
+ * Free tier: 1,000 requests/month
+ * Requires API key (optional - will skip if not configured)
  */
-async function fetchFromBarcodeSpider(barcode: string): Promise<ProductInfo | null> {
+async function fetchFromSearchUPCData(barcode: string): Promise<ProductInfo | null> {
   try {
-    // Get API token from environment or localStorage (optional)
-    // If no token, gracefully skip
-    const apiToken = (window as any).BARCODE_SPIDER_TOKEN || 
-                     localStorage.getItem('barcode_spider_token');
+    // Get API key from environment (build-time), window, or localStorage (optional)
+    // Priority: Vite env var → window global → localStorage
+    // If no key, gracefully skip
+    const apiKey = (import.meta.env.VITE_SEARCH_UPC_DATA_API_KEY as string) ||
+                   (window as any).SEARCH_UPC_DATA_API_KEY || 
+                   localStorage.getItem('search_upc_data_api_key');
     
-    if (!apiToken) {
-      // No token configured - skip silently
+    if (!apiKey) {
+      // No API key configured - skip silently
       return null;
     }
     
-    const url = `https://api.barcodespider.com/v1/lookup?upc=${barcode}`;
+    const url = `https://searchupcdata.com/api/products/${barcode}`;
     const response = await fetch(url, {
       headers: {
-        'token': apiToken,
+        'Authorization': `Bearer ${apiKey}`,
         'Accept': 'application/json',
       }
     });
     
     if (!response.ok) {
       if (response.status === 429) {
-        console.log('Barcode Spider rate limit reached');
+        console.log('SearchUPCData rate limit reached');
       } else if (response.status === 401) {
-        console.log('Barcode Spider: Invalid API token');
+        console.log('SearchUPCData: Invalid API key');
       }
       return null;
     }
     
     const data = await response.json();
     
-    if (!data.item_response || data.item_response.code !== 'OK' || !data.item_response.item) {
-      return null;
-    }
-    
-    const item = data.item_response.item;
-    
     // Validate we have a product name
-    const name = item.description || item.title || item.alias || null;
+    const name = data.name || null;
     if (!name) return null;
     
     return {
       name,
-      category: item.category || item.type || 'Other',
-      quantity: item.size || item.weight,
+      category: data.category || 'Other',
+      quantity: data.size || data.weight,
       unit: 'units',
-      imageUrl: item.images?.[0] || item.image,
-      brand: item.brand || item.manufacturer || '',
-      source: 'Barcode Spider'
+      imageUrl: data.imageUrl,
+      brand: data.brand || '',
+      source: 'SearchUPCData'
     };
   } catch (error) {
-    console.log('Barcode Spider lookup failed:', error);
+    console.log('SearchUPCData lookup failed:', error);
     return null;
   }
 }
@@ -393,11 +389,11 @@ export async function fetchProductByBarcode(barcode: string): Promise<ProductInf
     return product;
   }
   
-  // Try Barcode Spider (excellent coverage, millions of products, 100/day free)
-  console.log('  → Trying Barcode Spider...');
-  product = await fetchFromBarcodeSpider(cleanBarcode);
+  // Try SearchUPCData (excellent coverage, millions of products, 1,000/month free)
+  console.log('  → Trying SearchUPCData...');
+  product = await fetchFromSearchUPCData(cleanBarcode);
   if (product) {
-    console.log(`  ✅ Found in Barcode Spider: ${product.name}`);
+    console.log(`  ✅ Found in SearchUPCData: ${product.name}`);
     return product;
   }
   
