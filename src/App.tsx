@@ -4356,8 +4356,8 @@ chicken breast, 2 lbs`}
           <button 
             style={{
               ...styles.addBtn,
-              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.5) 0%, rgba(37, 99, 235, 0.4) 100%)',
-              border: '2px solid rgba(59, 130, 246, 0.5)',
+              background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.5) 0%, rgba(29, 78, 216, 0.4) 100%)',
+              border: '2px solid rgba(37, 99, 235, 0.5)',
               boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 4px rgba(0,0,0,0.2)',
               textShadow: '0 1px 1px rgba(0,0,0,0.3)',
             }}
@@ -4372,9 +4372,9 @@ chicken breast, 2 lbs`}
           <button 
             style={{
               ...styles.addBtn,
-              background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.4) 0%, rgba(14, 165, 233, 0.5) 100%)',
-              border: '2px solid rgba(56, 189, 248, 0.4)',
-              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 4px rgba(0,0,0,0.2), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+              background: 'linear-gradient(135deg, rgba(100, 116, 139, 0.4) 0%, rgba(71, 85, 105, 0.5) 100%)',
+              border: '2px solid rgba(100, 116, 139, 0.4)',
+              boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 4px rgba(0,0,0,0.2)',
               textShadow: '0 1px 1px rgba(0,0,0,0.3)',
             }}
             onClick={() => {
@@ -4388,8 +4388,8 @@ chicken breast, 2 lbs`}
           <button 
             style={{
               ...styles.addBtn,
-              background: 'linear-gradient(135deg, rgba(96, 165, 250, 0.4) 0%, rgba(59, 130, 246, 0.5) 100%)',
-              border: '2px solid rgba(96, 165, 250, 0.4)',
+              background: 'linear-gradient(135deg, rgba(71, 85, 105, 0.4) 0%, rgba(51, 65, 85, 0.5) 100%)',
+              border: '2px solid rgba(71, 85, 105, 0.4)',
               boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 4px rgba(0,0,0,0.2)',
               textShadow: '0 1px 1px rgba(0,0,0,0.3)',
             }}
