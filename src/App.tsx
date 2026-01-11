@@ -1207,6 +1207,60 @@ function App() {
   const [pantryBulkMode, setPantryBulkMode] = useState(false);
   const [pantryBulkText, setPantryBulkText] = useState('');
 
+  // Action history for undo functionality
+  interface ActionHistory {
+    type: 'add_pantry' | 'add_shopping' | 'update_quantity' | 'update_mincount' | 'update_expiry' | 'add_to_pantry_from_list';
+    timestamp: number;
+    data: any; // Snapshot of state before action
+    reverse: () => Promise<void>; // Function to reverse the action
+  }
+  const [actionHistory, setActionHistory] = useState<ActionHistory[]>([]);
+
+  // Keyboard shortcuts handler
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // ESC key - close modals
+      if (e.key === 'Escape') {
+        if (showAddModal) {
+          setShowAddModal(false);
+          setBulkMode(false);
+          setBulkText('');
+          setPantryBulkMode(false);
+          setPantryBulkText('');
+        }
+        if (showPantryReviewModal) {
+          setShowPantryReviewModal(false);
+        }
+        if (showQuantityModal) {
+          setShowQuantityModal(false);
+        }
+        if (showPhotoModal) {
+          setShowPhotoModal(false);
+        }
+        if (showPhotoAnalysis) {
+          setShowPhotoAnalysis(false);
+        }
+        if (showWeeksListBox) {
+          setShowWeeksListBox(false);
+        }
+      }
+      
+      // Ctrl+Z or Cmd+Z - undo last action
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        if (actionHistory.length > 0) {
+          const lastAction = actionHistory[actionHistory.length - 1];
+          lastAction.reverse().then(() => {
+            setActionHistory(prev => prev.slice(0, -1));
+          });
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showAddModal, showPantryReviewModal, showQuantityModal, showPhotoModal, showPhotoAnalysis, showWeeksListBox, actionHistory]);
+
   // Normalize meal plan responses from the API/LLM to a consistent shape
   const normalizeMealPlanResponse = (raw: any) => {
     if (!raw) return null;
@@ -1403,6 +1457,7 @@ function App() {
     
     const items = parseBulkText(bulkText);
     let successCount = 0;
+    const addedItemIds: string[] = [];
     
     try {
       for (const item of items) {
@@ -1415,11 +1470,31 @@ function App() {
         });
         
         if (response.ok) {
+          const newItem = await response.json();
+          if (newItem.id) {
+            addedItemIds.push(newItem.id);
+          }
           successCount++;
         }
       }
       
       if (successCount > 0) {
+        // Record action for undo
+        setActionHistory(prev => [...prev, {
+          type: 'add_shopping',
+          timestamp: Date.now(),
+          data: { itemIds: addedItemIds, items },
+          reverse: async () => {
+            for (const itemId of addedItemIds) {
+              await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/groceries/${itemId}`, {
+                method: 'DELETE',
+              });
+            }
+            await fetchGroceryItems();
+            await fetchShoppingList();
+          }
+        }]);
+        
         setShowAddModal(false);
         setBulkText('');
         setBulkMode(false);
@@ -1509,6 +1584,7 @@ function App() {
     
     const items = parseBulkPantryText(pantryBulkText);
     let successCount = 0;
+    const addedItemIds: string[] = [];
     
     try {
       for (const item of items) {
@@ -1521,11 +1597,30 @@ function App() {
         });
         
         if (response.ok) {
+          const newItem = await response.json();
+          if (newItem.id) {
+            addedItemIds.push(newItem.id);
+          }
           successCount++;
         }
       }
       
       if (successCount > 0) {
+        // Record action for undo
+        setActionHistory(prev => [...prev, {
+          type: 'add_pantry',
+          timestamp: Date.now(),
+          data: { itemIds: addedItemIds, items },
+          reverse: async () => {
+            for (const itemId of addedItemIds) {
+              await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
+                method: 'DELETE',
+              });
+            }
+            await fetchPantryItems();
+          }
+        }]);
+        
         setShowAddModal(false);
         setPantryBulkText('');
         setPantryBulkMode(false);
@@ -1717,6 +1812,12 @@ function App() {
 
   const updateItemQuantity = async (itemId: string, newQuantity: number, _isIncrease: boolean) => {
     try {
+      // Capture state before action for undo
+      const itemBefore = pantryItems.find(item => item.id === itemId);
+      if (!itemBefore) return;
+      
+      const oldQuantity = itemBefore.currentCount;
+      
       console.log('🔄 Updating quantity:', { itemId, newQuantity });
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
         method: 'PUT',
@@ -1732,6 +1833,23 @@ function App() {
         const responseText = await response.text();
         console.log('🔄 Pantry update response:', responseText);
         console.log('🔄 Refreshing pantry data...');
+        
+        // Record action for undo
+        setActionHistory(prev => [...prev, {
+          type: 'update_quantity',
+          timestamp: Date.now(),
+          data: { itemId, oldQuantity, newQuantity },
+          reverse: async () => {
+            await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ currentCount: oldQuantity }),
+            });
+            await fetchPantryItems();
+            await fetchShoppingList();
+          }
+        }]);
+        
         // Refresh data after successful update
         fetchPantryItems();
         fetchShoppingList();
@@ -1746,6 +1864,12 @@ function App() {
 
   const updateItemMinCount = async (itemId: string, newMinCount: number) => {
     try {
+      // Capture state before action for undo
+      const itemBefore = pantryItems.find(item => item.id === itemId);
+      if (!itemBefore) return;
+      
+      const oldMinCount = itemBefore.minCount;
+      
       console.log('Updating min count for item:', itemId, 'to:', newMinCount);
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
         method: 'PUT',
@@ -1757,6 +1881,23 @@ function App() {
       
       if (response.ok) {
         console.log('Successfully updated min count');
+        
+        // Record action for undo
+        setActionHistory(prev => [...prev, {
+          type: 'update_mincount',
+          timestamp: Date.now(),
+          data: { itemId, oldMinCount, newMinCount },
+          reverse: async () => {
+            await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ minCount: oldMinCount }),
+            });
+            await fetchPantryItems();
+            await fetchShoppingList();
+          }
+        }]);
+        
         // Refresh data after successful update
         await fetchPantryItems();
         await fetchShoppingList();
@@ -2093,6 +2234,12 @@ function App() {
 
   const updateItemExpiryDate = async (itemId: string, expiryDate: string) => {
     try {
+      // Capture state before action for undo
+      const itemBefore = pantryItems.find(item => item.id === itemId);
+      if (!itemBefore) return;
+      
+      const oldExpiryDate = itemBefore.expiryDate || '';
+      
       console.log('Updating expiry date for item:', itemId, 'to:', expiryDate);
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
         method: 'PUT',
@@ -2104,6 +2251,22 @@ function App() {
 
       if (response.ok) {
         console.log('✅ Successfully updated expiry date');
+        
+        // Record action for undo
+        setActionHistory(prev => [...prev, {
+          type: 'update_expiry',
+          timestamp: Date.now(),
+          data: { itemId, oldExpiryDate, newExpiryDate: expiryDate },
+          reverse: async () => {
+            await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ expiryDate: oldExpiryDate }),
+            });
+            await fetchPantryItems();
+          }
+        }]);
+        
         // Refresh data after successful update
         fetchPantryItems();
       } else {
@@ -2246,6 +2409,23 @@ function App() {
         });
         
         if (response.ok) {
+          const newItem = await response.json();
+          const itemId = newItem.id;
+          
+          // Record action for undo
+          setActionHistory(prev => [...prev, {
+            type: 'add_shopping',
+            timestamp: Date.now(),
+            data: { itemId, itemData: formData },
+            reverse: async () => {
+              await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/groceries/${itemId}`, {
+                method: 'DELETE',
+              });
+              await fetchGroceryItems();
+              await fetchShoppingList();
+            }
+          }]);
+          
           setShowAddModal(false);
           setBulkMode(false);
           setBulkText('');
@@ -3260,6 +3440,12 @@ chicken breast, 2 lbs`}
         return;
       }
 
+      // Capture state before action for undo
+      const pantryBefore = [...pantryItems];
+      const shoppingListBefore = [...shoppingList];
+      const addedPantryIds: string[] = [];
+      const updatedGroceryIds: string[] = [];
+
       // Add items to pantry and remove from shopping list
       for (const item of itemsToAdd) {
         // Add to pantry - convert from grocery list format to pantry format
@@ -3286,11 +3472,16 @@ chicken breast, 2 lbs`}
           const errorText = await pantryResponse.text();
           console.error(`❌ Failed to add ${item.name} to pantry:`, pantryResponse.status, errorText);
         } else {
+          const newPantryItem = await pantryResponse.json();
+          if (newPantryItem.id) {
+            addedPantryIds.push(newPantryItem.id);
+          }
           console.log(`✅ Successfully added ${item.name} to pantry`);
         }
 
         // If this item originally came from the grocery list, mark it off that list
         if (item.source === 'grocery') {
+          updatedGroceryIds.push(item.id);
           console.log(`🔄 Updating grocery item ${item.id} to remove from shopping list:`, {
             name: item.name,
             onList: false
@@ -3322,6 +3513,43 @@ chicken breast, 2 lbs`}
       // Refresh data
       await fetchPantryItems();
       await fetchShoppingList();
+      
+      // Record action for undo
+      setActionHistory(prev => [...prev, {
+        type: 'add_to_pantry_from_list',
+        timestamp: Date.now(),
+        data: { addedPantryIds, updatedGroceryIds, itemsToAdd },
+        reverse: async () => {
+          // Delete added pantry items
+          for (const pantryId of addedPantryIds) {
+            await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${pantryId}`, {
+              method: 'DELETE',
+            });
+          }
+          // Restore grocery items to shopping list
+          for (const groceryId of updatedGroceryIds) {
+            const originalItem = itemsToAdd.find(item => item.id === groceryId);
+            if (originalItem) {
+              await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/groceries/${groceryId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  name: originalItem.name,
+                  category: originalItem.category || 'Misc',
+                  currentCount: originalItem.quantity,
+                  priority: 'Medium',
+                  notes: originalItem.unit || 'units',
+                  addedDate: new Date().toISOString().split('T')[0],
+                  completed: false,
+                  onList: true // Restore to shopping list
+                })
+              });
+            }
+          }
+          await fetchPantryItems();
+          await fetchShoppingList();
+        }
+      }]);
       
       // Close modal and reset
       setShowPantryReviewModal(false);
