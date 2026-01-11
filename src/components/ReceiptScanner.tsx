@@ -365,8 +365,9 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
     const lines = text.split('\n').filter(line => line.trim());
     const items: ReceiptItem[] = [];
     let currentCategory = 'Pantry Staples';
-    
+
     console.log('🏪 Parsing as Superstore receipt...');
+    console.log('📄 Total lines to process:', lines.length);
     
     // Section headers map to categories
     const sectionCategories: Record<string, string> = {
@@ -385,37 +386,73 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
     const productKeywords = new Set([
       // Chips/Snacks
       'lays', 'chip', 'chips', 'ruffles', 'doritos', 'cheetos', 'pringles', 'ketchp', 'ketchup',
+      'tostitos', 'popcorn', 'pretzels', 'crackers', 'nuts', 'almonds', 'cashews', 'trail',
       // Frozen
-      'spinach', 'pepperoni', 'pizza', 'frozen', 'tc', 'thin',
+      'spinach', 'pepperoni', 'pepperont', 'pizza', 'frozen', 'tc', 'thin', 'crust', 'delissio',
+      'stouffers', 'mccain', 'fries', 'nuggets', 'ice', 'cream', 'popsicle', 'haagen',
       // Produce
       'car', 'carrots', 'bby', 'baby', 'potato', 'potatoes', 'tomato', 'onion', 'apple', 'banana',
       'lettuce', 'celery', 'broccoli', 'pepper', 'cucumber', 'grns', 'greens', 'salad', 'sld',
+      'avocado', 'lemon', 'lime', 'orange', 'grape', 'berry', 'strawberry', 'blueberry',
+      'mushroom', 'garlic', 'ginger', 'cilantro', 'parsley', 'basil', 'kale', 'spinach',
+      'zucchini', 'squash', 'eggplant', 'corn', 'peas', 'beans', 'asparagus', 'cabbage',
+      'organic', 'org', 'field', 'fld',
       // Dairy
-      'milk', 'cream', 'cheese', 'yogurt', 'butter', 'eggs', 'whip', 'dair', 'bocconcini', 'boursin',
+      'milk', 'cream', 'cheese', 'yogurt', 'butter', 'eggs', 'egg', 'whip', 'dair', 'bocconcini', 'boursin',
+      'cheddar', 'mozzarella', 'parmesan', 'feta', 'brie', 'gouda', 'swiss', 'cottage',
+      'sour', 'margarine', 'lactose', 'almond', 'oat', 'soy',
       // Meat
       'chicken', 'chk', 'beef', 'pork', 'drum', 'breast', 'thigh', 'ground', 'steak', 'bacon',
+      'sausage', 'ham', 'turkey', 'lamb', 'salmon', 'tuna', 'shrimp', 'fish', 'cod', 'tilapia',
+      'wing', 'drumstick', 'roast', 'chop', 'tenderloin', 'rib', 'ribs',
       // Pantry
       'pasta', 'rice', 'bread', 'cereal', 'oats', 'fiber', 'sauce', 'soup', 'beans', 'oil',
-      'canola', 'vegetable', 'olive', 'vinegar', 'vin', 'tagliatelle', 'noodle',
+      'canola', 'vegetable', 'olive', 'vinegar', 'vin', 'tagliatelle', 'noodle', 'spaghetti',
+      'penne', 'macaroni', 'flour', 'sugar', 'salt', 'honey', 'syrup', 'jam', 'peanut',
+      'nutella', 'mayo', 'mayonnaise', 'ketchup', 'mustard', 'relish', 'dressing',
+      'broth', 'stock', 'tomato', 'canned', 'tuna', 'chickpea', 'lentil',
       // Brands
-      'pc', 'pco', 'nn', 'kraft', 'kft', 'splendido', 'pampers', 'pmpr',
+      'pc', 'pco', 'nn', 'kraft', 'kft', 'splendido', 'pampers', 'pmpr', 'presidents', 'choice',
+      'no', 'name', 'heinz', 'campbells', 'kelloggs', 'general', 'mills', 'quaker',
+      'wonder', 'dempsters', 'country', 'harvest', 'old', 'dutch', 'tenderflake',
       // Household
-      'plastic', 'bags', 'paper', 'towel', 'tissue', 'soap', 'detergent',
+      'plastic', 'bags', 'paper', 'towel', 'tissue', 'soap', 'detergent', 'cleaner',
+      'sponge', 'garbage', 'trash', 'foil', 'wrap', 'ziploc', 'glad', 'bounty', 'charmin',
       // Drinks
-      'juice', 'water', 'pop', 'soda', 'coffee', 'tea',
+      'juice', 'water', 'pop', 'soda', 'coffee', 'tea', 'cola', 'sprite', 'pepsi', 'coke',
+      'gatorade', 'powerade', 'smoothie', 'lemonade', 'iced',
+      // Baby
+      'diapers', 'wipes', 'formula', 'baby', 'infant', 'toddler', 'huggies', 'pampers',
     ]);
     
     // Common Superstore abbreviations expansion
     const abbreviations: Record<string, string> = {
+      // Brands
       'pc': 'PC',
       'pco': 'PC Organics',
       'nn': 'No Name',
+      'kft': 'Kraft',
+      'splendido': 'Splendido',
+      'pmpr': 'Pampers',
+      'lays': 'Lays',
+      'ruffles': 'Ruffles',
+      'delissio': 'Delissio',
+      'mccain': 'McCain',
+      'heinz': 'Heinz',
+      'campbells': 'Campbells',
+      // Meat abbreviations
       'chk': 'Chicken',
+      'chkn': 'Chicken',
       'drm': 'Drumsticks',
       'drum': 'Drumsticks',
       'brst': 'Breast',
       'thgh': 'Thighs',
       'grnd': 'Ground',
+      'bnls': 'Boneless',
+      'sknls': 'Skinless',
+      'wng': 'Wings',
+      'rstd': 'Roasted',
+      // Produce abbreviations
       'bby': 'Baby',
       'car': 'Carrots',
       'pot': 'Potatoes',
@@ -425,50 +462,67 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
       'fld': 'Field',
       'sld': 'Salad',
       'spnch': 'Spinach',
+      'org': 'Organic',
+      'nat': 'Natural',
+      'frsh': 'Fresh',
+      'med': 'Medium',
+      'lrg': 'Large',
+      'sm': 'Small',
+      'bnch': 'Bunch',
+      'bag': 'Bag',
+      // Frozen abbreviations
       'tc': 'Thin Crust',
       'pep': 'Pepperoni',
+      'frz': 'Frozen',
+      'pepperoni': 'Pepperoni',
+      'pepperont': 'Pepperoni', // OCR error
+      'spinach': 'Spinach',
+      // Dairy abbreviations
       'chs': 'Cheese',
       'chz': 'Cheese',
       'crm': 'Cream',
-      'whl': 'Whole',
-      'wht': 'White',
-      'brn': 'Brown',
-      'org': 'Organic',
-      'nat': 'Natural',
-      'frz': 'Frozen',
-      'frsh': 'Fresh',
-      'veg': 'Vegetable',
       'dair': 'Dairy',
       'whp': 'Whipped',
       'whip': 'Whipped',
-      'kft': 'Kraft',
+      'bocc': 'Bocconcini',
+      'bocconcini': 'Bocconcini',
+      'boursin': 'Boursin',
+      'par': 'Parmesan',
+      'mozz': 'Mozzarella',
+      'ched': 'Cheddar',
+      'shr': 'Shredded',
+      'slcd': 'Sliced',
+      // General food abbreviations
+      'whl': 'Whole',
+      'wht': 'White',
+      'brn': 'Brown',
+      'veg': 'Vegetable',
       'sig': 'Signature',
       'vin': 'Vinaigrette',
       'rasp': 'Raspberry',
       'stl': 'Style',
-      'par': 'Parmesan',
-      'splendido': 'Splendido',
-      'bocc': 'Bocconcini',
-      'bocconcini': 'Bocconcini',
-      'boursin': 'Boursin',
-      'pmpr': 'Pampers',
-      'dipr': 'Diapers',
-      'nnj': 'Newborn',
-      'lays': 'Lays',
       'chip': 'Chips',
       'chips': 'Chips',
       'ketchp': 'Ketchup',
-      'ruffles': 'Ruffles',
       'tagliatelle': 'Tagliatelle',
       'fiber': 'Fiber',
       'oats': 'Oats',
       'cho': 'Chocolate',
+      'choc': 'Chocolate',
       'canola': 'Canola',
       'vegetable': 'Vegetable',
       'oil': 'Oil',
-      'pepperoni': 'Pepperoni',
-      'pepperont': 'Pepperoni', // OCR error
-      'spinach': 'Spinach',
+      'sce': 'Sauce',
+      'orig': 'Original',
+      'flav': 'Flavour',
+      // Baby
+      'dipr': 'Diapers',
+      'nnj': 'Newborn',
+      'wps': 'Wipes',
+      // Household
+      'ppr': 'Paper',
+      'twl': 'Towel',
+      'plstc': 'Plastic',
     };
     
     // Tax codes that appear at end of item lines (to be removed)
@@ -517,12 +571,12 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
     
     for (const line of lines) {
       let trimmed = line.trim();
-      
+
       // Skip empty lines
       if (!trimmed || trimmed.length < 4) {
         continue;
       }
-      
+
       // Check for section headers (e.g., "21-GROCERY", "22-DAIRY", or just "FROZEN")
       const sectionMatch = trimmed.match(/(\d{2})?-?(grocery|dairy|frozen|produce|meats|deli|home|baby|other)/i);
       if (sectionMatch) {
@@ -533,13 +587,35 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
         }
         continue;
       }
-      
+
       // Skip junk patterns
       if (junkPatterns.some(pattern => pattern.test(trimmed))) {
         console.log('⏭️ Skipping (junk):', trimmed.substring(0, 30));
         continue;
       }
-      
+
+      // Extract quantity from "(1)" or "(2)" prefix format used for frozen items
+      let quantity = 1;
+      const qtyPrefixMatch = trimmed.match(/^\((\d+)\)/);
+      if (qtyPrefixMatch) {
+        quantity = parseInt(qtyPrefixMatch[1], 10);
+        console.log(`📦 Found quantity prefix: ${quantity}`);
+      }
+
+      // Extract weight/size info (e.g., "2LB", "500G", "1KG")
+      let unit = 'units';
+      const weightMatch = trimmed.match(/(\d+(?:\.\d+)?)\s*(LB|KG|G|ML|L|OZ)\b/i);
+      if (weightMatch) {
+        const weightValue = parseFloat(weightMatch[1]);
+        const weightUnit = weightMatch[2].toLowerCase();
+        // Only use weight as quantity for produce-like items
+        if (currentCategory === 'Fresh Produce' || currentCategory === 'Meat & Seafood') {
+          quantity = weightValue;
+          unit = weightUnit;
+        }
+        console.log(`⚖️ Found weight: ${weightValue}${weightUnit}`);
+      }
+
       // Clean up the line
       // Remove leading junk characters and numbers (barcodes)
       let cleaned = trimmed
@@ -548,11 +624,12 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
         .replace(/^\d{6,14}\s*/, '') // Remove barcode
         .replace(/\s+\d+\.\d{2}\s*$/, '') // Remove trailing price
         .replace(taxCodePattern, '') // Remove tax codes
+        .replace(/\s+\d+(?:\.\d+)?\s*(LB|KG|G|ML|L|OZ)\b/gi, '') // Remove weight info (already extracted)
         .replace(/\s+[A-Z]{1,2}\s*$/, '') // Remove trailing 1-2 letter codes
         .replace(/[;:,.\-]+$/, '') // Remove trailing punctuation
         .replace(/\s+/g, ' ') // Normalize spaces
         .trim();
-      
+
       // Skip if too short after cleaning
       if (cleaned.length < 3) {
         continue;
@@ -592,17 +669,18 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
         continue;
       }
       
-      console.log(`✅ Superstore item: "${trimmed.substring(0, 40)}" → "${expandedName}" (${currentCategory})`);
-      
+      console.log(`✅ Superstore item: "${trimmed.substring(0, 40)}" → "${expandedName}" (${currentCategory}, qty: ${quantity} ${unit})`);
+
       items.push({
         id: `receipt-${Date.now()}-${items.length}`,
         name: expandedName,
-        quantity: 1,
-        unit: 'units',
+        quantity: quantity,
+        unit: unit,
         category: currentCategory
       });
     }
-    
+
+    console.log(`🏪 Superstore parser found ${items.length} items`);
     return items;
   };
   
@@ -612,10 +690,28 @@ export const ReceiptScanner: React.FC<ReceiptScannerProps> = ({ onItemsExtracted
   // ============================================
   const parseReceiptText = (text: string): ReceiptItem[] => {
     const lines = text.split('\n').filter(line => line.trim());
-    
-    // Check if this is a Superstore receipt
-    const isSuperstoreReceipt = /real\s*canadian|superstore|rcss/i.test(text);
-    
+
+    // Check if this is a Superstore receipt - use fuzzy matching for OCR errors
+    // Common OCR errors: SUPERSTORE -> SUPERSTORF, SUPERSTDRE, etc.
+    const superstorePatterns = [
+      /real\s*canadian/i,
+      /superstore/i,
+      /superstorf/i,  // OCR error
+      /superstdre/i,  // OCR error
+      /superst[o0]r/i, // OCR error (0 vs O)
+      /rcss/i,
+      /r\.?c\.?s\.?s/i,
+      /loblaws/i,
+      /no\s*frills/i,
+      /big\s*on\s*fresh/i, // Superstore slogan
+      /pc\s*optimum/i,
+      /\d{2}-grocery/i, // Superstore section format
+      /\d{2}-frozen/i,
+      /\d{2}-produce/i,
+      /\d{2}-dairy/i,
+    ];
+    const isSuperstoreReceipt = superstorePatterns.some(pattern => pattern.test(text));
+
     if (isSuperstoreReceipt) {
       console.log('🏪 Detected Real Canadian Superstore receipt');
       return parseSuperstoreReceipt(text);
