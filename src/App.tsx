@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { WeeksListBox } from './components/WeeksListBox';
 import { BarcodeScanner } from './components/BarcodeScanner';
 import { ReceiptScanner } from './components/ReceiptScanner';
+import { ItemImageUpload } from './components/ItemImageUpload';
 
 // Smart quantity formatting utility
 const formatQuantity = (quantity: number): string => {
@@ -1231,6 +1232,28 @@ function App() {
     reverse: () => Promise<void>; // Function to reverse the action
   }
   const [actionHistory, setActionHistory] = useState<ActionHistory[]>([]);
+  const [imageUploadItem, setImageUploadItem] = useState<{ id: string; name: string } | null>(null);
+  const [hoveredIconId, setHoveredIconId] = useState<string | null>(null);
+
+  // Helper functions for image storage
+  const getItemImage = (itemId: string): string | null => {
+    try {
+      return localStorage.getItem(`item_image_${itemId}`);
+    } catch (error) {
+      console.error('Error loading image:', error);
+      return null;
+    }
+  };
+
+  const saveItemImage = (itemId: string, imageUrl: string): void => {
+    try {
+      localStorage.setItem(`item_image_${itemId}`, imageUrl);
+    } catch (error) {
+      console.error('Error saving image:', error);
+      // If localStorage is full, try to clear old images or show error
+      alert('Unable to save image. Storage may be full.');
+    }
+  };
 
   // Keyboard shortcuts handler
   useEffect(() => {
@@ -1258,6 +1281,9 @@ function App() {
         }
         if (showWeeksListBox) {
           setShowWeeksListBox(false);
+        }
+        if (imageUploadItem) {
+          setImageUploadItem(null);
         }
       }
       
@@ -3432,8 +3458,14 @@ chicken breast, 2 lbs`}
                 />
               </div>
               
-              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem'}}>
-                <div>
+              <div style={{
+                display: 'grid', 
+                gridTemplateColumns: '1fr 1fr', 
+                gap: '1.25rem',
+                width: '100%',
+                boxSizing: 'border-box'
+              }}>
+                <div style={{ minWidth: 0, width: '100%' }}>
                   <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
                     📦 Quantity
                   </label>
@@ -3450,11 +3482,13 @@ chicken breast, 2 lbs`}
                       color: 'white',
                       fontWeight: '700',
                       width: '100%',
+                      maxWidth: '100%',
+                      boxSizing: 'border-box',
                       outline: 'none'
                     }}
                   />
                 </div>
-                <div>
+                <div style={{ minWidth: 0, width: '100%' }}>
                   <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
                     ⚠️ Min Needed
                   </label>
@@ -3471,6 +3505,8 @@ chicken breast, 2 lbs`}
                       color: 'white',
                       fontWeight: '700',
                       width: '100%',
+                      maxWidth: '100%',
+                      boxSizing: 'border-box',
                       outline: 'none'
                     }}
                   />
@@ -4047,7 +4083,11 @@ chicken breast, 2 lbs`}
             flexDirection: 'column',
             gap: '0.75rem'
           }}>
-            {reviewItems.map((item, index) => (
+            {reviewItems.map((item, index) => {
+              const itemImage = item.id ? getItemImage(item.id) : null;
+              const isHoveringIcon = hoveredIconId === item.id;
+              
+              return (
               <div key={item.id || index} style={{
                 background: 'rgba(255, 255, 255, 0.03)',
                 borderRadius: '1.25rem',
@@ -4066,19 +4106,68 @@ chicken breast, 2 lbs`}
                   flex: 1,
                   minWidth: 0
                 }}>
-                  <div style={{
-                    width: '3.5rem',
-                    height: '3.5rem',
-                    borderRadius: '1rem',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '1.75rem',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    flexShrink: 0
-                  }}>
-                    {getCategoryEmoji(item.category || 'other')}
+                  <div 
+                    style={{
+                      width: '3.5rem',
+                      height: '3.5rem',
+                      borderRadius: '1rem',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '1.75rem',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      flexShrink: 0,
+                      position: 'relative' as const,
+                      cursor: 'pointer',
+                      overflow: 'hidden',
+                    }}
+                    onMouseEnter={() => item.id && setHoveredIconId(item.id)}
+                    onMouseLeave={() => setHoveredIconId(null)}
+                    onClick={() => item.id && setImageUploadItem({ id: item.id, name: item.name })}
+                  >
+                    {itemImage ? (
+                      <img 
+                        src={itemImage} 
+                        alt={item.name}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          borderRadius: '1rem',
+                        }}
+                      />
+                    ) : (
+                      <span>{getCategoryEmoji(item.category || 'other')}</span>
+                    )}
+                    {isHoveringIcon && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                          borderRadius: '1rem',
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: '1.5rem',
+                            color: 'white',
+                            fontWeight: 'bold',
+                            textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
+                          }}
+                        >
+                          +
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div style={{ minWidth: 0 }}>
                     <h4 style={{
@@ -4204,7 +4293,8 @@ chicken breast, 2 lbs`}
                   </button>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Footer */}
@@ -5295,6 +5385,9 @@ chicken breast, 2 lbs`}
                     return `${qty} ${uom}`;
                   };
                   
+                  const itemImage = item.id ? getItemImage(item.id) : null;
+                  const isHoveringIcon = hoveredIconId === item.id;
+                  
                   const statusColor = getStatusText() === 'Out' || getStatusText() === 'High' ? '#cbd5e1' : 
                                      getStatusText() === 'Low' || getStatusText() === 'Medium' ? '#94a3b8' : '#60a5fa';
                   
@@ -5305,8 +5398,58 @@ chicken breast, 2 lbs`}
                     }}>
                       <div style={styles.itemContent}>
                         <div style={styles.itemLeft}>
-                          <div style={styles.itemIcon}>
-                            {getItemIcon()}
+                          <div 
+                            style={{
+                              ...styles.itemIcon,
+                              position: 'relative' as const,
+                              cursor: 'pointer',
+                            }}
+                            onMouseEnter={() => item.id && setHoveredIconId(item.id)}
+                            onMouseLeave={() => setHoveredIconId(null)}
+                            onClick={() => item.id && setImageUploadItem({ id: item.id, name: item.name })}
+                          >
+                            {itemImage ? (
+                              <img 
+                                src={itemImage} 
+                                alt={item.name}
+                                style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  objectFit: 'cover',
+                                  borderRadius: '1rem',
+                                }}
+                              />
+                            ) : (
+                              getItemIcon()
+                            )}
+                            {isHoveringIcon && (
+                              <div
+                                style={{
+                                  position: 'absolute',
+                                  top: 0,
+                                  left: 0,
+                                  right: 0,
+                                  bottom: 0,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                  borderRadius: '1rem',
+                                  transition: 'all 0.2s ease',
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    fontSize: '1.5rem',
+                                    color: 'white',
+                                    fontWeight: 'bold',
+                                    textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
+                                  }}
+                                >
+                                  +
+                                </span>
+                              </div>
+                            )}
                           </div>
                           <div style={styles.itemDetails}>
                             <h3 style={styles.itemName}>{item.name}</h3>
@@ -5762,6 +5905,9 @@ chicken breast, 2 lbs`}
                         return <span style={{fontSize: '1.5rem'}}>{emoji}</span>;
                       };
                       
+                      const itemImage = item.id ? getItemImage(item.id) : null;
+                      const isHoveringIcon = hoveredIconId === item.id;
+                      
                       const statusColor = item.currentCount === 0 ? '#cbd5e1' : 
                                          item.currentCount < item.minCount ? '#94a3b8' : '#60a5fa';
                       
@@ -5772,8 +5918,58 @@ chicken breast, 2 lbs`}
                         }}>
                           <div style={styles.itemContent}>
                             <div style={styles.itemLeft}>
-                              <div style={styles.itemIcon}>
-                                {getItemIcon()}
+                              <div 
+                                style={{
+                                  ...styles.itemIcon,
+                                  position: 'relative' as const,
+                                  cursor: 'pointer',
+                                }}
+                                onMouseEnter={() => item.id && setHoveredIconId(item.id)}
+                                onMouseLeave={() => setHoveredIconId(null)}
+                                onClick={() => item.id && setImageUploadItem({ id: item.id, name: item.name })}
+                              >
+                                {itemImage ? (
+                                  <img 
+                                    src={itemImage} 
+                                    alt={item.name}
+                                    style={{
+                                      width: '100%',
+                                      height: '100%',
+                                      objectFit: 'cover',
+                                      borderRadius: '1rem',
+                                    }}
+                                  />
+                                ) : (
+                                  getItemIcon()
+                                )}
+                                {isHoveringIcon && (
+                                  <div
+                                    style={{
+                                      position: 'absolute',
+                                      top: 0,
+                                      left: 0,
+                                      right: 0,
+                                      bottom: 0,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                      borderRadius: '1rem',
+                                      transition: 'all 0.2s ease',
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        fontSize: '1.5rem',
+                                        color: 'white',
+                                        fontWeight: 'bold',
+                                        textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
+                                      }}
+                                    >
+                                      +
+                                    </span>
+                                  </div>
+                                )}
                               </div>
                               <div style={styles.itemDetails}>
                                 <h3 style={styles.itemName}>{item.name}</h3>
@@ -5938,6 +6134,24 @@ chicken breast, 2 lbs`}
       <PantryModal />
       <PantryReviewModal />
       
+      {/* Item Image Upload Modal */}
+      {imageUploadItem && (
+        <ItemImageUpload
+          isOpen={!!imageUploadItem}
+          onClose={() => setImageUploadItem(null)}
+          onSave={(imageUrl) => {
+            if (imageUploadItem) {
+              saveItemImage(imageUploadItem.id, imageUrl);
+              setImageUploadItem(null);
+              // Force re-render by updating state
+              setPantryItems([...pantryItems]);
+              setShoppingList([...shoppingList]);
+            }
+          }}
+          itemName={imageUploadItem.name}
+        />
+      )}
+      
       {/* Barcode Scanner */}
       {showBarcodeScanner && (
         <BarcodeScanner
@@ -6084,20 +6298,75 @@ chicken breast, 2 lbs`}
                     flex: 1,
                     minWidth: 0
                   }}>
-                    <div style={{
-                      width: '3.5rem',
-                      height: '3.5rem',
-                      borderRadius: '1rem',
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '1.75rem',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      flexShrink: 0
-                    }}>
-                      {getCategoryEmoji(item.category || 'other')}
-                    </div>
+                    {(() => {
+                      const itemImage = item.id ? getItemImage(item.id) : null;
+                      const isHoveringIcon = hoveredIconId === item.id;
+                      return (
+                        <div 
+                          style={{
+                            width: '3.5rem',
+                            height: '3.5rem',
+                            borderRadius: '1rem',
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '1.75rem',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            flexShrink: 0,
+                            position: 'relative' as const,
+                            cursor: 'pointer',
+                            overflow: 'hidden',
+                          }}
+                          onMouseEnter={() => item.id && setHoveredIconId(item.id)}
+                          onMouseLeave={() => setHoveredIconId(null)}
+                          onClick={() => item.id && setImageUploadItem({ id: item.id, name: item.name })}
+                        >
+                          {itemImage ? (
+                            <img 
+                              src={itemImage} 
+                              alt={item.name}
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                borderRadius: '1rem',
+                              }}
+                            />
+                          ) : (
+                            <span>{getCategoryEmoji(item.category || 'other')}</span>
+                          )}
+                          {isHoveringIcon && (
+                            <div
+                              style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                borderRadius: '1rem',
+                                transition: 'all 0.2s ease',
+                              }}
+                            >
+                              <span
+                                style={{
+                                  fontSize: '1.5rem',
+                                  color: 'white',
+                                  fontWeight: 'bold',
+                                  textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
+                                }}
+                              >
+                                +
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                     <div style={{ minWidth: 0, flex: 1 }}>
                       <input
                         type="text"
