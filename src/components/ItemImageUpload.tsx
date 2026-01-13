@@ -147,7 +147,6 @@ export const ItemImageUpload: React.FC<ItemImageUploadProps> = ({
           backgroundColor: 'rgba(15, 23, 42, 0.95)',
           borderRadius: '1.5rem',
           padding: '2rem',
-          maxWidth: '90vw',
           maxHeight: '90vh',
           width: '100%',
           maxWidth: '500px',
