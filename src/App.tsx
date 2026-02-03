@@ -153,7 +153,7 @@ interface Recipe {
 const styles = {
   container: {
     minHeight: '100vh',
-    backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.9)), url("/kitchen scene 1.png")',
+    backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.95)), url("/kitchen scene 1.png")',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
@@ -174,37 +174,38 @@ const styles = {
     position: 'absolute' as const,
     top: '-10rem',
     right: '-10rem',
-    width: '35rem',
-    height: '35rem',
-    background: 'radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.1) 100%)',
+    width: '40rem',
+    height: '40rem',
+    background: 'radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, rgba(37, 99, 235, 0.05) 100%)',
     borderRadius: '50%',
-    filter: 'blur(5rem)',
-    animation: 'pulse 6s ease-in-out infinite',
+    filter: 'blur(8rem)',
+    animation: 'pulse 8s ease-in-out infinite',
   },
   orb2: {
     position: 'absolute' as const,
     bottom: '-10rem',
     left: '-10rem',
-    width: '35rem',
-    height: '35rem',
-    background: 'radial-gradient(circle, rgba(148, 163, 184, 0.15) 0%, rgba(100, 116, 139, 0.1) 100%)',
+    width: '40rem',
+    height: '40rem',
+    background: 'radial-gradient(circle, rgba(96, 165, 250, 0.15) 0%, rgba(59, 130, 246, 0.05) 100%)',
     borderRadius: '50%',
-    filter: 'blur(5rem)',
-    animation: 'pulse 6s ease-in-out infinite 2s',
+    filter: 'blur(8rem)',
+    animation: 'pulse 10s ease-in-out infinite 2s',
   },
   header: {
     position: 'sticky' as const,
-    backgroundColor: 'rgba(15, 23, 42, 0.3)',
-    backdropFilter: 'blur(16px)',
-    borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
+    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+    backdropFilter: 'blur(20px)',
+    WebkitBackdropFilter: 'blur(20px)',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
     top: 0,
     zIndex: 50,
   },
   headerContent: {
-    maxWidth: '85rem',
+    maxWidth: '90rem',
     margin: '0 auto',
-    padding: '1.25rem 2rem',
+    padding: '1rem 2rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -215,13 +216,13 @@ const styles = {
     gap: '1.25rem',
   },
   logoIcon: {
-    width: '4.5rem',
-    height: '4.5rem',
+    width: '3.75rem',
+    height: '3.75rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '1.75rem',
-    borderRadius: '1.25rem',
+    borderRadius: '1.125rem',
     background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03))',
     backdropFilter: 'blur(10px)',
     border: '1px solid rgba(255, 255, 255, 0.15)',
@@ -231,9 +232,9 @@ const styles = {
     overflow: 'hidden',
   },
   title: {
-    fontSize: '2.25rem',
+    fontSize: '2rem',
     fontWeight: '800',
-    background: 'linear-gradient(to right, #ffffff, #fef3c7, #fee2e2)',
+    background: 'linear-gradient(to right, #ffffff, #e2e8f0)',
     backgroundClip: 'text',
     WebkitBackgroundClip: 'text',
     color: 'transparent',
@@ -243,77 +244,76 @@ const styles = {
     letterSpacing: '-0.02em',
   },
   subtitle: {
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: 'rgba(255, 255, 255, 0.5)',
     margin: '0',
-    marginTop: '0.25rem',
-    fontSize: '0.9375rem',
+    marginTop: '0.125rem',
+    fontSize: '0.875rem',
     fontWeight: '500',
     letterSpacing: '0.01em',
   },
   headerActions: {
     display: 'flex',
     alignItems: 'center',
-    gap: '0.875rem',
+    gap: '1rem',
   },
   quickAddBtn: {
-    padding: '0.625rem 1.25rem',
-    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(37, 99, 235, 0.8))',
+    padding: '0.75rem 1.5rem',
+    background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
     color: 'white',
-    borderRadius: '0.75rem',
+    borderRadius: '0.875rem',
     fontWeight: '600',
     fontSize: '0.875rem',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     cursor: 'pointer',
-    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)',
-    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 15px rgba(37, 99, 235, 0.3)',
+    transition: 'all 0.2s ease',
   },
   spreadsheetBtn: {
-    padding: '0.625rem 1.25rem',
+    padding: '0.75rem 1.5rem',
     background: 'rgba(255, 255, 255, 0.05)',
-    color: 'white',
-    borderRadius: '0.75rem',
+    color: '#f8fafc',
+    borderRadius: '0.875rem',
     fontWeight: '600',
     fontSize: '0.875rem',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     cursor: 'pointer',
     backdropFilter: 'blur(8px)',
-    transition: 'all 0.3s ease',
+    transition: 'all 0.2s ease',
   },
   weeksListBtn: {
-    padding: '0.625rem 1.25rem',
-    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.8), rgba(37, 99, 235, 0.8))',
-    color: 'white',
-    borderRadius: '0.75rem',
+    padding: '0.75rem 1.5rem',
+    background: 'rgba(255, 255, 255, 0.05)',
+    color: '#f8fafc',
+    borderRadius: '0.875rem',
     fontWeight: '600',
     fontSize: '0.875rem',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     cursor: 'pointer',
-    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)',
-    transition: 'all 0.3s ease',
+    backdropFilter: 'blur(8px)',
+    transition: 'all 0.2s ease',
     display: 'flex',
-    flexDirection: 'column' as const,
+    flexDirection: 'row' as const,
     alignItems: 'center',
-    gap: '0.125rem',
+    gap: '0.5rem',
   },
   btnIcon: {
-    fontSize: '0.875rem',
+    fontSize: '1rem',
   },
   btnText: {
-    fontSize: '0.75rem',
+    fontSize: '0.875rem',
     fontWeight: '600',
-    letterSpacing: '0.025em',
   },
   main: {
     position: 'relative' as const,
-    maxWidth: '85rem',
+    maxWidth: '90rem',
     margin: '0 auto',
-    padding: '2rem',
+    padding: '2.5rem 2rem',
     zIndex: 1,
   },
   grid: {
     display: 'grid',
     gridTemplateColumns: '1fr',
-    gap: '2.5rem',
+    gap: '3rem',
   },
   gridLarge: {
     '@media (min-width: 1280px)': {
@@ -321,12 +321,13 @@ const styles = {
     },
   },
   card: {
-    backgroundColor: 'rgba(15, 23, 42, 0.4)',
-    backdropFilter: 'blur(24px)',
-    borderRadius: '2rem',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(15, 23, 42, 0.5)',
+    backdropFilter: 'blur(30px)',
+    WebkitBackdropFilter: 'blur(30px)',
+    borderRadius: '2.5rem',
+    border: '1px solid rgba(255, 255, 255, 0.08)',
     padding: '2.5rem',
-    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.05)',
+    boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.05)',
     position: 'relative' as const,
     overflow: 'hidden',
   },
@@ -334,24 +335,26 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: '2.5rem',
+    marginBottom: '3rem',
+    flexWrap: 'wrap' as const,
+    gap: '1.5rem',
   },
   cardTitle: {
     display: 'flex',
     alignItems: 'center',
-    gap: '1.25rem',
+    gap: '1.5rem',
   },
   cardIcon: {
-    width: '4.5rem',
-    height: '4.5rem',
+    width: '4rem',
+    height: '4rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '2rem',
+    fontSize: '1.75rem',
     borderRadius: '1.25rem',
     background: 'linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02))',
     backdropFilter: 'blur(10px)',
-    border: '1px solid rgba(255, 255, 255, 0.12)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
     position: 'relative' as const,
@@ -363,7 +366,7 @@ const styles = {
     border: '1px solid rgba(255, 255, 255, 0.2)',
   },
   cardTitleText: {
-    fontSize: '1.875rem',
+    fontSize: '2rem',
     fontWeight: '700',
     color: 'white',
     fontFamily: "'Fredoka', system-ui, sans-serif",
@@ -372,40 +375,39 @@ const styles = {
   },
   cardSubtitle: {
     color: 'rgba(255, 255, 255, 0.5)',
-    fontSize: '0.9375rem',
+    fontSize: '1rem',
     margin: 0,
     marginTop: '0.25rem',
     fontWeight: '500',
   },
   addBtn: {
-    padding: '0.75rem 1.5rem',
-    background: 'rgba(255, 255, 255, 0.04)',
-    color: '#cbd5e1',
-    borderRadius: '0.875rem',
-    fontWeight: '600',
-    fontSize: '0.875rem',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
+    padding: '0.875rem 1.75rem',
+    background: '#3b82f6',
+    color: 'white',
+    borderRadius: '1rem',
+    fontWeight: '700',
+    fontSize: '0.9375rem',
+    border: 'none',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+    gap: '0.625rem',
+    boxShadow: '0 10px 20px -5px rgba(59, 130, 246, 0.4)',
   },
   pantryBtn: {
-    padding: '0.75rem 1.5rem',
-    background: 'rgba(255, 255, 255, 0.04)',
-    color: '#cbd5e1',
-    borderRadius: '0.875rem',
-    fontWeight: '600',
-    fontSize: '0.875rem',
+    padding: '0.875rem 1.75rem',
+    background: 'rgba(255, 255, 255, 0.05)',
+    color: '#f8fafc',
+    borderRadius: '1rem',
+    fontWeight: '700',
+    fontSize: '0.9375rem',
     border: '1px solid rgba(255, 255, 255, 0.1)',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     display: 'flex',
     alignItems: 'center',
-    gap: '0.5rem',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+    gap: '0.625rem',
   },
   buttonGroup: {
     display: 'flex',
@@ -420,19 +422,19 @@ const styles = {
   },
   inventoryItem: {
     background: 'rgba(255, 255, 255, 0.03)',
-    backdropFilter: 'blur(12px)',
-    borderRadius: '1.25rem',
-    padding: '1.25rem 1.5rem',
+    backdropFilter: 'blur(16px)',
+    WebkitBackdropFilter: 'blur(16px)',
+    borderRadius: '1.5rem',
+    padding: '1.5rem',
     border: '1px solid rgba(255, 255, 255, 0.06)',
-    borderLeft: '4px solid rgba(59, 130, 246, 0.5)',
-    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+    borderLeft: '4px solid #3b82f6',
+    boxShadow: '0 10px 30px -10px rgba(0, 0, 0, 0.3)',
     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     cursor: 'pointer',
     position: 'relative' as const,
-    overflow: 'visible',
     display: 'flex',
     alignItems: 'center',
-    minHeight: '6.5rem',
+    minHeight: '7rem',
   },
   itemContent: {
     display: 'flex',
@@ -449,16 +451,16 @@ const styles = {
     minWidth: 0,
   },
   itemIcon: {
-    width: '3.25rem',
-    height: '3.25rem',
+    width: '3.5rem',
+    height: '3.5rem',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '1.5rem',
-    background: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: '1rem',
+    fontSize: '1.75rem',
+    background: 'rgba(255, 255, 255, 0.04)',
+    borderRadius: '1.125rem',
     border: '1px solid rgba(255, 255, 255, 0.1)',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+    boxShadow: '0 8px 16px rgba(0, 0, 0, 0.2)',
     transition: 'all 0.3s ease',
   },
   itemDetails: {
@@ -468,24 +470,25 @@ const styles = {
     minWidth: 0,
   },
   itemName: {
-    color: 'rgba(255, 255, 255, 0.95)',
-    fontWeight: '600',
-    fontSize: '1.0625rem',
+    color: '#f8fafc',
+    fontWeight: '700',
+    fontSize: '1.125rem',
     margin: 0,
-    lineHeight: '1.25',
+    lineHeight: '1.3',
     letterSpacing: '0.01em',
     whiteSpace: 'nowrap' as const,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
   },
   itemCategory: {
-    color: 'rgba(255, 255, 255, 0.5)',
-    fontSize: '0.8125rem',
+    color: 'rgba(255, 255, 255, 0.4)',
+    fontSize: '0.875rem',
     margin: 0,
+    marginTop: '0.375rem',
     display: 'flex',
     alignItems: 'center',
     gap: '0.75rem',
-    fontWeight: '500',
+    fontWeight: '600',
   },
   itemRight: {
     display: 'flex',
@@ -1503,7 +1506,7 @@ function App() {
     
     try {
       for (const item of items) {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/groceries`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/groceries`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -1528,7 +1531,7 @@ function App() {
           data: { itemIds: addedItemIds, items },
           reverse: async () => {
             for (const itemId of addedItemIds) {
-              await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/groceries/${itemId}`, {
+              await fetch(`${import.meta.env.VITE_API_URL || ''}/api/groceries/${itemId}`, {
                 method: 'DELETE',
               });
             }
@@ -1630,7 +1633,7 @@ function App() {
     
     try {
       for (const item of items) {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/pantry`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -1655,7 +1658,7 @@ function App() {
           data: { itemIds: addedItemIds, items },
           reverse: async () => {
             for (const itemId of addedItemIds) {
-              await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
+              await fetch(`${import.meta.env.VITE_API_URL || ''}/api/pantry/${itemId}`, {
                 method: 'DELETE',
               });
             }
@@ -1752,7 +1755,7 @@ function App() {
     
     try {
       for (const item of itemsToAdd) {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/pantry`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -1785,7 +1788,7 @@ function App() {
           data: { itemIds: addedItemIds, items: itemsToAdd },
           reverse: async () => {
             for (const itemId of addedItemIds) {
-              await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
+              await fetch(`${import.meta.env.VITE_API_URL || ''}/api/pantry/${itemId}`, {
                 method: 'DELETE',
               });
             }
@@ -1974,7 +1977,7 @@ function App() {
   const fetchPantryItems = async () => {
     try {
       console.log('🔍 Frontend: Calling pantry endpoint...');
-      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry?t=${Date.now()}`;
+      const apiUrl = `${import.meta.env.VITE_API_URL || ''}/api/pantry?t=${Date.now()}`;
       console.log('🔍 Frontend: API URL:', apiUrl);
       const response = await fetch(apiUrl, { cache: 'no-store' });
       console.log('🔍 Frontend: Pantry response status:', response.status);
@@ -1999,7 +2002,7 @@ function App() {
 
   const fetchGroceryItems = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/groceries`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/groceries`);
       if (response.ok) {
         const data = await response.json();
         setGroceryItems(Array.isArray(data) ? data : []);
@@ -2015,7 +2018,7 @@ function App() {
 
   const fetchShoppingList = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/shopping-list`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/shopping-list`);
       if (response.ok) {
         const data = await response.json();
         setShoppingList(Array.isArray(data) ? data : []);
@@ -2040,7 +2043,7 @@ function App() {
       const oldQuantity = itemBefore.currentCount;
       
       console.log('🔄 Updating quantity:', { itemId, newQuantity });
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/pantry/${itemId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -2061,7 +2064,7 @@ function App() {
           timestamp: Date.now(),
           data: { itemId, oldQuantity, newQuantity },
           reverse: async () => {
-            await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
+            await fetch(`${import.meta.env.VITE_API_URL || ''}/api/pantry/${itemId}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ currentCount: oldQuantity }),
@@ -2092,7 +2095,7 @@ function App() {
       const oldMinCount = itemBefore.minCount;
       
       console.log('Updating min count for item:', itemId, 'to:', newMinCount);
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/pantry/${itemId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -2109,7 +2112,7 @@ function App() {
           timestamp: Date.now(),
           data: { itemId, oldMinCount, newMinCount },
           reverse: async () => {
-            await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
+            await fetch(`${import.meta.env.VITE_API_URL || ''}/api/pantry/${itemId}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ minCount: oldMinCount }),
@@ -2291,7 +2294,7 @@ function App() {
         category: i.category
       }));
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/recipes/gpt`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/recipes/gpt`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pantry: pantryPayload })
@@ -2344,7 +2347,7 @@ function App() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
 
-      const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/meal-plan/generate`;
+      const apiUrl = `${import.meta.env.VITE_API_URL || ''}/api/meal-plan/generate`;
       
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -2402,7 +2405,7 @@ function App() {
     if (!mealPlan || !mealPlan.shoppingList) return;
     
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/meal-plan/add-to-shopping-list`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/meal-plan/add-to-shopping-list`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ingredients: mealPlan.shoppingList })
@@ -2421,7 +2424,7 @@ function App() {
     if (!mealPlan) return;
     
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/meal-plan/export-pdf`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/meal-plan/export-pdf`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mealPlan })
@@ -2458,7 +2461,7 @@ function App() {
         return;
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/price-comparison`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/price-comparison`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ items: shoppingItems })
@@ -2488,7 +2491,7 @@ function App() {
       const oldExpiryDate = itemBefore.expiryDate || '';
       
       console.log('Updating expiry date for item:', itemId, 'to:', expiryDate);
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/pantry/${itemId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -2505,7 +2508,7 @@ function App() {
           timestamp: Date.now(),
           data: { itemId, oldExpiryDate, newExpiryDate: expiryDate },
           reverse: async () => {
-            await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${itemId}`, {
+            await fetch(`${import.meta.env.VITE_API_URL || ''}/api/pantry/${itemId}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ expiryDate: oldExpiryDate }),
@@ -2535,7 +2538,7 @@ function App() {
 
   const fetchWeeklyDeals = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/weekly-deals`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/weekly-deals`);
       if (response.ok) {
         const data = await response.json();
         setWeeklyDeals(data.deals || []);
@@ -2547,7 +2550,7 @@ function App() {
 
   const addDetectedItems = async (items: any[]) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/add-detected-items`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/add-detected-items`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2584,7 +2587,7 @@ function App() {
       
       console.log('🛒 Item data:', `Name: ${item.name}, Unit: ${item.unit || 'none'}, Category: ${item.category}`);
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/groceries/${itemId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/groceries/${itemId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -2647,7 +2650,7 @@ function App() {
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/groceries`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/groceries`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -2665,7 +2668,7 @@ function App() {
             timestamp: Date.now(),
             data: { itemId, itemData: formData },
             reverse: async () => {
-              await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/groceries/${itemId}`, {
+              await fetch(`${import.meta.env.VITE_API_URL || ''}/api/groceries/${itemId}`, {
                 method: 'DELETE',
               });
               await fetchGroceryItems();
@@ -2701,24 +2704,33 @@ function App() {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.8)',
+        backgroundColor: 'rgba(15, 23, 42, 0.8)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 1000
+        zIndex: 1000,
+        padding: '1rem'
       }}>
-        <div style={{
-          background: 'rgba(15, 23, 42, 0.8)',
-          backdropFilter: 'blur(32px)',
-          borderRadius: '2.5rem',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          padding: '3rem',
-          width: '90%',
-          maxWidth: '650px',
-          boxShadow: '0 50px 100px -20px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1)',
-          position: 'relative'
-        }}>
-          {/* Close X button */}
+        <div 
+          className="animate-slide-up"
+          style={{
+            background: 'rgba(30, 41, 59, 0.7)',
+            backdropFilter: 'blur(40px)',
+            WebkitBackdropFilter: 'blur(40px)',
+            borderRadius: '2.5rem',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            padding: isMobile ? '2rem' : '3.5rem',
+            width: '100%',
+            maxWidth: '600px',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            boxShadow: '0 50px 100px -20px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.1)',
+            position: 'relative'
+          }}
+        >
+          {/* Close button */}
           <button
             onClick={() => {
               setShowAddModal(false);
@@ -2734,45 +2746,45 @@ function App() {
               color: 'white',
               width: '2.5rem',
               height: '2.5rem',
-              borderRadius: '50%',
+              borderRadius: '1rem',
               cursor: 'pointer',
-              fontSize: '1.25rem',
+              fontSize: '1.5rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'all 0.2s ease',
               zIndex: 10
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)')}
-            onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)')}
           >
             ×
           </button>
+          
           <div style={{
             position: 'absolute',
             top: '0',
             left: '50%',
             transform: 'translateX(-50%) translateY(-50%)',
             background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-            padding: '0.6rem 2rem',
-            borderRadius: '9999px',
+            padding: '0.75rem 2.5rem',
+            borderRadius: '1.25rem',
             border: '1px solid rgba(255, 255, 255, 0.2)',
             fontSize: '0.875rem',
             fontWeight: '800',
             color: 'white',
-            boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)',
-            letterSpacing: '0.1em',
-            zIndex: 10
+            boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.5)',
+            letterSpacing: '0.125em',
+            zIndex: 10,
+            whiteSpace: 'nowrap'
           }}>
             SHOPPING LIST
           </div>
           
           <h2 style={{
             color: 'white', 
-            marginBottom: '2.5rem', 
+            marginBottom: '3rem', 
             marginTop: '0.5rem',
             fontFamily: "'Fredoka', system-ui, sans-serif",
-            fontSize: '2rem',
+            fontSize: '2.25rem',
             fontWeight: '800',
             textAlign: 'center',
             letterSpacing: '-0.02em'
@@ -2780,54 +2792,53 @@ function App() {
             ✨ Add New Item
           </h2>
           
-          {/* Toggle between Single and Bulk mode */}
+          {/* Toggle buttons */}
           <div style={{
             display: 'flex',
             justifyContent: 'center',
-            marginBottom: '2rem',
-            background: 'rgba(15, 23, 42, 0.6)',
+            marginBottom: '2.5rem',
+            background: 'rgba(15, 23, 42, 0.4)',
             borderRadius: '1.25rem',
             padding: '0.375rem',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)'
+            border: '1px solid rgba(255, 255, 255, 0.06)',
           }}>
             <button
               type="button"
               onClick={() => setBulkMode(false)}
               style={{
                 flex: 1,
-                padding: '0.875rem 1rem',
+                padding: '1rem',
                 borderRadius: '1rem',
                 border: 'none',
-                background: !bulkMode ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
+                background: !bulkMode ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
                 color: !bulkMode ? 'white' : 'rgba(255, 255, 255, 0.4)',
-                fontSize: '0.9375rem',
+                fontSize: '1rem',
                 fontWeight: '700',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
                 fontFamily: "'Fredoka', system-ui, sans-serif",
               }}
             >
-              📝 Single Add
+              Single Item
             </button>
             <button
               type="button"
               onClick={() => setBulkMode(true)}
               style={{
                 flex: 1,
-                padding: '0.875rem 1rem',
+                padding: '1rem',
                 borderRadius: '1rem',
                 border: 'none',
-                background: bulkMode ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
+                background: bulkMode ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
                 color: bulkMode ? 'white' : 'rgba(255, 255, 255, 0.4)',
-                fontSize: '0.9375rem',
+                fontSize: '1rem',
                 fontWeight: '700',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
                 fontFamily: "'Fredoka', system-ui, sans-serif",
               }}
             >
-              📋 Bulk Add
+              Bulk Add
             </button>
           </div>
 
@@ -2854,20 +2865,27 @@ function App() {
                 }}
               />
               
-              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem'}}>
-                <div style={{ position: 'relative' }}>
+              <div style={{
+                display: 'grid', 
+                gridTemplateColumns: '1fr 1fr', 
+                gap: '1.5rem',
+                width: '100%',
+                boxSizing: 'border-box'
+              }}>
+                <div style={{ position: 'relative', width: '100%' }}>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({...formData, category: e.target.value})}
                     style={{
-                      padding: '1rem 1.25rem',
-                      borderRadius: '1rem',
+                      padding: '1.125rem 1.5rem',
+                      borderRadius: '1.25rem',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
-                      backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                      backgroundColor: 'rgba(15, 23, 42, 0.5)',
                       color: 'white',
-                      fontSize: '0.9375rem',
+                      fontSize: '1rem',
                       fontWeight: '600',
                       width: '100%',
+                      boxSizing: 'border-box',
                       outline: 'none',
                       cursor: 'pointer',
                       appearance: 'none'
@@ -2881,28 +2899,37 @@ function App() {
                     ))}
                   </select>
                 </div>
-                <input
-                  type="text"
-                  placeholder="📦 Unit (pcs, bags)"
-                  value={formData.unit}
-                  onChange={(e) => setFormData({...formData, unit: e.target.value})}
-                  style={{
-                    padding: '1rem 1.25rem',
-                    borderRadius: '1rem',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    backgroundColor: 'rgba(15, 23, 42, 0.6)',
-                    color: 'white',
-                    fontSize: '0.9375rem',
-                    fontWeight: '600',
-                    width: '100%',
-                    outline: 'none'
-                  }}
-                />
+                <div style={{ width: '100%' }}>
+                  <input
+                    type="text"
+                    placeholder="📦 Unit (pcs, bags)"
+                    value={formData.unit}
+                    onChange={(e) => setFormData({...formData, unit: e.target.value})}
+                    style={{
+                      padding: '1.125rem 1.5rem',
+                      borderRadius: '1.25rem',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: 'rgba(15, 23, 42, 0.5)',
+                      color: 'white',
+                      fontSize: '1rem',
+                      fontWeight: '600',
+                      width: '100%',
+                      boxSizing: 'border-box',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
               </div>
               
-              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem'}}>
-                <div>
-                  <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
+              <div style={{
+                display: 'grid', 
+                gridTemplateColumns: '1fr 1fr', 
+                gap: '1.5rem',
+                width: '100%',
+                boxSizing: 'border-box'
+              }}>
+                <div style={{ width: '100%' }}>
+                  <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.8125rem', marginBottom: '0.625rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
                     📊 Quantity
                   </label>
                   <input
@@ -2911,33 +2938,36 @@ function App() {
                     value={formData.quantity}
                     onChange={(e) => setFormData({...formData, quantity: parseFloat(e.target.value) || 1})}
                     style={{
-                      padding: '1rem 1.25rem',
-                      borderRadius: '1rem',
+                      padding: '1.125rem 1.5rem',
+                      borderRadius: '1.25rem',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
-                      backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                      backgroundColor: 'rgba(15, 23, 42, 0.5)',
                       color: 'white',
                       fontWeight: '700',
+                      fontSize: '1.125rem',
                       width: '100%',
+                      boxSizing: 'border-box',
                       outline: 'none'
                     }}
                   />
                 </div>
-                <div>
-                  <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
+                <div style={{ width: '100%' }}>
+                  <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.8125rem', marginBottom: '0.625rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
                     📈 Priority
                   </label>
                   <select
                     value={formData.priority}
                     onChange={(e) => setFormData({...formData, priority: e.target.value as 'High' | 'Medium' | 'Low'})}
                     style={{
-                      padding: '1rem 1.25rem',
-                      borderRadius: '1rem',
+                      padding: '1.125rem 1.5rem',
+                      borderRadius: '1.25rem',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
-                      backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                      backgroundColor: 'rgba(15, 23, 42, 0.5)',
                       color: 'white',
-                      fontSize: '0.9375rem',
+                      fontSize: '1rem',
                       fontWeight: '700',
                       width: '100%',
+                      boxSizing: 'border-box',
                       cursor: 'pointer',
                       outline: 'none',
                       appearance: 'none'
@@ -2978,11 +3008,10 @@ function App() {
             
             <div style={{
               display: 'flex', 
-              gap: '1rem', 
-              marginTop: '2rem', 
+              gap: '1.25rem', 
+              marginTop: '2.5rem', 
               width: '100%',
-              justifyContent: 'space-between',
-              alignItems: 'center'
+              flexWrap: 'wrap' as const
             }}>
               <button
                 type="button"
@@ -2992,16 +3021,17 @@ function App() {
                   setBulkText('');
                 }}
                 style={{
-                  flex: '1',
-                  padding: '0.875rem',
-                  borderRadius: '0.75rem',
+                  flex: 1,
+                  padding: '1.125rem',
+                  borderRadius: '1.25rem',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  background: 'rgba(255, 255, 255, 0.05)',
                   color: 'white',
+                  fontSize: '1rem',
+                  fontWeight: '700',
                   cursor: 'pointer',
-                  fontWeight: '600',
-                  fontSize: '0.875rem',
-                  transition: 'all 0.2s ease'
+                  transition: 'all 0.2s ease',
+                  minWidth: '140px'
                 }}
               >
                 Cancel
@@ -3009,17 +3039,18 @@ function App() {
               <button
                 type="submit"
                 style={{
-                  flex: '1',
-                  padding: '0.875rem',
-                  borderRadius: '0.75rem',
+                  flex: 2,
+                  padding: '1.125rem',
+                  borderRadius: '1.25rem',
                   border: 'none',
                   background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
                   color: 'white',
-                  fontWeight: '700',
-                  fontSize: '0.875rem',
+                  fontSize: '1.125rem',
+                  fontWeight: '800',
                   cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)',
-                  transition: 'all 0.2s ease'
+                  boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)',
+                  transition: 'all 0.2s ease',
+                  minWidth: '200px'
                 }}
               >
                 Add to List
@@ -3191,7 +3222,7 @@ chicken breast, 2 lbs`}
       try {
         console.log('🏠 Adding new pantry item:', `Name: ${formData.name}, Category: ${formData.category}, Count: ${formData.currentCount}, Unit: ${formData.unit}`);
         const timestamp = Date.now();
-        const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry?t=${timestamp}`;
+        const apiUrl = `${import.meta.env.VITE_API_URL || ''}/api/pantry?t=${timestamp}`;
         console.log('🏠 POST URL:', apiUrl);
         console.log('🏠 POST body:', JSON.stringify(formData));
         const response = await fetch(apiUrl, {
@@ -3238,25 +3269,33 @@ chicken breast, 2 lbs`}
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(15, 23, 42, 0.85)',
-        backdropFilter: 'blur(8px)',
+        backgroundColor: 'rgba(15, 23, 42, 0.8)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 1000
+        zIndex: 1000,
+        padding: '1rem'
       }}>
-        <div style={{
-          background: 'rgba(30, 41, 59, 0.7)',
-          backdropFilter: 'blur(32px)',
-          borderRadius: '2.5rem',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          padding: '3rem',
-          width: '90%',
-          maxWidth: '650px',
-          boxShadow: '0 50px 100px -20px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1)',
-          position: 'relative'
-        }}>
-          {/* Close X button */}
+        <div 
+          className="animate-slide-up"
+          style={{
+            background: 'rgba(30, 41, 59, 0.7)',
+            backdropFilter: 'blur(40px)',
+            WebkitBackdropFilter: 'blur(40px)',
+            borderRadius: '2.5rem',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            padding: isMobile ? '2rem' : '3.5rem',
+            width: '100%',
+            maxWidth: '600px',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            boxShadow: '0 50px 100px -20px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.1)',
+            position: 'relative'
+          }}
+        >
+          {/* Close button */}
           <button
             onClick={() => setShowAddModal(false)}
             style={{
@@ -3268,17 +3307,15 @@ chicken breast, 2 lbs`}
               color: 'white',
               width: '2.5rem',
               height: '2.5rem',
-              borderRadius: '50%',
+              borderRadius: '1rem',
               cursor: 'pointer',
-              fontSize: '1.25rem',
+              fontSize: '1.5rem',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'all 0.2s ease',
               zIndex: 10
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)')}
-            onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)')}
           >
             ×
           </button>
@@ -3289,25 +3326,26 @@ chicken breast, 2 lbs`}
             left: '50%',
             transform: 'translateX(-50%) translateY(-50%)',
             background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
-            padding: '0.6rem 2rem',
-            borderRadius: '9999px',
+            padding: '0.75rem 2.5rem',
+            borderRadius: '1.25rem',
             border: '1px solid rgba(255, 255, 255, 0.2)',
             fontSize: '0.875rem',
             fontWeight: '800',
             color: 'white',
-            boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)',
-            letterSpacing: '0.1em',
-            zIndex: 10
+            boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.5)',
+            letterSpacing: '0.125em',
+            zIndex: 10,
+            whiteSpace: 'nowrap'
           }}>
             PANTRY INVENTORY
           </div>
           
           <h2 style={{
             color: 'white', 
-            marginBottom: '2.5rem', 
+            marginBottom: '3rem', 
             marginTop: '0.5rem',
             fontFamily: "'Fredoka', system-ui, sans-serif",
-            fontSize: '2rem',
+            fontSize: '2.25rem',
             fontWeight: '800',
             textAlign: 'center',
             letterSpacing: '-0.02em'
@@ -3315,28 +3353,27 @@ chicken breast, 2 lbs`}
             🏠 Update Inventory
           </h2>
           
-          {/* Toggle buttons for single vs bulk mode */}
+          {/* Toggle buttons */}
           <div style={{
             display: 'flex',
             justifyContent: 'center',
-            marginBottom: '2rem',
-            background: 'rgba(15, 23, 42, 0.6)',
+            marginBottom: '2.5rem',
+            background: 'rgba(15, 23, 42, 0.4)',
             borderRadius: '1.25rem',
             padding: '0.375rem',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)'
+            border: '1px solid rgba(255, 255, 255, 0.06)',
           }}>
             <button
               type="button"
               onClick={() => setPantryBulkMode(false)}
               style={{
                 flex: 1,
-                padding: '0.875rem 1rem',
+                padding: '1rem',
                 borderRadius: '1rem',
                 border: 'none',
-                background: !pantryBulkMode ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
+                background: !pantryBulkMode ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
                 color: !pantryBulkMode ? 'white' : 'rgba(255, 255, 255, 0.4)',
-                fontSize: '0.9375rem',
+                fontSize: '1rem',
                 fontWeight: '700',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
@@ -3350,12 +3387,12 @@ chicken breast, 2 lbs`}
               onClick={() => setPantryBulkMode(true)}
               style={{
                 flex: 1,
-                padding: '0.875rem 1rem',
+                padding: '1rem',
                 borderRadius: '1rem',
                 border: 'none',
-                background: pantryBulkMode ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
+                background: pantryBulkMode ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
                 color: pantryBulkMode ? 'white' : 'rgba(255, 255, 255, 0.4)',
-                fontSize: '0.9375rem',
+                fontSize: '1rem',
                 fontWeight: '700',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
@@ -3368,8 +3405,8 @@ chicken breast, 2 lbs`}
           
           {!pantryBulkMode ? (
             <form onSubmit={handleSubmit}>
-              <div style={{display: 'grid', gap: '1.25rem'}}>
-                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'stretch' }}>
+              <div style={{display: 'grid', gap: '1.5rem'}}>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'stretch' }}>
                   <input
                     type="text"
                     placeholder="What would you like to add? (e.g., Extra Virgin Olive Oil)"
@@ -3378,34 +3415,32 @@ chicken breast, 2 lbs`}
                     required
                     style={{
                       flex: 1,
-                      padding: '1.125rem 1.25rem',
-                      borderRadius: '1.125rem',
+                      padding: '1.25rem 1.5rem',
+                      borderRadius: '1.25rem',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
-                      backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                      backgroundColor: 'rgba(15, 23, 42, 0.5)',
                       color: 'white',
-                      fontSize: '1rem',
+                      fontSize: '1.125rem',
                       fontWeight: '500',
                       outline: 'none',
-                      boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)'
+                      transition: 'all 0.2s ease',
                     }}
                   />
                   <button
                     type="button"
                     onClick={() => setShowBarcodeScanner(true)}
                     style={{
-                      padding: '1.125rem 1.5rem',
-                      borderRadius: '1.125rem',
+                      padding: '0 1.5rem',
+                      borderRadius: '1.25rem',
                       border: '1px solid rgba(59, 130, 246, 0.3)',
                       backgroundColor: 'rgba(59, 130, 246, 0.1)',
                       color: '#60a5fa',
-                      fontSize: '1.5rem',
+                      fontSize: '1.75rem',
                       cursor: 'pointer',
-                      fontWeight: '600',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       transition: 'all 0.2s ease',
-                      whiteSpace: 'nowrap'
                     }}
                     title="Scan Barcode"
                   >
@@ -3413,61 +3448,77 @@ chicken breast, 2 lbs`}
                   </button>
                 </div>
               
-              <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem'}}>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({...formData, category: e.target.value})}
-                  required
-                  style={{
-                    padding: '1rem 1.25rem',
-                    borderRadius: '1rem',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    backgroundColor: 'rgba(15, 23, 42, 0.6)',
-                    color: 'white',
-                    fontSize: '0.9375rem',
-                    fontWeight: '600',
-                    width: '100%',
-                    outline: 'none',
-                    cursor: 'pointer',
-                    appearance: 'none'
-                  }}
-                >
-                  <option value="" disabled style={{background: '#1e293b'}}>🎪 Select Category</option>
-                  {pantryCategories.filter(cat => cat !== 'all').map((category) => (
-                    <option key={category} value={category} style={{background: '#1e293b'}}>
-                      {getCategoryEmoji(category)} {category}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  type="text"
-                  placeholder="📦 Unit (jars, bottles)"
-                  value={formData.unit}
-                  onChange={(e) => setFormData({...formData, unit: e.target.value})}
-                  style={{
-                    padding: '1rem 1.25rem',
-                    borderRadius: '1rem',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    backgroundColor: 'rgba(15, 23, 42, 0.6)',
-                    color: 'white',
-                    fontSize: '0.9375rem',
-                    fontWeight: '600',
-                    width: '100%',
-                    outline: 'none'
-                  }}
-                />
+              <div style={{
+                display: 'grid', 
+                gridTemplateColumns: '1fr 1fr', 
+                gap: '1.5rem',
+                width: '100%',
+                boxSizing: 'border-box'
+              }}>
+                <div style={{ position: 'relative', width: '100%' }}>
+                  <select
+                    value={formData.category}
+                    onChange={(e) => setFormData({...formData, category: e.target.value})}
+                    required
+                    style={{
+                      padding: '1.125rem 1.5rem',
+                      paddingLeft: '3rem',
+                      borderRadius: '1.25rem',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: 'rgba(15, 23, 42, 0.5)',
+                      color: 'white',
+                      fontSize: '1rem',
+                      fontWeight: '600',
+                      width: '100%',
+                      boxSizing: 'border-box',
+                      outline: 'none',
+                      cursor: 'pointer',
+                      appearance: 'none'
+                    }}
+                  >
+                    <option value="" disabled style={{background: '#1e293b'}}>Select Category</option>
+                    {pantryCategories.filter(cat => cat !== 'all').map((category) => (
+                      <option key={category} value={category} style={{background: '#1e293b'}}>
+                        {getCategoryEmoji(category)} {category}
+                      </option>
+                    ))}
+                  </select>
+                  <span style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', fontSize: '1.25rem', pointerEvents: 'none' }}>
+                    🎪
+                  </span>
+                </div>
+                <div style={{ width: '100%' }}>
+                  <input
+                    type="text"
+                    placeholder="Unit (jars, bottles)"
+                    value={formData.unit}
+                    onChange={(e) => setFormData({...formData, unit: e.target.value})}
+                    style={{
+                      padding: '1.125rem 1.5rem',
+                      borderRadius: '1.25rem',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backgroundColor: 'rgba(15, 23, 42, 0.5)',
+                      color: 'white',
+                      fontSize: '1rem',
+                      fontWeight: '600',
+                      width: '100%',
+                      boxSizing: 'border-box',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
               </div>
               
               <div style={{
                 display: 'grid', 
                 gridTemplateColumns: '1fr 1fr', 
-                gap: '1.25rem',
+                gap: '1.5rem',
                 width: '100%',
                 boxSizing: 'border-box'
               }}>
-                <div style={{ minWidth: 0, width: '100%' }}>
-                  <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
-                    📦 Quantity
+                <div style={{ width: '100%' }}>
+                  <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.8125rem', marginBottom: '0.625rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
+                    📦 Quantity Added
                   </label>
                   <input
                     type="number"
@@ -3475,21 +3526,21 @@ chicken breast, 2 lbs`}
                     value={formData.currentCount}
                     onChange={(e) => setFormData({...formData, currentCount: parseFloat(e.target.value) || 0})}
                     style={{
-                      padding: '1rem 1.25rem',
-                      borderRadius: '1rem',
+                      padding: '1.125rem 1.5rem',
+                      borderRadius: '1.25rem',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
-                      backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                      backgroundColor: 'rgba(15, 23, 42, 0.5)',
                       color: 'white',
                       fontWeight: '700',
+                      fontSize: '1.125rem',
                       width: '100%',
-                      maxWidth: '100%',
                       boxSizing: 'border-box',
                       outline: 'none'
                     }}
                   />
                 </div>
-                <div style={{ minWidth: 0, width: '100%' }}>
-                  <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
+                <div style={{ width: '100%' }}>
+                  <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.8125rem', marginBottom: '0.625rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
                     ⚠️ Min Needed
                   </label>
                   <input
@@ -3498,14 +3549,14 @@ chicken breast, 2 lbs`}
                     value={formData.minCount}
                     onChange={(e) => setFormData({...formData, minCount: parseFloat(e.target.value) || 1})}
                     style={{
-                      padding: '1rem 1.25rem',
-                      borderRadius: '1rem',
+                      padding: '1.125rem 1.5rem',
+                      borderRadius: '1.25rem',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
-                      backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                      backgroundColor: 'rgba(15, 23, 42, 0.5)',
                       color: 'white',
                       fontWeight: '700',
+                      fontSize: '1.125rem',
                       width: '100%',
-                      maxWidth: '100%',
                       boxSizing: 'border-box',
                       outline: 'none'
                     }}
@@ -3513,10 +3564,10 @@ chicken breast, 2 lbs`}
                 </div>
               </div>
               
-              <div style={{display: 'grid', gridTemplateColumns: '1fr', gap: '1.25rem'}}>
+              <div style={{display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem'}}>
                 <div>
-                  <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
-                    📝 Storage notes...
+                  <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.8125rem', marginBottom: '0.625rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
+                    📝 Storage notes
                   </label>
                   <textarea
                     placeholder="Any special instructions or cooking tips?"
@@ -3524,22 +3575,22 @@ chicken breast, 2 lbs`}
                     onChange={(e) => setFormData({...formData, notes: e.target.value})}
                     rows={3}
                     style={{
-                      padding: '1rem 1.25rem',
-                      borderRadius: '1rem',
+                      padding: '1.125rem 1.5rem',
+                      borderRadius: '1.25rem',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
-                      backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                      backgroundColor: 'rgba(15, 23, 42, 0.5)',
                       color: 'white',
-                      fontSize: '0.9375rem',
+                      fontSize: '1rem',
                       resize: 'none',
                       fontFamily: 'inherit',
                       width: '100%',
                       outline: 'none',
-                      lineHeight: '1.5'
+                      lineHeight: '1.6'
                     }}
                   />
                 </div>
                 <div>
-                  <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.75rem', marginBottom: '0.5rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
+                  <label style={{color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.8125rem', marginBottom: '0.625rem', display: 'block', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em'}}>
                     📅 Expiry Date (Optional)
                   </label>
                   <input
@@ -3547,12 +3598,13 @@ chicken breast, 2 lbs`}
                     value={formData.expiryDate}
                     onChange={(e) => setFormData({...formData, expiryDate: e.target.value})}
                     style={{
-                      padding: '1rem 1.25rem',
-                      borderRadius: '1rem',
+                      padding: '1.125rem 1.5rem',
+                      borderRadius: '1.25rem',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
-                      backgroundColor: 'rgba(15, 23, 42, 0.6)',
+                      backgroundColor: 'rgba(15, 23, 42, 0.5)',
                       color: 'white',
-                      fontSize: '0.875rem',
+                      fontSize: '1rem',
+                      fontWeight: '600',
                       width: '100%',
                       outline: 'none'
                     }}
@@ -3563,26 +3615,26 @@ chicken breast, 2 lbs`}
             
             <div style={{
               display: 'flex', 
-              gap: '1rem', 
-              marginTop: '2rem', 
+              gap: '1.25rem', 
+              marginTop: '2.5rem', 
               width: '100%',
-              justifyContent: 'space-between',
-              alignItems: 'center'
+              flexWrap: 'wrap' as const
             }}>
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
                 style={{
-                  flex: '1',
-                  padding: '1rem',
-                  borderRadius: '1rem',
+                  flex: 1,
+                  padding: '1.125rem',
+                  borderRadius: '1.25rem',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  background: 'rgba(255, 255, 255, 0.05)',
                   color: 'white',
+                  fontSize: '1rem',
+                  fontWeight: '700',
                   cursor: 'pointer',
-                  fontWeight: '600',
-                  fontSize: '0.9375rem',
-                  transition: 'all 0.2s ease'
+                  transition: 'all 0.2s ease',
+                  minWidth: '140px'
                 }}
               >
                 Cancel
@@ -3590,17 +3642,18 @@ chicken breast, 2 lbs`}
               <button
                 type="submit"
                 style={{
-                  flex: '1',
-                  padding: '1rem',
-                  borderRadius: '1rem',
+                  flex: 2,
+                  padding: '1.125rem',
+                  borderRadius: '1.25rem',
                   border: 'none',
                   background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
                   color: 'white',
+                  fontSize: '1.125rem',
                   fontWeight: '800',
-                  fontSize: '0.9375rem',
                   cursor: 'pointer',
                   boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)',
-                  transition: 'all 0.3s ease'
+                  transition: 'all 0.2s ease',
+                  minWidth: '200px'
                 }}
               >
                 Add to Pantry
@@ -3783,7 +3836,7 @@ chicken breast, 2 lbs`}
         console.log(`📦 Adding item to pantry:`, pantryData);
         console.log(`📅 Expiry date being sent:`, pantryData.expiryDate);
         console.log(`📅 Expiry date type:`, typeof pantryData.expiryDate);
-        const pantryResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry`, {
+        const pantryResponse = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/pantry`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(pantryData)
@@ -3808,7 +3861,7 @@ chicken breast, 2 lbs`}
             onList: false
           });
           
-          const updateResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/groceries/${item.id}`, {
+          const updateResponse = await fetch(`${import.meta.env.VITE_API_URL || ''}/api/groceries/${item.id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -3843,7 +3896,7 @@ chicken breast, 2 lbs`}
         reverse: async () => {
           // Delete added pantry items
           for (const pantryId of addedPantryIds) {
-            await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/pantry/${pantryId}`, {
+            await fetch(`${import.meta.env.VITE_API_URL || ''}/api/pantry/${pantryId}`, {
               method: 'DELETE',
             });
           }
@@ -3851,7 +3904,7 @@ chicken breast, 2 lbs`}
           for (const groceryId of updatedGroceryIds) {
             const originalItem = itemsToAdd.find(item => item.id === groceryId);
             if (originalItem) {
-              await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/groceries/${groceryId}`, {
+              await fetch(`${import.meta.env.VITE_API_URL || ''}/api/groceries/${groceryId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

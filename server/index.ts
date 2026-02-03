@@ -1924,6 +1924,11 @@ app.post('/api/budget-analysis', async (req, res) => {
   }
 });
 
+// In dev, redirect root to Vite dev server
+app.get('/', (req, res) => {
+  res.redirect('http://localhost:5173');
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ 

@@ -117,7 +117,7 @@ function normalizeItemName(name: string): string {
  */
 async function fetchPantryItems(): Promise<GroceryItem[]> {
   try {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+    const apiUrl = import.meta.env.VITE_API_URL || '/api';
     // Ensure URL ends with /api
     const baseUrl = apiUrl.endsWith('/api') ? apiUrl : `${apiUrl}/api`;
     const url = `${baseUrl}/pantry`;
@@ -143,7 +143,7 @@ async function fetchPantryItems(): Promise<GroceryItem[]> {
  */
 async function fetchShoppingList(): Promise<GroceryItem[]> {
   try {
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+    const apiUrl = import.meta.env.VITE_API_URL || '/api';
     const baseUrl = apiUrl.endsWith('/api') ? apiUrl : `${apiUrl}/api`;
     const url = `${baseUrl}/shopping-list`;
     
