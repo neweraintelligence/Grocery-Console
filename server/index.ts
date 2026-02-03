@@ -36,7 +36,11 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    if (allowedOrigins.indexOf(origin) !== -1 ||
+        origin.endsWith('.stackblitz.io') ||
+        origin.endsWith('.webcontainer.io') ||
+        origin.endsWith('.local-credentialless.webcontainer.io') ||
+        origin.startsWith('http://localhost:')) {
       callback(null, true);
     } else {
       console.log('CORS blocked origin:', origin);
